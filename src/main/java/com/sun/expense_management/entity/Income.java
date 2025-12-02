@@ -1,0 +1,91 @@
+package com.sun.expense_management.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+/**
+ * Entity đại diện cho nguồn thu nhập
+ */
+@Entity
+@Table(name = "incomes", indexes = {
+    @Index(name = "idx_income_user", columnList = "user_id"),
+    @Index(name = "idx_income_category", columnList = "category_id"),
+    @Index(name = "idx_income_date", columnList = "income_date")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Income {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "Tên thu nhập không được để trống")
+    @Size(max = 200, message = "Tên thu nhập không được vượt quá 200 ký tự")
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @NotNull(message = "Số tiền không được để trống")
+    @Positive(message = "Số tiền phải lớn hơn 0")
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+
+    @NotNull(message = "Ngày thu nhập không được để trống")
+    @Column(name = "income_date", nullable = false)
+    private LocalDate incomeDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String note;
+
+    @Column(length = 100)
+    private String source;
+
+    @Column(name = "is_recurring", nullable = false)
+    @Builder.Default
+    private Boolean isRecurring = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recurring_type", length = 20)
+    private RecurringType recurringType;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // Relationships
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    public enum RecurringType {
+        DAILY, WEEKLY, MONTHLY, YEARLY
+    }
+}
