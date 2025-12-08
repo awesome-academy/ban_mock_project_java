@@ -61,7 +61,8 @@ expense:
 
 category:
   invalid:
-    type: Invalid category for this expense type
+    type:
+      income: Category is not of type income
   not:
     found: Category not found
   name:
@@ -148,8 +149,34 @@ income:
   amount:
     required: Amount is required
     positive: Amount must be greater than 0
+    max: Amount must not exceed 9999999999999.99
   date:
     required: Income date is required
+    past:
+      or:
+        present: Income date cannot be in the future
+  category:
+    required: Category is required
+  note:
+    max:
+      length: Note must not exceed 1000 characters
+  source:
+    max:
+      length: Income source must not exceed 100 characters
+  is:
+    recurring:
+      required: Recurring income field is required
+  recurring:
+    type:
+      required: Recurring type is required when income is recurring
+  not:
+    found: Income not found with id {0}
+  created:
+    success: Income created successfully
+  updated:
+    success: Income updated successfully
+  deleted:
+    success: Income deleted successfully
 
 activity:
   action:

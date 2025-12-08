@@ -61,7 +61,8 @@ expense:
 
 category:
   invalid:
-    type: Danh mục không hợp lệ cho loại chi tiêu
+    type:
+      income: Danh mục không phải loại thu nhập
   not:
     found: Danh mục không tồn tại
   name:
@@ -148,8 +149,34 @@ income:
   amount:
     required: Số tiền không được để trống
     positive: Số tiền phải lớn hơn 0
+    max: Số tiền không được vượt quá 9999999999999.99
   date:
     required: Ngày thu nhập không được để trống
+    past:
+      or:
+        present: Ngày thu nhập không được là ngày tương lai
+  category:
+    required: Danh mục không được để trống
+  note:
+    max:
+      length: Ghi chú không được vượt quá 1000 ký tự
+  source:
+    max:
+      length: Nguồn thu nhập không được vượt quá 100 ký tự
+  is:
+    recurring:
+      required: Trường thu nhập định kỳ không được để trống
+  recurring:
+    type:
+      required: Loại định kỳ không được để trống khi thu nhập là định kỳ
+  not:
+    found: Không tìm thấy thu nhập với id {0}
+  created:
+    success: Tạo thu nhập thành công
+  updated:
+    success: Cập nhật thu nhập thành công
+  deleted:
+    success: Xóa thu nhập thành công
 
 activity:
   action:
