@@ -30,7 +30,7 @@ public class RecurringExpenseValidator implements ConstraintValidator<ValidRecur
         if (Boolean.TRUE.equals(request.getIsRecurring())) {
             if (request.getRecurringType() == null) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("Khi chi tiêu định kỳ, loại định kỳ không được để trống")
+                context.buildConstraintViolationWithTemplate("{expense.recurring.type.required}")
                         .addPropertyNode("recurringType")
                         .addConstraintViolation();
                 return false;

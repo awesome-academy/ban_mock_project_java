@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidRecurringExpense {
-    String message() default "Khi chi tiêu định kỳ, loại định kỳ không được để trống";
+    String message() default "{expense.recurring.type.required}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

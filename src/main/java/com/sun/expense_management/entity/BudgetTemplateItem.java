@@ -24,8 +24,8 @@ public class BudgetTemplateItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Số tiền không được để trống")
-    @Positive(message = "Số tiền phải lớn hơn 0")
+    @NotNull(message = "{budget.amount.required}")
+    @Positive(message = "{budget.amount.positive}")
     @Column(name = "default_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal defaultAmount;
 

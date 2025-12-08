@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class AuthRequest {
-    @Email(message = "Email không hợp lệ")
-    @NotBlank(message = "Email không được để trống")
+    @Email(message = "{user.email.invalid}")
+    @NotBlank(message = "{user.email.required}")
     private String email;
 
-    @NotBlank(message = "Mật khẩu không được để trống")
+    @NotBlank(message = "{user.password.required}")
     private String password;
 }

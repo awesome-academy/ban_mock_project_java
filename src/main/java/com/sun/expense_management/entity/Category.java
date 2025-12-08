@@ -25,12 +25,12 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên danh mục không được để trống")
-    @Size(max = 100, message = "Tên danh mục không được vượt quá 100 ký tự")
+    @NotBlank(message = "{category.name.required}")
+    @Size(max = 100, message = "{category.name.max.length}")
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Size(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
+    @Size(max = 255, message = "{validation.max.length}")
     @Column(length = 255)
     private String description;
 

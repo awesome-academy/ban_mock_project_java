@@ -13,32 +13,32 @@ import java.time.LocalDate;
 @ValidRecurringExpense
 public class ExpenseRequest {
 
-    @NotBlank(message = "Tên chi tiêu không được để trống")
-    @Size(max = 200, message = "Tên chi tiêu không được vượt quá 200 ký tự")
+    @NotBlank(message = "{expense.name.required}")
+    @Size(max = 200, message = "{expense.name.max.length}")
     private String name;
 
-    @NotNull(message = "Số tiền không được để trống")
-    @Positive(message = "Số tiền phải lớn hơn 0")
-    @DecimalMax(value = "9999999999999.99", message = "Số tiền vượt quá giới hạn cho phép")
+    @NotNull(message = "{expense.amount.required}")
+    @Positive(message = "{expense.amount.positive}")
+    @DecimalMax(value = "9999999999999.99", message = "{expense.amount.max}")
     private BigDecimal amount;
 
-    @NotNull(message = "Ngày chi tiêu không được để trống")
-    @PastOrPresent(message = "Ngày chi tiêu không được là ngày trong tương lai")
+    @NotNull(message = "{expense.date.required}")
+    @PastOrPresent(message = "{expense.date.past.or.present}")
     private LocalDate expenseDate;
 
-    @NotNull(message = "Danh mục không được để trống")
+    @NotNull(message = "{expense.category.required}")
     private Long categoryId;
 
-    @Size(max = 1000, message = "Ghi chú không được vượt quá 1000 ký tự")
+    @Size(max = 1000, message = "{expense.note.max.length}")
     private String note;
 
-    @Size(max = 100, message = "Địa điểm không được vượt quá 100 ký tự")
+    @Size(max = 100, message = "{expense.location.max.length}")
     private String location;
 
-    @NotNull(message = "Phương thức thanh toán không được để trống")
+    @NotNull(message = "{expense.payment.method.required}")
     private PaymentMethod paymentMethod = PaymentMethod.CASH;
 
-    @NotNull(message = "Trường chi tiêu định kỳ không được để trống")
+    @NotNull(message = "{expense.is.recurring.required}")
     private Boolean isRecurring = false;
 
     private RecurringType recurringType;

@@ -6,6 +6,7 @@ import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.RateLimitExceededException;
 import com.sun.expense_management.repository.UserRepository;
 import com.sun.expense_management.security.JwtUtil;
+import com.sun.expense_management.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +23,20 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final LoginRateLimiterService rateLimiterService;
     private final HttpServletRequest request;
+    private final MessageUtil messageUtil;
 
     public AuthService(UserRepository userRepository,
                       PasswordEncoder passwordEncoder,
                       JwtUtil jwtUtil,
                       LoginRateLimiterService rateLimiterService,
-                      HttpServletRequest request) {
+                      HttpServletRequest request,
+                      MessageUtil messageUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.rateLimiterService = rateLimiterService;
         this.request = request;
+        this.messageUtil = messageUtil;
     }
 
     public AuthResponse login(AuthRequest authRequest) {
@@ -44,8 +48,7 @@ public class AuthService {
             log.warn("Login rate limit exceeded for IP: {} (remaining: {})", ipAddress, remaining);
 
             throw new RateLimitExceededException(
-                String.format("Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau %d phút.",
-                    rateLimiterService.getLockoutDurationMinutes()),
+                messageUtil.getMessage("auth.rate.limit.exceeded", rateLimiterService.getLockoutDurationMinutes()),
                 rateLimiterService.getLockoutDurationMinutes()
             );
         }
@@ -53,17 +56,17 @@ public class AuthService {
         User user = userRepository.findByEmail(authRequest.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed - user not found: {} from IP: {}", authRequest.getEmail(), ipAddress);
-                    return new IllegalArgumentException("Email hoặc mật khẩu không đúng");
+                    return new IllegalArgumentException(messageUtil.getMessage("auth.invalid.credentials"));
                 });
 
         if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for: {} from IP: {}", authRequest.getEmail(), ipAddress);
-            throw new IllegalArgumentException("Email hoặc mật khẩu không đúng");
+            throw new IllegalArgumentException(messageUtil.getMessage("auth.invalid.credentials"));
         }
 
         if (!user.getActive()) {
             log.warn("Login failed - inactive account: {} from IP: {}", authRequest.getEmail(), ipAddress);
-            throw new IllegalArgumentException("Tài khoản đã bị vô hiệu hóa");
+            throw new IllegalArgumentException(messageUtil.getMessage("auth.account.inactive"));
         }
 
         // Successful login - reset rate limit for this IP

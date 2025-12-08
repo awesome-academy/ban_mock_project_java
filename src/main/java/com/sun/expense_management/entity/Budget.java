@@ -31,13 +31,13 @@ public class Budget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên ngân sách không được để trống")
-    @Size(max = 200, message = "Tên ngân sách không được vượt quá 200 ký tự")
+    @NotBlank(message = "{budget.name.required}")
+    @Size(max = 200, message = "{budget.name.max.length}")
     @Column(nullable = false, length = 200)
     private String name;
 
-    @NotNull(message = "Số tiền ngân sách không được để trống")
-    @Positive(message = "Số tiền ngân sách phải lớn hơn 0")
+    @NotNull(message = "{budget.amount.required}")
+    @Positive(message = "{budget.amount.positive}")
     @Column(name = "amount_limit", nullable = false, precision = 15, scale = 2)
     private BigDecimal amountLimit;
 
@@ -45,11 +45,11 @@ public class Budget {
     @Builder.Default
     private BigDecimal spentAmount = BigDecimal.ZERO;
 
-    @NotNull(message = "Năm không được để trống")
+    @NotNull(message = "{budget.year.required}")
     @Column(nullable = false)
     private Integer year;
 
-    @NotNull(message = "Tháng không được để trống")
+    @NotNull(message = "{budget.month.required}")
     @Column(nullable = false)
     private Integer month;
 

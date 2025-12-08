@@ -25,8 +25,8 @@ public class BudgetTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên mẫu ngân sách không được để trống")
-    @Size(max = 200, message = "Tên mẫu không được vượt quá 200 ký tự")
+    @NotBlank(message = "{template.name.required}")
+    @Size(max = 200, message = "{template.name.max.length}")
     @Column(nullable = false, length = 200)
     private String name;
 

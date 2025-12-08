@@ -1,0 +1,161 @@
+# Vietnamese Messages (Default)
+
+auth:
+  invalid:
+    credentials: Email hoặc mật khẩu không đúng
+  account:
+    inactive: Tài khoản đã bị vô hiệu hóa
+  rate:
+    limit:
+      exceeded: Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau {0} phút.
+  login:
+    success: Đăng nhập thành công
+
+validation:
+  required: "{0} không được để trống"
+  invalid: "{0} không hợp lệ"
+  max:
+    length: "{0} không được vượt quá {1} ký tự"
+  min:
+    value: "{0} phải lớn hơn hoặc bằng {1}"
+  positive: "{0} phải lớn hơn 0"
+  past:
+    or:
+      present: "{0} không được là ngày trong tương lai"
+
+expense:
+  name:
+    required: Tên chi tiêu không được để trống
+    max:
+      length: Tên chi tiêu không được vượt quá 200 ký tự
+  amount:
+    required: Số tiền không được để trống
+    positive: Số tiền phải lớn hơn 0
+    max: Số tiền vượt quá giới hạn cho phép
+  date:
+    required: Ngày chi tiêu không được để trống
+    past:
+      or:
+        present: Ngày chi tiêu không được là ngày trong tương lai
+  category:
+    required: Danh mục không được để trống
+  note:
+    max:
+      length: Ghi chú không được vượt quá 1000 ký tự
+  location:
+    max:
+      length: Địa điểm không được vượt quá 100 ký tự
+  payment:
+    method:
+      required: Phương thức thanh toán không được để trống
+  is:
+    recurring:
+      required: Trường chi tiêu định kỳ không được để trống
+  recurring:
+    type:
+      required: Khi chi tiêu định kỳ, loại định kỳ không được để trống
+  not:
+    found: Chi tiêu không tồn tại
+  access:
+    denied: Bạn không có quyền truy cập chi tiêu này
+
+category:
+  invalid:
+    type: Danh mục không hợp lệ cho loại chi tiêu
+  not:
+    found: Danh mục không tồn tại
+  name:
+    required: Tên danh mục không được để trống
+    max:
+      length: Tên danh mục không được vượt quá 100 ký tự
+
+budget:
+  name:
+    required: Tên ngân sách không được để trống
+    max:
+      length: Tên ngân sách không được vượt quá 200 ký tự
+  amount:
+    required: Số tiền ngân sách không được để trống
+    positive: Số tiền ngân sách phải lớn hơn 0
+  year:
+    required: Năm không được để trống
+  month:
+    required: Tháng không được để trống
+
+attachment:
+  file:
+    name:
+      required: Tên file không được để trống
+      max:
+        length: Tên file không được vượt quá 255 ký tự
+    path:
+      required: Đường dẫn file không được để trống
+
+template:
+  name:
+    required: Tên mẫu ngân sách không được để trống
+    max:
+      length: Tên mẫu không được vượt quá 200 ký tự
+
+error:
+  bad:
+    request: Yêu cầu không hợp lệ
+  unauthorized: Chưa xác thực
+  forbidden: Không có quyền truy cập
+  not:
+    found: Không tìm thấy tài nguyên
+  too:
+    many:
+      requests: Quá nhiều yêu cầu
+  internal:
+    server: Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau hoặc liên hệ quản trị viên.
+  validation:
+    failed: Dữ liệu không hợp lệ
+
+jwt:
+  invalid: Token không hợp lệ hoặc đã hết hạn
+  expired: Token đã hết hạn
+  malformed: Token không đúng định dạng
+  signature:
+    invalid: Chữ ký token không hợp lệ
+  missing: Thiếu token xác thực
+
+user:
+  name:
+    required: Tên không được để trống
+    max:
+      length: Tên không được vượt quá 100 ký tự
+  email:
+    required: Email không được để trống
+    invalid: Email không hợp lệ
+  password:
+    required: Mật khẩu không được để trống
+    min:
+      length: Mật khẩu phải có ít nhất 6 ký tự
+  not:
+    found: Người dùng không tồn tại
+
+success:
+  created: Tạo mới thành công
+  updated: Cập nhật thành công
+  deleted: Xóa thành công
+
+income:
+  name:
+    required: Tên thu nhập không được để trống
+    max:
+      length: Tên thu nhập không được vượt quá 200 ký tự
+  amount:
+    required: Số tiền không được để trống
+    positive: Số tiền phải lớn hơn 0
+  date:
+    required: Ngày thu nhập không được để trống
+
+activity:
+  action:
+    required: Loại hành động không được để trống
+  entity:
+    type:
+      required: Loại thực thể không được để trống
+      max:
+        length: Loại thực thể không được vượt quá 50 ký tự

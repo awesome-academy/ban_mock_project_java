@@ -31,17 +31,17 @@ public class Income {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên thu nhập không được để trống")
-    @Size(max = 200, message = "Tên thu nhập không được vượt quá 200 ký tự")
+    @NotBlank(message = "{income.name.required}")
+    @Size(max = 200, message = "{income.name.max.length}")
     @Column(nullable = false, length = 200)
     private String name;
 
-    @NotNull(message = "Số tiền không được để trống")
-    @Positive(message = "Số tiền phải lớn hơn 0")
+    @NotNull(message = "{income.amount.required}")
+    @Positive(message = "{income.amount.positive}")
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @NotNull(message = "Ngày thu nhập không được để trống")
+    @NotNull(message = "{income.date.required}")
     @Column(name = "income_date", nullable = false)
     private LocalDate incomeDate;
 

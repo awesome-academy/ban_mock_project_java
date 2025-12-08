@@ -2,6 +2,7 @@ package com.sun.expense_management.exception;
 
 import com.sun.expense_management.dto.error.ErrorResponse;
 import com.sun.expense_management.dto.error.ValidationErrorResponse;
+import com.sun.expense_management.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
     @Value("${spring.profiles.active:dev}")
     private String activeProfile;
 
+    private final MessageUtil messageUtil;
+
+    public GlobalExceptionHandler(MessageUtil messageUtil) {
+        this.messageUtil = messageUtil;
+    }
+
     /**
      * Check if we're running in production environment
      */
@@ -41,13 +48,12 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error(messageUtil.getMessage("error.bad.request"))
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex,
@@ -58,7 +64,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
-                .error("Not Found")
+                .error(messageUtil.getMessage("error.not.found"))
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -76,7 +82,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Forbidden")
+                .error(messageUtil.getMessage("error.forbidden"))
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -94,7 +100,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(HttpStatus.TOO_MANY_REQUESTS.value())
-                .error("Too Many Requests")
+                .error(messageUtil.getMessage("error.too.many.requests"))
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -119,7 +125,7 @@ public class GlobalExceptionHandler {
 
         ValidationErrorResponse response = ValidationErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation Failed")
+                .error(messageUtil.getMessage("error.validation.failed"))
                 .messages(errors)
                 .path(request.getRequestURI())
                 .build();
@@ -136,12 +142,12 @@ public class GlobalExceptionHandler {
 
         // Return generic message in production, detailed message in dev
         String message = isProduction()
-            ? "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau hoặc liên hệ quản trị viên."
+            ? messageUtil.getMessage("error.internal.server")
             : ex.getMessage();
 
         ErrorResponse response = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Internal Server Error")
+                .error(messageUtil.getMessage("error.internal.server"))
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
