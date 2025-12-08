@@ -2,6 +2,7 @@ package com.sun.expense_management.dto.expense;
 
 import com.sun.expense_management.entity.Expense.PaymentMethod;
 import com.sun.expense_management.entity.Expense.RecurringType;
+import com.sun.expense_management.validation.ValidRecurringExpense;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@ValidRecurringExpense
 public class ExpenseRequest {
 
     @NotBlank(message = "Tên chi tiêu không được để trống")
@@ -33,8 +35,10 @@ public class ExpenseRequest {
     @Size(max = 100, message = "Địa điểm không được vượt quá 100 ký tự")
     private String location;
 
+    @NotNull(message = "Phương thức thanh toán không được để trống")
     private PaymentMethod paymentMethod = PaymentMethod.CASH;
 
+    @NotNull(message = "Trường chi tiêu định kỳ không được để trống")
     private Boolean isRecurring = false;
 
     private RecurringType recurringType;

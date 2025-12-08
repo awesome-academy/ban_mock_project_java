@@ -20,8 +20,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Optional<Expense> findByIdAndUser(Long id, User user);
 
+    // NOTE: Using wildcards on both sides of the search term (e.g., %term%) will cause full table scans and prevent index usage.
+    // For better performance, use prefix matching (e.g., term%) and ensure appropriate indexes are created on the 'name' column.
     @Query("SELECT e FROM Expense e WHERE e.user = :user " +
-           "AND (:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
+           "AND (:name IS NULL OR e.name LIKE CONCAT(:name, '%')) " +
            "AND (:categoryId IS NULL OR e.category.id = :categoryId) " +
            "AND (:startDate IS NULL OR e.expenseDate >= :startDate) " +
            "AND (:endDate IS NULL OR e.expenseDate <= :endDate) " +

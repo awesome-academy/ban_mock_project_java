@@ -50,8 +50,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     request.setAttribute("jwt_error", "Token không hợp lệ");
                 }
             } catch (Exception e) {
-                log.warn("JWT validation failed: {}", e.getMessage());
-                request.setAttribute("jwt_error", "Token không hợp lệ: " + e.getMessage());
+                log.warn("JWT validation failed", e);
+                request.setAttribute("jwt_error", "Token không hợp lệ");
             }
         }
 

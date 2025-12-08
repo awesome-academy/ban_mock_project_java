@@ -100,7 +100,7 @@ GET /api/expenses
 **Query Parameters:**
 
 | Parameter   | Type       | Default      | Description                        |
-|-------------|------------|--------------|------------------------------------||
+|-------------|------------|--------------|------------------------------------|
 | `name`      | String     | -            | Tìm kiếm theo tên chi tiêu         |
 | `categoryId`| Long       | -            | Lọc theo danh mục                  |
 | `startDate` | LocalDate  | -            | Ngày bắt đầu (YYYY-MM-DD)          |
@@ -309,7 +309,8 @@ DELETE /api/expenses/{id}
 
 **cURL:**
 ```bash
-gst
+curl -X DELETE "http://localhost:8080/api/expenses/1" \
+  -H "Authorization: Bearer <token>"
 ```
 
 **Response (204 No Content):** Không có body

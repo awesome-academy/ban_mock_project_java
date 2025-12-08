@@ -8,12 +8,18 @@ import com.sun.expense_management.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class DataInitializer {
 
+    /**
+     * Seed test users - ONLY for development profile
+     * DO NOT use in production!
+     */
     @Bean
+    @Profile("dev")
     public CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.findByEmail("user@example.com").isEmpty()) {
@@ -26,6 +32,7 @@ public class DataInitializer {
                         .build();
 
                 userRepository.save(u);
+                System.out.println("✅ Test user created: user@example.com / password");
             }
 
             if (userRepository.findByEmail("admin@example.com").isEmpty()) {
@@ -38,6 +45,7 @@ public class DataInitializer {
                         .build();
 
                 userRepository.save(a);
+                System.out.println("✅ Test admin created: admin@example.com / adminpass");
             }
         };
     }

@@ -20,6 +20,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(RequestLoggingFilter.class);
 
+    // Sensitive fields that should be masked in logs
+    private static final String[] SENSITIVE_FIELDS = {"password", "token", "secret", "apiKey"};
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -65,6 +68,8 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             byte[] content = request.getContentAsByteArray();
             if (content.length > 0) {
                 String body = new String(content, StandardCharsets.UTF_8);
+                // Mask sensitive information in request body
+                body = maskSensitiveData(body);
                 logMessage.append(String.format("%-15s: %s\n", "Request Body", body));
             }
         }
@@ -79,5 +84,25 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } else {
             log.info(logMessage.toString());
         }
+    }
+
+    /**
+     * Mask sensitive information in JSON request body
+     * Replaces values of sensitive fields with "***"
+     */
+    private String maskSensitiveData(String body) {
+        if (body == null || body.isEmpty()) {
+            return body;
+        }
+
+        String maskedBody = body;
+        for (String field : SENSITIVE_FIELDS) {
+            // Match "field": "value" or "field":"value"
+            maskedBody = maskedBody.replaceAll(
+                "\"" + field + "\"\\s*:\\s*\"[^\"]*\"",
+                "\"" + field + "\":\"***\""
+            );
+        }
+        return maskedBody;
     }
 }
