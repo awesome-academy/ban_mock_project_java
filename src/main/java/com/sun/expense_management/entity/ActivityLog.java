@@ -28,13 +28,13 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Loại hành động không được để trống")
+    @NotNull(message = "{activity.action.required}")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private ActionType action;
 
-    @NotBlank(message = "Loại thực thể không được để trống")
-    @Size(max = 50, message = "Loại thực thể không được vượt quá 50 ký tự")
+    @NotBlank(message = "{activity.entity.type.required}")
+    @Size(max = 50, message = "{activity.entity.type.max.length}")
     @Column(name = "entity_type", nullable = false, length = 50)
     private String entityType;
 

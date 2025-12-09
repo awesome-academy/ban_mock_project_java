@@ -23,12 +23,12 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên file không được để trống")
-    @Size(max = 255, message = "Tên file không được vượt quá 255 ký tự")
+    @NotBlank(message = "{attachment.file.name.required}")
+    @Size(max = 255, message = "{attachment.file.name.max.length}")
     @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @NotBlank(message = "Đường dẫn file không được để trống")
+    @NotBlank(message = "{attachment.file.path.required}")
     @Column(name = "file_path", nullable = false, columnDefinition = "TEXT")
     private String filePath;
 

@@ -33,17 +33,17 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tên chi tiêu không được để trống")
-    @Size(max = 200, message = "Tên chi tiêu không được vượt quá 200 ký tự")
+    @NotBlank(message = "{expense.name.required}")
+    @Size(max = 200, message = "{expense.name.max.length}")
     @Column(nullable = false, length = 200)
     private String name;
 
-    @NotNull(message = "Số tiền không được để trống")
-    @Positive(message = "Số tiền phải lớn hơn 0")
+    @NotNull(message = "{expense.amount.required}")
+    @Positive(message = "{expense.amount.positive}")
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @NotNull(message = "Ngày chi tiêu không được để trống")
+    @NotNull(message = "{expense.date.required}")
     @Column(name = "expense_date", nullable = false)
     private LocalDate expenseDate;
 
