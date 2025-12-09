@@ -13,11 +13,13 @@ import com.sun.expense_management.mapper.IncomeMapper;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.IncomeRepository;
 import com.sun.expense_management.repository.UserRepository;
+import com.sun.expense_management.repository.specification.IncomeSpecification;
 import com.sun.expense_management.util.MessageUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,16 +63,18 @@ public class IncomeService {
 
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
 
-        Page<Income> incomePage = incomeRepository.findByUserWithFilters(
+        // Use Specification for flexible, type-safe dynamic queries
+        Specification<Income> spec = IncomeSpecification.withFilters(
                 user,
                 filter.getName(),
                 filter.getCategoryId(),
                 filter.getStartDate(),
                 filter.getEndDate(),
                 filter.getMinAmount(),
-                filter.getMaxAmount(),
-                pageable
+                filter.getMaxAmount()
         );
+
+        Page<Income> incomePage = incomeRepository.findAll(spec, pageable);
 
         Page<IncomeResponse> responsePage = incomePage.map(incomeMapper::toResponse);
         return PageResponse.fromPage(responsePage);

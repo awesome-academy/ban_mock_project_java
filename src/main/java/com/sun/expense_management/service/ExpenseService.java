@@ -13,10 +13,12 @@ import com.sun.expense_management.mapper.ExpenseMapper;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.ExpenseRepository;
 import com.sun.expense_management.repository.UserRepository;
+import com.sun.expense_management.repository.specification.ExpenseSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -57,16 +59,18 @@ public class ExpenseService {
 
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
 
-        Page<Expense> expensePage = expenseRepository.findByUserWithFilters(
+        // Use Specification for flexible, type-safe dynamic queries
+        Specification<Expense> spec = ExpenseSpecification.withFilters(
                 user,
                 filter.getName(),
                 filter.getCategoryId(),
                 filter.getStartDate(),
                 filter.getEndDate(),
                 filter.getMinAmount(),
-                filter.getMaxAmount(),
-                pageable
+                filter.getMaxAmount()
         );
+
+        Page<Expense> expensePage = expenseRepository.findAll(spec, pageable);
 
         Page<ExpenseResponse> responsePage = expensePage.map(expenseMapper::toResponse);
         return PageResponse.fromPage(responsePage);
