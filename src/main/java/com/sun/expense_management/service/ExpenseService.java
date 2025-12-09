@@ -9,6 +9,7 @@ import com.sun.expense_management.entity.Category.CategoryType;
 import com.sun.expense_management.entity.Expense;
 import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.ResourceNotFoundException;
+import com.sun.expense_management.mapper.ExpenseMapper;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.ExpenseRepository;
 import com.sun.expense_management.repository.UserRepository;
@@ -27,13 +28,16 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ExpenseMapper expenseMapper;
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           CategoryRepository categoryRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          ExpenseMapper expenseMapper) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.expenseMapper = expenseMapper;
     }
 
     private User getCurrentUser() {
@@ -64,7 +68,7 @@ public class ExpenseService {
                 pageable
         );
 
-        Page<ExpenseResponse> responsePage = expensePage.map(ExpenseResponse::fromEntity);
+        Page<ExpenseResponse> responsePage = expensePage.map(expenseMapper::toResponse);
         return PageResponse.fromPage(responsePage);
     }
 
@@ -73,7 +77,7 @@ public class ExpenseService {
         User user = getCurrentUser();
         Expense expense = expenseRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chi tiêu với id: " + id));
-        return ExpenseResponse.fromEntity(expense);
+        return expenseMapper.toResponse(expense);
     }
 
     @Transactional
@@ -87,21 +91,12 @@ public class ExpenseService {
             throw new IllegalArgumentException("Danh mục không phải loại chi tiêu");
         }
 
-        Expense expense = Expense.builder()
-                .name(request.getName())
-                .amount(request.getAmount())
-                .expenseDate(request.getExpenseDate())
-                .note(request.getNote())
-                .location(request.getLocation())
-                .paymentMethod(request.getPaymentMethod())
-                .isRecurring(request.getIsRecurring())
-                .recurringType(request.getRecurringType())
-                .user(user)
-                .category(category)
-                .build();
+        Expense expense = expenseMapper.toEntity(request);
+        expense.setUser(user);
+        expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
-        return ExpenseResponse.fromEntity(expense);
+        return expenseMapper.toResponse(expense);
     }
 
     @Transactional
@@ -118,18 +113,11 @@ public class ExpenseService {
             throw new IllegalArgumentException("Danh mục không phải loại chi tiêu");
         }
 
-        expense.setName(request.getName());
-        expense.setAmount(request.getAmount());
-        expense.setExpenseDate(request.getExpenseDate());
-        expense.setNote(request.getNote());
-        expense.setLocation(request.getLocation());
-        expense.setPaymentMethod(request.getPaymentMethod());
-        expense.setIsRecurring(request.getIsRecurring());
-        expense.setRecurringType(request.getRecurringType());
+        expenseMapper.updateEntity(request, expense);
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
-        return ExpenseResponse.fromEntity(expense);
+        return expenseMapper.toResponse(expense);
     }
 
     @Transactional

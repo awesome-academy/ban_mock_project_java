@@ -9,6 +9,7 @@ import com.sun.expense_management.entity.Category.CategoryType;
 import com.sun.expense_management.entity.Income;
 import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.ResourceNotFoundException;
+import com.sun.expense_management.mapper.IncomeMapper;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.IncomeRepository;
 import com.sun.expense_management.repository.UserRepository;
@@ -29,15 +30,18 @@ public class IncomeService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final MessageUtil messageUtil;
+    private final IncomeMapper incomeMapper;
 
     public IncomeService(IncomeRepository incomeRepository,
                          CategoryRepository categoryRepository,
                          UserRepository userRepository,
-                         MessageUtil messageUtil) {
+                         MessageUtil messageUtil,
+                         IncomeMapper incomeMapper) {
         this.incomeRepository = incomeRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
+        this.incomeMapper = incomeMapper;
     }
 
     private User getCurrentUser() {
@@ -68,7 +72,7 @@ public class IncomeService {
                 pageable
         );
 
-        Page<IncomeResponse> responsePage = incomePage.map(IncomeResponse::fromEntity);
+        Page<IncomeResponse> responsePage = incomePage.map(incomeMapper::toResponse);
         return PageResponse.fromPage(responsePage);
     }
 
@@ -78,7 +82,7 @@ public class IncomeService {
         Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("income.not.found", new Object[]{id})));
-        return IncomeResponse.fromEntity(income);
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
@@ -93,20 +97,12 @@ public class IncomeService {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
         }
 
-        Income income = Income.builder()
-                .name(request.getName())
-                .amount(request.getAmount())
-                .incomeDate(request.getIncomeDate())
-                .note(request.getNote())
-                .source(request.getSource())
-                .isRecurring(request.getIsRecurring())
-                .recurringType(request.getRecurringType())
-                .user(user)
-                .category(category)
-                .build();
+        Income income = incomeMapper.toEntity(request);
+        income.setUser(user);
+        income.setCategory(category);
 
         income = incomeRepository.save(income);
-        return IncomeResponse.fromEntity(income);
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
@@ -125,17 +121,11 @@ public class IncomeService {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
         }
 
-        income.setName(request.getName());
-        income.setAmount(request.getAmount());
-        income.setIncomeDate(request.getIncomeDate());
-        income.setNote(request.getNote());
-        income.setSource(request.getSource());
-        income.setIsRecurring(request.getIsRecurring());
-        income.setRecurringType(request.getRecurringType());
+        incomeMapper.updateEntity(request, income);
         income.setCategory(category);
 
         income = incomeRepository.save(income);
-        return IncomeResponse.fromEntity(income);
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
