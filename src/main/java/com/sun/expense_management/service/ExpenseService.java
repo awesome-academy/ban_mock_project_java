@@ -14,6 +14,7 @@ import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.ExpenseRepository;
 import com.sun.expense_management.repository.UserRepository;
 import com.sun.expense_management.repository.specification.ExpenseSpecification;
+import com.sun.expense_management.util.MessageUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,22 +32,25 @@ public class ExpenseService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ExpenseMapper expenseMapper;
+    private final MessageUtil messageUtil;
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           CategoryRepository categoryRepository,
                           UserRepository userRepository,
-                          ExpenseMapper expenseMapper) {
+                          ExpenseMapper expenseMapper,
+                          MessageUtil messageUtil) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.expenseMapper = expenseMapper;
+        this.messageUtil = messageUtil;
     }
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage("user.not.found")));
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +84,8 @@ public class ExpenseService {
     public ExpenseResponse getExpenseById(Long id) {
         User user = getCurrentUser();
         Expense expense = expenseRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chi tiêu với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("expense.not.found", id)));
         return expenseMapper.toResponse(expense);
     }
 
@@ -89,10 +94,11 @@ public class ExpenseService {
         User user = getCurrentUser();
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục với id: " + request.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
 
         if (category.getType() != CategoryType.EXPENSE) {
-            throw new IllegalArgumentException("Danh mục không phải loại chi tiêu");
+            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
         }
 
         Expense expense = expenseMapper.toEntity(request);
@@ -108,13 +114,15 @@ public class ExpenseService {
         User user = getCurrentUser();
 
         Expense expense = expenseRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chi tiêu với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("expense.not.found", id)));
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục với id: " + request.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
 
         if (category.getType() != CategoryType.EXPENSE) {
-            throw new IllegalArgumentException("Danh mục không phải loại chi tiêu");
+            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
         }
 
         expenseMapper.updateEntity(request, expense);
@@ -129,7 +137,8 @@ public class ExpenseService {
         User user = getCurrentUser();
 
         Expense expense = expenseRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chi tiêu với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("expense.not.found", id)));
 
         expenseRepository.delete(expense);
     }

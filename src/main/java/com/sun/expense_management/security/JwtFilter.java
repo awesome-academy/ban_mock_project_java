@@ -1,5 +1,6 @@
 package com.sun.expense_management.security;
 
+import com.sun.expense_management.util.MessageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,10 +22,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final MessageUtil messageUtil;
 
-    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, MessageUtil messageUtil) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.messageUtil = messageUtil;
     }
 
     @Override
@@ -47,11 +50,11 @@ public class JwtFilter extends OncePerRequestFilter {
                     log.debug("JWT valid for user: {}", username);
                 } else {
                     log.warn("Invalid JWT token");
-                    request.setAttribute("jwt_error", "Token không hợp lệ");
+                    request.setAttribute("jwt_error", messageUtil.getMessage("jwt.invalid"));
                 }
             } catch (Exception e) {
                 log.warn("JWT validation failed", e);
-                request.setAttribute("jwt_error", "Token không hợp lệ");
+                request.setAttribute("jwt_error", messageUtil.getMessage("jwt.invalid"));
             }
         }
 

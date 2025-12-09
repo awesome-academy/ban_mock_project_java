@@ -55,7 +55,7 @@ expense:
     type:
       required: Khi chi tiêu định kỳ, loại định kỳ không được để trống
   not:
-    found: Chi tiêu không tồn tại
+    found: Không tìm thấy chi tiêu với id {0}
   access:
     denied: Bạn không có quyền truy cập chi tiêu này
 
@@ -63,8 +63,9 @@ category:
   invalid:
     type:
       income: Danh mục không phải loại thu nhập
+      expense: Danh mục không phải loại chi tiêu
   not:
-    found: Danh mục không tồn tại
+    found: Không tìm thấy danh mục với id {0}
   name:
     required: Tên danh mục không được để trống
     max:

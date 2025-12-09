@@ -1,6 +1,7 @@
 package com.sun.expense_management.security;
 
 import com.sun.expense_management.service.CustomUserDetailsService;
+import com.sun.expense_management.util.MessageUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,17 +21,20 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final MessageUtil messageUtil;
 
     public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService,
-                          JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+                          JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                          MessageUtil messageUtil) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.messageUtil = messageUtil;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JwtFilter jwtFilter = new JwtFilter(jwtUtil, userDetailsService);
+        JwtFilter jwtFilter = new JwtFilter(jwtUtil, userDetailsService, messageUtil);
 
         // CSRF protection disabled for stateless JWT-based API
         http.csrf(csrf -> csrf.disable())

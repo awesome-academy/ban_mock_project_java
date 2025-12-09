@@ -55,7 +55,7 @@ expense:
     type:
       required: When expense is recurring, recurring type is required
   not:
-    found: Expense not found
+    found: Expense not found with id {0}
   access:
     denied: You do not have permission to access this expense
 
@@ -63,8 +63,9 @@ category:
   invalid:
     type:
       income: Category is not of type income
+      expense: Category is not of type expense
   not:
-    found: Category not found
+    found: Category not found with id {0}
   name:
     required: Category name is required
     max:
