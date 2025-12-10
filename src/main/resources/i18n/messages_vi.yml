@@ -90,6 +90,19 @@ budget:
   already:
     exists: Ngân sách cho danh mục này trong tháng/năm này đã tồn tại
 
+report:
+  start:
+    date:
+      required: Ngày bắt đầu không được để trống
+  end:
+    date:
+      required: Ngày kết thúc không được để trống
+  invalid:
+    period: Loại báo cáo không hợp lệ. Chỉ chấp nhận MONTHLY, QUARTERLY, YEARLY
+  date:
+    range:
+      invalid: Ngày kết thúc phải sau ngày bắt đầu
+
 attachment:
   file:
     name:

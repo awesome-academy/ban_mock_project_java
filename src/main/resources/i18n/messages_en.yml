@@ -90,6 +90,19 @@ budget:
   already:
     exists: Budget for this category in this month/year already exists
 
+report:
+  start:
+    date:
+      required: Start date is required
+  end:
+    date:
+      required: End date is required
+  invalid:
+    period: Invalid report period. Only accepts MONTHLY, QUARTERLY, YEARLY
+  date:
+    range:
+      invalid: End date must be after start date
+
 attachment:
   file:
     name:
