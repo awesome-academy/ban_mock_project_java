@@ -66,6 +66,8 @@ category:
       expense: Danh mục không phải loại chi tiêu
   not:
     found: Không tìm thấy danh mục với id {0}
+  access:
+    denied: Bạn không có quyền truy cập danh mục này
   name:
     required: Tên danh mục không được để trống
     max:
@@ -83,6 +85,10 @@ budget:
     required: Năm không được để trống
   month:
     required: Tháng không được để trống
+  not:
+    found: Không tìm thấy ngân sách với id {0}
+  already:
+    exists: Ngân sách cho danh mục này trong tháng/năm này đã tồn tại
 
 attachment:
   file:

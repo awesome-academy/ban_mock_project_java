@@ -31,4 +31,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * Calculate total spent amount for a specific category in a given year/month
+     * Used for Budget tracking
+     */
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e " +
+           "WHERE e.user.id = :userId " +
+           "AND (:categoryId IS NULL OR e.category.id = :categoryId) " +
+           "AND YEAR(e.expenseDate) = :year " +
+           "AND MONTH(e.expenseDate) = :month")
+    BigDecimal sumByUserAndCategoryAndYearMonth(
+            @Param("userId") Long userId,
+            @Param("categoryId") Long categoryId,
+            @Param("year") Integer year,
+            @Param("month") Integer month
+    );
 }

@@ -66,6 +66,8 @@ category:
       expense: Category is not of type expense
   not:
     found: Category not found with id {0}
+  access:
+    denied: You do not have permission to access this category
   name:
     required: Category name is required
     max:
@@ -83,6 +85,10 @@ budget:
     required: Year is required
   month:
     required: Month is required
+  not:
+    found: Budget not found with id {0}
+  already:
+    exists: Budget for this category in this month/year already exists
 
 attachment:
   file:

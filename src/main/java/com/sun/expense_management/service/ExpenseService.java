@@ -10,6 +10,7 @@ import com.sun.expense_management.entity.Expense;
 import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.ResourceNotFoundException;
 import com.sun.expense_management.mapper.ExpenseMapper;
+import com.sun.expense_management.repository.BudgetRepository;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.ExpenseRepository;
 import com.sun.expense_management.repository.UserRepository;
@@ -31,17 +32,20 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final BudgetRepository budgetRepository;
     private final ExpenseMapper expenseMapper;
     private final MessageUtil messageUtil;
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           CategoryRepository categoryRepository,
                           UserRepository userRepository,
+                          BudgetRepository budgetRepository,
                           ExpenseMapper expenseMapper,
                           MessageUtil messageUtil) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.budgetRepository = budgetRepository;
         this.expenseMapper = expenseMapper;
         this.messageUtil = messageUtil;
     }
@@ -106,6 +110,10 @@ public class ExpenseService {
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
+
+        // Update budget's spentAmount
+        updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
+
         return expenseMapper.toResponse(expense);
     }
 
@@ -125,10 +133,22 @@ public class ExpenseService {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
         }
 
+        // Keep track of old values for budget update
+        Long oldCategoryId = expense.getCategory().getId();
+        java.time.LocalDate oldDate = expense.getExpenseDate();
+
         expenseMapper.updateEntity(request, expense);
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
+
+        // Update budget's spentAmount for both old and new category/date
+        updateBudgetSpentAmount(user.getId(), oldCategoryId, oldDate);
+        if (!oldCategoryId.equals(category.getId()) ||
+            !java.time.YearMonth.from(oldDate).equals(java.time.YearMonth.from(expense.getExpenseDate()))) {
+            updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
+        }
+
         return expenseMapper.toResponse(expense);
     }
 
@@ -140,6 +160,38 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("expense.not.found", id)));
 
+        Long categoryId = expense.getCategory().getId();
+        java.time.LocalDate expenseDate = expense.getExpenseDate();
+
         expenseRepository.delete(expense);
+
+        // Update budget's spentAmount after deletion
+        updateBudgetSpentAmount(user.getId(), categoryId, expenseDate);
+    }
+
+    /**
+     * Update budget's spentAmount for given category and time period
+     * This is called automatically when expense is created/updated/deleted
+     */
+    private void updateBudgetSpentAmount(Long userId, Long categoryId, java.time.LocalDate date) {
+        java.time.YearMonth yearMonth = java.time.YearMonth.from(date);
+
+        budgetRepository.findByUser_IdAndCategory_IdAndYearAndMonth(
+                userId,
+                categoryId,
+                yearMonth.getYear(),
+                yearMonth.getMonthValue()
+        ).ifPresent(budget -> {
+            // Calculate total spent for this budget period
+            java.math.BigDecimal totalSpent = expenseRepository.sumByUserAndCategoryAndYearMonth(
+                    userId,
+                    categoryId,
+                    yearMonth.getYear(),
+                    yearMonth.getMonthValue()
+            );
+
+            budget.setSpentAmount(totalSpent != null ? totalSpent : java.math.BigDecimal.ZERO);
+            budgetRepository.save(budget);
+        });
     }
 }
