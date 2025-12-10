@@ -1,7 +1,6 @@
-package com.sun.expense_management.dto.expense;
+package com.sun.expense_management.dto.income;
 
-import com.sun.expense_management.entity.Expense.PaymentMethod;
-import com.sun.expense_management.entity.Expense.RecurringType;
+import com.sun.expense_management.entity.Income.RecurringType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,15 +10,14 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class ExpenseResponse {
+public class IncomeResponse {
 
     private Long id;
     private String name;
     private BigDecimal amount;
-    private LocalDate expenseDate;
+    private LocalDate incomeDate;
     private String note;
-    private String location;
-    private PaymentMethod paymentMethod;
+    private String source;
     private Boolean isRecurring;
     private RecurringType recurringType;
     private LocalDateTime createdAt;

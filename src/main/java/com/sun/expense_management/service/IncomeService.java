@@ -1,19 +1,19 @@
 package com.sun.expense_management.service;
 
 import com.sun.expense_management.dto.PageResponse;
-import com.sun.expense_management.dto.expense.ExpenseFilterRequest;
-import com.sun.expense_management.dto.expense.ExpenseRequest;
-import com.sun.expense_management.dto.expense.ExpenseResponse;
+import com.sun.expense_management.dto.income.IncomeFilterRequest;
+import com.sun.expense_management.dto.income.IncomeRequest;
+import com.sun.expense_management.dto.income.IncomeResponse;
 import com.sun.expense_management.entity.Category;
 import com.sun.expense_management.entity.Category.CategoryType;
-import com.sun.expense_management.entity.Expense;
+import com.sun.expense_management.entity.Income;
 import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.ResourceNotFoundException;
-import com.sun.expense_management.mapper.ExpenseMapper;
+import com.sun.expense_management.mapper.IncomeMapper;
 import com.sun.expense_management.repository.CategoryRepository;
-import com.sun.expense_management.repository.ExpenseRepository;
+import com.sun.expense_management.repository.IncomeRepository;
 import com.sun.expense_management.repository.UserRepository;
-import com.sun.expense_management.repository.specification.ExpenseSpecification;
+import com.sun.expense_management.repository.specification.IncomeSpecification;
 import com.sun.expense_management.util.MessageUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,24 +26,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ExpenseService {
+public class IncomeService {
 
-    private final ExpenseRepository expenseRepository;
+    private final IncomeRepository incomeRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
-    private final ExpenseMapper expenseMapper;
     private final MessageUtil messageUtil;
+    private final IncomeMapper incomeMapper;
 
-    public ExpenseService(ExpenseRepository expenseRepository,
-                          CategoryRepository categoryRepository,
-                          UserRepository userRepository,
-                          ExpenseMapper expenseMapper,
-                          MessageUtil messageUtil) {
-        this.expenseRepository = expenseRepository;
+    public IncomeService(IncomeRepository incomeRepository,
+                         CategoryRepository categoryRepository,
+                         UserRepository userRepository,
+                         MessageUtil messageUtil,
+                         IncomeMapper incomeMapper) {
+        this.incomeRepository = incomeRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
-        this.expenseMapper = expenseMapper;
         this.messageUtil = messageUtil;
+        this.incomeMapper = incomeMapper;
     }
 
     private User getCurrentUser() {
@@ -54,7 +54,7 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ExpenseResponse> getExpenses(ExpenseFilterRequest filter) {
+    public PageResponse<IncomeResponse> getIncomes(IncomeFilterRequest filter) {
         User user = getCurrentUser();
 
         Sort sort = filter.getSortDir().equalsIgnoreCase("asc")
@@ -64,7 +64,7 @@ public class ExpenseService {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
 
         // Use Specification for flexible, type-safe dynamic queries
-        Specification<Expense> spec = ExpenseSpecification.withFilters(
+        Specification<Income> spec = IncomeSpecification.withFilters(
                 user,
                 filter.getName(),
                 filter.getCategoryId(),
@@ -74,72 +74,72 @@ public class ExpenseService {
                 filter.getMaxAmount()
         );
 
-        Page<Expense> expensePage = expenseRepository.findAll(spec, pageable);
+        Page<Income> incomePage = incomeRepository.findAll(spec, pageable);
 
-        Page<ExpenseResponse> responsePage = expensePage.map(expenseMapper::toResponse);
+        Page<IncomeResponse> responsePage = incomePage.map(incomeMapper::toResponse);
         return PageResponse.fromPage(responsePage);
     }
 
     @Transactional(readOnly = true)
-    public ExpenseResponse getExpenseById(Long id) {
+    public IncomeResponse getIncomeById(Long id) {
         User user = getCurrentUser();
-        Expense expense = expenseRepository.findByIdAndUser(id, user)
+        Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("expense.not.found", id)));
-        return expenseMapper.toResponse(expense);
+                        messageUtil.getMessage("income.not.found", new Object[]{id})));
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
-    public ExpenseResponse createExpense(ExpenseRequest request) {
+    public IncomeResponse createIncome(IncomeRequest request) {
         User user = getCurrentUser();
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
+                        messageUtil.getMessage("category.not.found", new Object[]{request.getCategoryId()})));
 
-        if (category.getType() != CategoryType.EXPENSE) {
-            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
+        if (category.getType() != CategoryType.INCOME) {
+            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
         }
 
-        Expense expense = expenseMapper.toEntity(request);
-        expense.setUser(user);
-        expense.setCategory(category);
+        Income income = incomeMapper.toEntity(request);
+        income.setUser(user);
+        income.setCategory(category);
 
-        expense = expenseRepository.save(expense);
-        return expenseMapper.toResponse(expense);
+        income = incomeRepository.save(income);
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
-    public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
+    public IncomeResponse updateIncome(Long id, IncomeRequest request) {
         User user = getCurrentUser();
 
-        Expense expense = expenseRepository.findByIdAndUser(id, user)
+        Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("expense.not.found", id)));
+                        messageUtil.getMessage("income.not.found", new Object[]{id})));
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
+                        messageUtil.getMessage("category.not.found", new Object[]{request.getCategoryId()})));
 
-        if (category.getType() != CategoryType.EXPENSE) {
-            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
+        if (category.getType() != CategoryType.INCOME) {
+            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
         }
 
-        expenseMapper.updateEntity(request, expense);
-        expense.setCategory(category);
+        incomeMapper.updateEntity(request, income);
+        income.setCategory(category);
 
-        expense = expenseRepository.save(expense);
-        return expenseMapper.toResponse(expense);
+        income = incomeRepository.save(income);
+        return incomeMapper.toResponse(income);
     }
 
     @Transactional
-    public void deleteExpense(Long id) {
+    public void deleteIncome(Long id) {
         User user = getCurrentUser();
 
-        Expense expense = expenseRepository.findByIdAndUser(id, user)
+        Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("expense.not.found", id)));
+                        messageUtil.getMessage("income.not.found", new Object[]{id})));
 
-        expenseRepository.delete(expense);
+        incomeRepository.delete(income);
     }
 }

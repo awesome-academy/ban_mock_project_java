@@ -1,6 +1,6 @@
 package com.sun.expense_management.repository;
 
-import com.sun.expense_management.entity.Expense;
+import com.sun.expense_management.entity.Income;
 import com.sun.expense_management.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,17 +15,17 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
+public interface IncomeRepository extends JpaRepository<Income, Long>, JpaSpecificationExecutor<Income> {
 
-    Page<Expense> findByUser(User user, Pageable pageable);
+    Page<Income> findByUser(User user, Pageable pageable);
 
-    Optional<Expense> findByIdAndUser(Long id, User user);
+    Optional<Income> findByIdAndUser(Long id, User user);
 
     // Old @Query method removed - now using Specification pattern
-    // See ExpenseSpecification.withFilters() for flexible dynamic queries
+    // See IncomeSpecification.withFilters() for flexible dynamic queries
 
-    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user = :user " +
-           "AND e.expenseDate BETWEEN :startDate AND :endDate")
+    @Query("SELECT SUM(i.amount) FROM Income i WHERE i.user = :user " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate")
     BigDecimal sumAmountByUserAndDateBetween(
             @Param("user") User user,
             @Param("startDate") LocalDate startDate,
