@@ -77,7 +77,7 @@ curl -X GET "http://localhost:8080/api/budgets?year=2025&month=12" \
 
 # Filter over budget
 curl -X GET "http://localhost:8080/api/budgets?isOverBudget=true" \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY1NDIxMDgxLCJleHAiOjE3NjU1MDc0ODF9.4e08pO1tNoOj8mHxCDAUZVf7VZ1Vl1eP3s48_XJ4tzGNYB0_yX1FRV6w8OdWInIb"
 
 # With pagination and sorting
 curl -X GET "http://localhost:8080/api/budgets?page=0&size=5&sortBy=createdAt&sortDir=desc" \

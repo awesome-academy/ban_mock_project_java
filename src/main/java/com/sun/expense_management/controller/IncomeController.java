@@ -7,8 +7,13 @@ import com.sun.expense_management.dto.income.IncomeResponse;
 import com.sun.expense_management.service.IncomeService;
 import com.sun.expense_management.util.MessageUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -16,6 +21,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/api/incomes")
 public class IncomeController {
@@ -34,13 +40,13 @@ public class IncomeController {
     @GetMapping
     public ResponseEntity<PageResponse<IncomeResponse>> getIncomes(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) @Positive Long categoryId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) BigDecimal minAmount,
-            @RequestParam(required = false) BigDecimal maxAmount,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) @DecimalMin("0.0") BigDecimal minAmount,
+            @RequestParam(required = false) @DecimalMin("0.0") BigDecimal maxAmount,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer page,
+            @RequestParam(defaultValue = "10") @Positive @Max(100) Integer size,
             @RequestParam(defaultValue = "incomeDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {

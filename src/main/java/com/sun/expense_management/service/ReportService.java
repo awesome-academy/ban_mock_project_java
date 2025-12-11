@@ -195,6 +195,9 @@ public class ReportService {
 
     /**
      * Get trend analysis
+     *
+     * Note: period parameter is validated at controller layer with @ValidTrendPeriod
+     * Valid values: MONTHLY, QUARTERLY, YEARLY
      */
     @Transactional(readOnly = true)
     public TrendAnalysisResponse getTrendAnalysis(String period, TimeRangeRequest request) {
@@ -205,6 +208,7 @@ public class ReportService {
 
         List<TrendAnalysisResponse.TrendItem> trends;
 
+        // Period is already validated at controller layer, safe to use switch
         switch (period.toUpperCase()) {
             case "MONTHLY":
                 trends = getMonthlyTrends(user.getId(), startDate, endDate);
@@ -216,8 +220,8 @@ public class ReportService {
                 trends = getYearlyTrends(user.getId(), startDate, endDate);
                 break;
             default:
-                throw new IllegalArgumentException(
-                        messageUtil.getMessage("report.invalid.period"));
+                // Should never reach here due to controller validation
+                throw new IllegalStateException("Invalid period: " + period);
         }
 
         // Calculate statistics

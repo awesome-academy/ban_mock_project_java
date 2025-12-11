@@ -7,10 +7,15 @@ import com.sun.expense_management.dto.category.CategoryResponse;
 import com.sun.expense_management.entity.Category.CategoryType;
 import com.sun.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -29,8 +34,8 @@ public class CategoryController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) CategoryType type,
             @RequestParam(required = false) Boolean active,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer page,
+            @RequestParam(defaultValue = "10") @Positive @Max(100) Integer size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
     ) {

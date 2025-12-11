@@ -2,13 +2,16 @@ package com.sun.expense_management.controller;
 
 import com.sun.expense_management.dto.report.*;
 import com.sun.expense_management.service.ReportService;
+import com.sun.expense_management.validation.ValidTrendPeriod;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * REST API for Report & Analytics
  */
+@Validated
 @RestController
 @RequestMapping("/api/reports")
 public class ReportController {
@@ -64,6 +67,7 @@ public class ReportController {
      */
     @PostMapping("/trend")
     public ResponseEntity<TrendAnalysisResponse> getTrendAnalysis(
+            @ValidTrendPeriod
             @RequestParam(defaultValue = "MONTHLY") String period,
             @Valid @RequestBody TimeRangeRequest request) {
         return ResponseEntity.ok(reportService.getTrendAnalysis(period, request));

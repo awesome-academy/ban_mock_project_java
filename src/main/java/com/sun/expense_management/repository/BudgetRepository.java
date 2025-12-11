@@ -14,5 +14,7 @@ public interface BudgetRepository extends JpaRepository<Budget, Long>, JpaSpecif
 
     boolean existsByUser_IdAndCategory_IdAndYearAndMonth(Long userId, Long categoryId, Integer year, Integer month);
 
+    boolean existsByUser_IdAndCategoryIsNullAndYearAndMonth(Long userId, Integer year, Integer month);
+
     Optional<Budget> findByUser_IdAndCategory_IdAndYearAndMonth(Long userId, Long categoryId, Integer year, Integer month);
 }

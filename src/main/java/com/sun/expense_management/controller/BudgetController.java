@@ -6,10 +6,16 @@ import com.sun.expense_management.dto.budget.BudgetRequest;
 import com.sun.expense_management.dto.budget.BudgetResponse;
 import com.sun.expense_management.service.BudgetService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequestMapping("/api/budgets")
 public class BudgetController {
@@ -26,13 +32,13 @@ public class BudgetController {
     @GetMapping
     public ResponseEntity<PageResponse<BudgetResponse>> getBudgets(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) @Positive Long categoryId,
+            @RequestParam(required = false) @Min(2000) @Max(2100) Integer year,
+            @RequestParam(required = false) @Min(1) @Max(12) Integer month,
             @RequestParam(required = false) Boolean isOverBudget,
             @RequestParam(required = false) Boolean active,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer page,
+            @RequestParam(defaultValue = "10") @Positive @Max(100) Integer size,
             @RequestParam(defaultValue = "year,month") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {

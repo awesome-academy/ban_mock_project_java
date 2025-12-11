@@ -63,11 +63,20 @@ public class BudgetSpecification {
             }
 
             // Filter by over budget status
-            if (isOverBudget != null && isOverBudget) {
-                predicates.add(criteriaBuilder.greaterThan(
-                        root.get("spentAmount"),
-                        root.get("amountLimit")
-                ));
+            if (isOverBudget != null) {
+                if (isOverBudget) {
+                    // spentAmount > amountLimit
+                    predicates.add(criteriaBuilder.greaterThan(
+                            root.get("spentAmount"),
+                            root.get("amountLimit")
+                    ));
+                } else {
+                    // spentAmount <= amountLimit
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                            root.get("spentAmount"),
+                            root.get("amountLimit")
+                    ));
+                }
             }
 
             // Filter by active status

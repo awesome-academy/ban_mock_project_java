@@ -3,7 +3,10 @@ package com.sun.expense_management.exception;
 import com.sun.expense_management.dto.error.ErrorResponse;
 import com.sun.expense_management.dto.error.ValidationErrorResponse;
 import com.sun.expense_management.util.MessageUtil;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -130,6 +133,58 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle validation errors for @RequestParam and @PathVariable
+     * Triggered when @Validated is used on controller class
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(
+            ConstraintViolationException ex,
+            HttpServletRequest request) {
+
+        // Log validation failures
+        log.debug("Constraint violation at {}: {}", request.getRequestURI(), ex.getConstraintViolations());
+
+        Map<String, String> errors = new HashMap<>();
+
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            // Extract parameter name from property path (e.g., "getTrendAnalysis.period" -> "period")
+            String propertyPath = violation.getPropertyPath().toString();
+            String fieldName = propertyPath.contains(".")
+                    ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)
+                    : propertyPath;
+            String errorMessage = violation.getMessage();
+            errors.put(fieldName, errorMessage);
+        }
+
+        ValidationErrorResponse response = ValidationErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(messageUtil.getMessage("error.validation.failed"))
+                .messages(errors)
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockException(
+            OptimisticLockException ex,
+            HttpServletRequest request) {
+
+        // Log concurrent update conflicts
+        log.warn("OptimisticLockException at {} from user: {}",
+                request.getRequestURI(),
+                request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous");
+
+        ErrorResponse response = ErrorResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .error(messageUtil.getMessage("error.concurrent.update.title"))
+                .message(messageUtil.getMessage("error.concurrent.update.message"))
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(Exception.class)

@@ -172,6 +172,24 @@ public class ExpenseService {
     /**
      * Update budget's spentAmount for given category and time period
      * This is called automatically when expense is created/updated/deleted
+     *
+     * Transaction & Concurrency Handling:
+     * - This method runs within a @Transactional context from calling methods
+     * - If any exception occurs (including OptimisticLockException), the entire transaction rolls back
+     * - When updating expense affects 2 budgets (old and new), both updates are atomic:
+     *   * If new budget update fails, old budget update is also rolled back
+     *   * This prevents partial state where only one budget is updated
+     *
+     * Optimistic Locking:
+     * - Budget entity uses @Version for optimistic locking
+     * - If concurrent updates occur, one will fail with OptimisticLockException
+     * - The failed transaction will rollback completely, ensuring data consistency
+     * - Client should retry the operation in case of OptimisticLockException
+     *
+     * @param userId The user ID
+     * @param categoryId The category ID
+     * @param date The expense date (used to determine year/month)
+     * @throws jakarta.persistence.OptimisticLockException if concurrent update detected
      */
     private void updateBudgetSpentAmount(Long userId, Long categoryId, java.time.LocalDate date) {
         java.time.YearMonth yearMonth = java.time.YearMonth.from(date);
@@ -192,6 +210,8 @@ public class ExpenseService {
 
             budget.setSpentAmount(totalSpent != null ? totalSpent : java.math.BigDecimal.ZERO);
             budgetRepository.save(budget);
+            // @Version field is automatically incremented on save
+            // If another transaction modified this budget, OptimisticLockException is thrown
         });
     }
 }

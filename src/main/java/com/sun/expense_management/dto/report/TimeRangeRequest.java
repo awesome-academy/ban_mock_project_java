@@ -1,5 +1,6 @@
 package com.sun.expense_management.dto.report;
 
+import com.sun.expense_management.validation.ValidDateRange;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidDateRange(message = "{report.date.range.invalid}")
 public class TimeRangeRequest {
 
     @NotNull(message = "{report.start.date.required}")

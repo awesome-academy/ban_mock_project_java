@@ -52,6 +52,33 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage("user.not.found")));
     }
 
+    /**
+     * Validate category access for the current user
+     *
+     * @param category The category to validate
+     * @param user The current user
+     * @throws IllegalArgumentException if user doesn't have access
+     * @throws IllegalStateException if data integrity is violated
+     */
+    private void validateCategoryAccess(Category category, User user) {
+        // Default categories are accessible to everyone
+        if (category.getIsDefault()) {
+            return;
+        }
+
+        // Non-default categories must have an owner
+        if (category.getUser() == null) {
+            throw new IllegalStateException(
+                    messageUtil.getMessage("category.integrity.custom.must.have.user"));
+        }
+
+        // Check if current user owns this category
+        if (!category.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException(
+                    messageUtil.getMessage("category.access.denied"));
+        }
+    }
+
     @Transactional(readOnly = true)
     public PageResponse<BudgetResponse> getBudgets(BudgetFilterRequest filter) {
         User user = getCurrentUser();
@@ -96,17 +123,26 @@ public class BudgetService {
         User user = getCurrentUser();
 
         // Check if budget already exists for this category, year, month
+        boolean exists;
         if (request.getCategoryId() != null) {
-            boolean exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
+            exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
                     user.getId(),
                     request.getCategoryId(),
                     request.getYear(),
                     request.getMonth()
             );
-            if (exists) {
-                throw new IllegalArgumentException(
-                        messageUtil.getMessage("budget.already.exists"));
-            }
+        } else {
+            // Check for duplicate budget without category
+            exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
+                    user.getId(),
+                    request.getYear(),
+                    request.getMonth()
+            );
+        }
+
+        if (exists) {
+            throw new IllegalArgumentException(
+                    messageUtil.getMessage("budget.already.exists"));
         }
 
         // Validate category if provided
@@ -116,12 +152,7 @@ public class BudgetService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             messageUtil.getMessage("category.not.found", request.getCategoryId())));
 
-            // Check if user has access to this category
-            if (!category.getIsDefault() &&
-                (category.getUser() == null || !category.getUser().getId().equals(user.getId()))) {
-                throw new IllegalArgumentException(
-                        messageUtil.getMessage("category.access.denied"));
-            }
+            validateCategoryAccess(category, user);
         }
 
         Budget budget = budgetMapper.toEntity(request);
@@ -140,21 +171,46 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
-        // Validate category if changed
-        Category category = budget.getCategory();
-        if (request.getCategoryId() != null &&
-            (category == null || !category.getId().equals(request.getCategoryId()))) {
+        // Check if category is being changed
+        Long existingCategoryId = budget.getCategory() != null ? budget.getCategory().getId() : null;
+        Long newCategoryId = request.getCategoryId();
 
-            category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            messageUtil.getMessage("category.not.found", request.getCategoryId())));
+        boolean categoryChanged = (existingCategoryId == null && newCategoryId != null) ||
+                                  (existingCategoryId != null && newCategoryId == null) ||
+                                  (existingCategoryId != null && !existingCategoryId.equals(newCategoryId));
 
-            // Check if user has access to this category
-            if (!category.getIsDefault() &&
-                (category.getUser() == null || !category.getUser().getId().equals(user.getId()))) {
-                throw new IllegalArgumentException(
-                        messageUtil.getMessage("category.access.denied"));
+        // If category is being changed, check for duplicates
+        if (categoryChanged) {
+            boolean exists;
+            if (newCategoryId != null) {
+                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
+                        user.getId(),
+                        newCategoryId,
+                        request.getYear(),
+                        request.getMonth()
+                );
+            } else {
+                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
+                        user.getId(),
+                        request.getYear(),
+                        request.getMonth()
+                );
             }
+
+            if (exists) {
+                throw new IllegalArgumentException(
+                        messageUtil.getMessage("budget.already.exists"));
+            }
+        }
+
+        // Validate and set the new category
+        Category category = null;
+        if (newCategoryId != null) {
+            category = categoryRepository.findByIdAndActiveTrue(newCategoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            messageUtil.getMessage("category.not.found", newCategoryId)));
+
+            validateCategoryAccess(category, user);
         }
 
         budgetMapper.updateEntity(request, budget);
