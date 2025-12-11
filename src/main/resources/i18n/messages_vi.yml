@@ -1,5 +1,47 @@
 # Vietnamese Messages (Default)
 
+admin:
+  login:
+    title: Đăng nhập Quản trị
+    subtitle: Hệ thống Quản lý Chi tiêu
+    email:
+      placeholder: Nhập email
+    password:
+      placeholder: Nhập mật khẩu
+    remember:
+      me: Ghi nhớ đăng nhập
+    button: Đăng nhập
+    access:
+      denied: Chỉ quản trị viên mới có thể đăng nhập vào hệ thống này
+  logout:
+    success: Đăng xuất thành công
+  dashboard:
+    title: Bảng điều khiển
+    welcome: Chào mừng bạn đến với Hệ thống Quản trị
+    users:
+      total: Tổng người dùng
+      active: Đang hoạt động
+      inactive: Không hoạt động
+      new:
+        this:
+          month: Người dùng mới tháng này
+    financial:
+      total:
+        expenses: Tổng chi tiêu
+        incomes: Tổng thu nhập
+        balance: Số dư
+    activity:
+      categories: Danh mục
+      budgets: Ngân sách
+      expense:
+        records: Bản ghi chi tiêu
+      income:
+        records: Bản ghi thu nhập
+    today:
+      expenses: Chi tiêu hôm nay
+      incomes: Thu nhập hôm nay
+      logins: Đăng nhập hôm nay
+
 auth:
   invalid:
     credentials: Email hoặc mật khẩu không đúng

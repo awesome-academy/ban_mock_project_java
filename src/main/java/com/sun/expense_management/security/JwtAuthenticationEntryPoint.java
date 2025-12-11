@@ -26,6 +26,20 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
+        String requestPath = request.getRequestURI();
+
+        // For admin paths, redirect to login page instead of returning JSON
+        if (requestPath.startsWith("/admin")) {
+            // Save current URL as redirect parameter
+            String redirectUrl = requestPath;
+            if (request.getQueryString() != null) {
+                redirectUrl += "?" + request.getQueryString();
+            }
+            response.sendRedirect("/admin/login?redirect=" + java.net.URLEncoder.encode(redirectUrl, "UTF-8"));
+            return;
+        }
+
+        // For API paths, return JSON error
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
