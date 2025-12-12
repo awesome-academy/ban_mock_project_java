@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.login.title}, ~{::content}, 'login-page')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="login-box">
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <a href="#" class="h1"><b th:text="#{admin.login.subtitle}">Expense</b></a>
+            </div>
+            <div class="card-body">
+                <p class="login-box-msg" th:text="#{admin.login.title}">Sign in to start your session</p>
+
+                <!-- Success Message -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="icon fas fa-check"></i> <span th:text="${success}"></span>
+                </div>
+
+                <!-- Error Message -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="icon fas fa-ban"></i> <span th:text="${error}"></span>
+                </div>
+
+                <form th:action="@{/admin/login}" method="post" th:object="${loginRequest}">
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:placeholder="#{admin.login.email.placeholder}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}"></div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" th:field="*{password}"
+                               th:placeholder="#{admin.login.password.placeholder}"
+                               th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback" th:errors="*{password}"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="remember" th:field="*{rememberMe}">
+                                <label for="remember" th:text="#{admin.login.remember.me}">Remember Me</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block" th:text="#{admin.login.button}">Sign In</button>
+                        </div>
+                    </div>
+                </form>
+
+                <p class="mb-0 mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt"></i> <span th:text="#{admin.login.access.only}">Admin Access Only</span>
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

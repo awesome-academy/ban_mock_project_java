@@ -1,0 +1,17 @@
+# Admin Login - English
+admin:
+  login:
+    title: Admin Login
+    subtitle: Expense Management System
+    email:
+      placeholder: Enter email
+    password:
+      placeholder: Enter password
+    remember:
+      me: Remember Me
+    button: Sign In
+    access:
+      denied: Only administrators can login to this system
+      only: Admin Access Only
+  logout:
+    success: Logout successful

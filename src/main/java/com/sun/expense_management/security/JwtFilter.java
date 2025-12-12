@@ -32,6 +32,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Skip JWT filter for admin paths and static resources
+        String requestPath = request.getRequestURI();
+        if (requestPath.startsWith("/admin") || requestPath.startsWith("/webjars")
+            || requestPath.startsWith("/css") || requestPath.startsWith("/js")
+            || requestPath.startsWith("/fonts") || requestPath.startsWith("/images")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
         String token = null;
 

@@ -1,0 +1,26 @@
+# Error Pages - Vietnamese
+error:
+  '404':
+    title: Trang không tồn tại
+    message: Không tìm thấy trang bạn đang tìm kiếm
+    description: Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm.
+    search:
+      placeholder: Tìm kiếm...
+    back:
+      home: Quay lại trang chủ
+  '403':
+    title: Truy cập bị từ chối
+    message: Bạn không có quyền truy cập trang này
+    login:
+      link: đăng nhập
+      required: Vui lòng {0} với tài khoản có quyền phù hợp.
+  '500':
+    title: Lỗi hệ thống
+    message: Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau
+    description: Chúng tôi đang gặp sự cố với hệ thống.
+    retry: Thử lại
+    contact: Vui lòng thử lại sau hoặc liên hệ với quản trị viên nếu lỗi vẫn tiếp diễn.
+  generic:
+    title: Lỗi {0}
+    message: Đã xảy ra lỗi. Vui lòng thử lại sau
+  path: Đường dẫn

@@ -32,7 +32,14 @@ public class YamlMessageSource extends AbstractMessageSource {
             Properties properties = factory.getObject();
 
             if (properties != null) {
-                propertiesMap.put(locale, properties);
+                // Merge properties for the same locale
+                Properties existingProperties = propertiesMap.get(locale);
+                if (existingProperties == null) {
+                    propertiesMap.put(locale, properties);
+                } else {
+                    // Merge new properties into existing ones
+                    existingProperties.putAll(properties);
+                }
             }
         }
     }

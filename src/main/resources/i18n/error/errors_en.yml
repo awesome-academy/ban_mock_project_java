@@ -1,0 +1,26 @@
+# Error Pages - English
+error:
+  '404':
+    title: Page Not Found
+    message: We could not find the page you are looking for
+    description: We could not find the page you are looking for.
+    search:
+      placeholder: Search...
+    back:
+      home: Back to Home
+  '403':
+    title: Access Denied
+    message: You do not have permission to access this page
+    login:
+      link: login
+      required: Please {0} with an account that has appropriate permissions.
+  '500':
+    title: System Error
+    message: A system error has occurred. Please try again later
+    description: We are experiencing issues with the system.
+    retry: Try Again
+    contact: Please try again later or contact the administrator if the error persists.
+  generic:
+    title: Error {0}
+    message: An error has occurred. Please try again later
+  path: Path

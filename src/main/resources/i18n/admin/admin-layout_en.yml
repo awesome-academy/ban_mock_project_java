@@ -1,0 +1,17 @@
+# Admin Layout - English
+admin:
+  layout:
+    brand: Expense Admin
+    logout: Logout
+    menu:
+      dashboard: Dashboard
+      users: User Management
+      categories: Categories
+      budgets: Budget Templates
+      expenses: Expenses
+      incomes: Incomes
+      activity:
+        logs: Activity Logs
+    footer:
+      copyright: All rights reserved
+      version: Version
