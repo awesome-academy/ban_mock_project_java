@@ -1,5 +1,6 @@
 package com.sun.expense_management.controller.admin;
 
+import com.sun.expense_management.util.MessageUtil;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -15,6 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class CustomErrorController implements ErrorController {
 
+    private final MessageUtil messageUtil;
+
+    public CustomErrorController(MessageUtil messageUtil) {
+        this.messageUtil = messageUtil;
+    }
+
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request, Model model) {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
@@ -29,22 +36,22 @@ public class CustomErrorController implements ErrorController {
                 model.addAttribute("path", path);
 
                 if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                    model.addAttribute("error", "Trang không tồn tại");
-                    model.addAttribute("message", "Không tìm thấy trang bạn đang tìm kiếm.");
+                    model.addAttribute("error", messageUtil.getMessage("error.404.title"));
+                    model.addAttribute("message", messageUtil.getMessage("error.404.message"));
                     return "error/404";
                 } else if (statusCode == HttpStatus.FORBIDDEN.value()) {
-                    model.addAttribute("error", "Truy cập bị từ chối");
-                    model.addAttribute("message", "Bạn không có quyền truy cập trang này.");
+                    model.addAttribute("error", messageUtil.getMessage("error.403.title"));
+                    model.addAttribute("message", messageUtil.getMessage("error.403.message"));
                     return "error/403";
                 } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-                    model.addAttribute("error", "Lỗi hệ thống");
-                    model.addAttribute("message", "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");
+                    model.addAttribute("error", messageUtil.getMessage("error.500.title"));
+                    model.addAttribute("message", messageUtil.getMessage("error.500.message"));
                     return "error/500";
                 }
 
                 // Generic error page for other status codes
-                model.addAttribute("error", "Lỗi " + statusCode);
-                model.addAttribute("message", "Đã xảy ra lỗi. Vui lòng thử lại sau.");
+                model.addAttribute("error", messageUtil.getMessage("error.generic.title", statusCode));
+                model.addAttribute("message", messageUtil.getMessage("error.generic.message"));
                 return "error/error";
             }
         }

@@ -1,0 +1,42 @@
+# Admin Dashboard - English
+admin:
+  dashboard:
+    title: Dashboard
+    welcome: Welcome to Admin System
+    description: The admin system allows you to manage users, categories, budgets and monitor all system activities.
+    more:
+      info: More info
+
+    users:
+      total: Total Users
+      active: Active Users
+      inactive: Inactive Users
+      new:
+        this:
+          month: New This Month
+
+    financial:
+      total:
+        expenses: Total Expenses
+        incomes: Total Incomes
+        balance: Balance
+
+    activity:
+      categories: Categories
+      budgets: Budgets
+      expense:
+        records: Expense Records
+      income:
+        records: Income Records
+
+    today:
+      expenses: Today's Expenses
+      incomes: Today's Incomes
+      logins: Today's Logins
+      new:
+        expense:
+          records: new expense records
+        income:
+          records: new income records
+        user:
+          sessions: user sessions

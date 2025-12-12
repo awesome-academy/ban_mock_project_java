@@ -1,47 +1,5 @@
 # English Messages
 
-admin:
-  login:
-    title: Admin Login
-    subtitle: Expense Management System
-    email:
-      placeholder: Enter email
-    password:
-      placeholder: Enter password
-    remember:
-      me: Remember me
-    button: Sign In
-    access:
-      denied: Only administrators can access this system
-  logout:
-    success: Logged out successfully
-  dashboard:
-    title: Dashboard
-    welcome: Welcome to the Admin Panel
-    users:
-      total: Total Users
-      active: Active
-      inactive: Inactive
-      new:
-        this:
-          month: New Users This Month
-    financial:
-      total:
-        expenses: Total Expenses
-        incomes: Total Incomes
-        balance: Balance
-    activity:
-      categories: Categories
-      budgets: Budgets
-      expense:
-        records: Expense Records
-      income:
-        records: Income Records
-    today:
-      expenses: Today's Expenses
-      incomes: Today's Incomes
-      logins: Today's Logins
-
 auth:
   invalid:
     credentials: Invalid email or password

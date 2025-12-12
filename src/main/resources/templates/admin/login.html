@@ -7,7 +7,7 @@
     <div class="login-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="#" class="h1"><b th:text="#{admin.login.subtitle}">Expense</b> Management</a>
+                <a href="#" class="h1"><b th:text="#{admin.login.subtitle}">Expense</b></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg" th:text="#{admin.login.title}">Sign in to start your session</p>
@@ -62,7 +62,7 @@
 
                 <p class="mb-0 mt-3 text-center">
                     <small class="text-muted">
-                        <i class="fas fa-shield-alt"></i> Admin Access Only
+                        <i class="fas fa-shield-alt"></i> <span th:text="#{admin.login.access.only}">Admin Access Only</span>
                     </small>
                 </p>
             </div>

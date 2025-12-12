@@ -9,11 +9,10 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -29,7 +28,8 @@ public class I18nConfig implements WebMvcConfigurer {
         YamlMessageSource messageSource = new YamlMessageSource();
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:i18n/messages_*.yml");
+        // Load all YAML message files from i18n directory and subdirectories
+        Resource[] resources = resolver.getResources("classpath:i18n/**/*_*.yml");
 
         messageSource.setResources(resources);
 
@@ -38,12 +38,8 @@ public class I18nConfig implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {
-        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+        SessionLocaleResolver localeResolver = new SessionLocaleResolver();
         localeResolver.setDefaultLocale(Locale.forLanguageTag("vi"));
-        localeResolver.setSupportedLocales(Arrays.asList(
-            Locale.forLanguageTag("vi"), // Vietnamese
-            Locale.forLanguageTag("en")  // English
-        ));
         return localeResolver;
     }
 

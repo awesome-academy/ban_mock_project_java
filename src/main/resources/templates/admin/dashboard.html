@@ -32,7 +32,7 @@
                     <div class="col-12">
                         <div class="callout callout-info">
                             <h5><i class="fas fa-info"></i> <span th:text="#{admin.dashboard.welcome}">Welcome</span></h5>
-                            <p>Hệ thống quản trị cho phép bạn quản lý người dùng, danh mục, ngân sách và theo dõi hoạt động của toàn bộ hệ thống.</p>
+                            <p th:text="#{admin.dashboard.description}">The admin system allows you to manage users, categories, budgets and monitor all system activities.</p>
                         </div>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                             <div class="icon">
                                 <i class="fas fa-users"></i>
                             </div>
-                            <a href="/admin/users" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="/admin/users" class="small-box-footer"><span th:text="#{admin.dashboard.more.info}">More info</span> <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
 
@@ -61,7 +61,7 @@
                             <div class="icon">
                                 <i class="fas fa-user-check"></i>
                             </div>
-                            <a href="/admin/users?active=true" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="/admin/users?active=true" class="small-box-footer"><span th:text="#{admin.dashboard.more.info}">More info</span> <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
 
@@ -74,7 +74,7 @@
                             <div class="icon">
                                 <i class="fas fa-user-times"></i>
                             </div>
-                            <a href="/admin/users?active=false" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="/admin/users?active=false" class="small-box-footer"><span th:text="#{admin.dashboard.more.info}">More info</span> <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
 
@@ -87,7 +87,7 @@
                             <div class="icon">
                                 <i class="fas fa-user-plus"></i>
                             </div>
-                            <a href="/admin/users?newThisMonth=true" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="/admin/users?newThisMonth=true" class="small-box-footer"><span th:text="#{admin.dashboard.more.info}">More info</span> <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -177,7 +177,7 @@
                             </div>
                             <div class="card-body">
                                 <h2 class="text-center" th:text="${stats.todayExpenses}">12</h2>
-                                <p class="text-center text-muted">New expense records</p>
+                                <p class="text-center text-muted" th:text="#{admin.dashboard.today.new.expense.records}">New expense records</p>
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                             </div>
                             <div class="card-body">
                                 <h2 class="text-center" th:text="${stats.todayIncomes}">5</h2>
-                                <p class="text-center text-muted">New income records</p>
+                                <p class="text-center text-muted" th:text="#{admin.dashboard.today.new.income.records}">New income records</p>
                             </div>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                             </div>
                             <div class="card-body">
                                 <h2 class="text-center" th:text="${stats.todayLogins}">28</h2>
-                                <p class="text-center text-muted">User sessions</p>
+                                <p class="text-center text-muted" th:text="#{admin.dashboard.today.new.user.sessions}">User sessions</p>
                             </div>
                         </div>
                     </div>
@@ -211,5 +211,6 @@
         </section>
         <!-- /.content -->
 </th:block>
+
 </body>
 </html>

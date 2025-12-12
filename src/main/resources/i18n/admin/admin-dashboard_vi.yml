@@ -1,0 +1,42 @@
+# Admin Dashboard - Vietnamese
+admin:
+  dashboard:
+    title: Bảng điều khiển
+    welcome: Chào mừng bạn đến với Hệ thống Quản trị
+    description: Hệ thống quản trị cho phép bạn quản lý người dùng, danh mục, ngân sách và theo dõi hoạt động của toàn bộ hệ thống.
+    more:
+      info: Xem chi tiết
+
+    users:
+      total: Tổng người dùng
+      active: Đang hoạt động
+      inactive: Không hoạt động
+      new:
+        this:
+          month: Người dùng mới tháng này
+
+    financial:
+      total:
+        expenses: Tổng chi tiêu
+        incomes: Tổng thu nhập
+        balance: Số dư
+
+    activity:
+      categories: Danh mục
+      budgets: Ngân sách
+      expense:
+        records: Bản ghi chi tiêu
+      income:
+        records: Bản ghi thu nhập
+
+    today:
+      expenses: Chi tiêu hôm nay
+      incomes: Thu nhập hôm nay
+      logins: Đăng nhập hôm nay
+      new:
+        expense:
+          records: bản ghi chi tiêu mới
+        income:
+          records: bản ghi thu nhập mới
+        user:
+          sessions: phiên đăng nhập

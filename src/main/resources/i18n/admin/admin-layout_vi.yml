@@ -1,0 +1,17 @@
+# Admin Layout - Vietnamese
+admin:
+  layout:
+    brand: Expense Admin
+    logout: Đăng xuất
+    menu:
+      dashboard: Bảng điều khiển
+      users: Quản lý người dùng
+      categories: Danh mục
+      budgets: Mẫu ngân sách
+      expenses: Chi tiêu
+      incomes: Thu nhập
+      activity:
+        logs: Nhật ký hoạt động
+    footer:
+      copyright: Tất cả quyền được bảo lưu
+      version: Phiên bản
