@@ -22,6 +22,32 @@ validation:
   past:
     or:
       present: "{0} cannot be a future date"
+  sort:
+    fields:
+      invalid: "Invalid sort field ''{0}''. Allowed fields: {1}"
+    direction:
+      invalid: "Invalid sort direction ''{0}''. Must be 'asc' or 'desc'"
+  budget:
+    sort:
+      fields:
+        invalid: Invalid budget sort field
+  expense:
+    sort:
+      fields:
+        invalid: Invalid expense sort field
+  income:
+    sort:
+      fields:
+        invalid: Invalid income sort field
+  category:
+    sort:
+      fields:
+        invalid: Invalid category sort field
+  date:
+    range:
+      invalid: "End date must be after or equal to start date"
+  period:
+    invalid: "Invalid period ''{0}''. Must be one of: {1}"
 
 expense:
   name:
@@ -66,10 +92,22 @@ category:
       expense: Category is not of type expense
   not:
     found: Category not found with id {0}
+  access:
+    denied: You do not have permission to access this category
   name:
     required: Category name is required
     max:
       length: Category name must not exceed 100 characters
+  integrity:
+    default:
+      must:
+        not:
+          have:
+            user: Data integrity violation - Default category cannot have a user owner
+    custom:
+      must:
+        have:
+          user: Data integrity violation - Non-default category must have a user owner
 
 budget:
   name:
@@ -83,6 +121,23 @@ budget:
     required: Year is required
   month:
     required: Month is required
+  not:
+    found: Budget not found with id {0}
+  already:
+    exists: Budget for this category in this month/year already exists
+
+report:
+  start:
+    date:
+      required: Start date is required
+  end:
+    date:
+      required: End date is required
+  invalid:
+    period: Invalid report period. Only accepts MONTHLY, QUARTERLY, YEARLY
+  date:
+    range:
+      invalid: End date must be after start date
 
 attachment:
   file:
@@ -101,7 +156,7 @@ template:
 
 error:
   bad:
-    request: Bad request
+    request: Invalid request
   unauthorized: Unauthorized
   forbidden: Access denied
   not:
@@ -113,6 +168,10 @@ error:
     server: An internal server error occurred. Please try again later or contact the administrator.
   validation:
     failed: Validation failed
+  concurrent:
+    update:
+      title: Concurrent Update Conflict
+      message: The data has been modified by another user. Please refresh and try again.
 
 jwt:
   invalid: Invalid or expired token

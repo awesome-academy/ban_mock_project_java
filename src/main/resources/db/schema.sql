@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS budgets (
     alert_threshold INT DEFAULT 80 COMMENT 'Ngưỡng cảnh báo (%)',
     is_alert_sent BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Đã gửi cảnh báo chưa',
     active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Trạng thái',
+    version BIGINT DEFAULT 0 COMMENT 'Version for optimistic locking',
     user_id BIGINT NOT NULL,
     category_id BIGINT COMMENT 'NULL = ngân sách tổng, có giá trị = ngân sách theo danh mục',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -22,6 +22,32 @@ validation:
   past:
     or:
       present: "{0} không được là ngày trong tương lai"
+  sort:
+    fields:
+      invalid: "Trường sắp xếp ''{0}'' không hợp lệ. Các trường cho phép: {1}"
+    direction:
+      invalid: "Hướng sắp xếp ''{0}'' không hợp lệ. Phải là 'asc' hoặc 'desc'"
+  budget:
+    sort:
+      fields:
+        invalid: Trường sắp xếp ngân sách không hợp lệ
+  expense:
+    sort:
+      fields:
+        invalid: Trường sắp xếp chi tiêu không hợp lệ
+  income:
+    sort:
+      fields:
+        invalid: Trường sắp xếp thu nhập không hợp lệ
+  category:
+    sort:
+      fields:
+        invalid: Trường sắp xếp danh mục không hợp lệ
+  date:
+    range:
+      invalid: "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu"
+  period:
+    invalid: "Chu kỳ ''{0}'' không hợp lệ. Chỉ chấp nhận: {1}"
 
 expense:
   name:
@@ -66,10 +92,22 @@ category:
       expense: Danh mục không phải loại chi tiêu
   not:
     found: Không tìm thấy danh mục với id {0}
+  access:
+    denied: Bạn không có quyền truy cập danh mục này
   name:
     required: Tên danh mục không được để trống
     max:
       length: Tên danh mục không được vượt quá 100 ký tự
+  integrity:
+    default:
+      must:
+        not:
+          have:
+            user: Vi phạm toàn vẹn dữ liệu - Danh mục mặc định không được có chủ sở hữu
+    custom:
+      must:
+        have:
+          user: Vi phạm toàn vẹn dữ liệu - Danh mục tùy chỉnh phải có chủ sở hữu
 
 budget:
   name:
@@ -83,6 +121,23 @@ budget:
     required: Năm không được để trống
   month:
     required: Tháng không được để trống
+  not:
+    found: Không tìm thấy ngân sách với id {0}
+  already:
+    exists: Ngân sách cho danh mục này trong tháng/năm này đã tồn tại
+
+report:
+  start:
+    date:
+      required: Ngày bắt đầu không được để trống
+  end:
+    date:
+      required: Ngày kết thúc không được để trống
+  invalid:
+    period: Loại báo cáo không hợp lệ. Chỉ chấp nhận MONTHLY, QUARTERLY, YEARLY
+  date:
+    range:
+      invalid: Ngày kết thúc phải sau ngày bắt đầu
 
 attachment:
   file:
@@ -113,6 +168,10 @@ error:
     server: Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau hoặc liên hệ quản trị viên.
   validation:
     failed: Dữ liệu không hợp lệ
+  concurrent:
+    update:
+      title: Xung đột cập nhật đồng thời
+      message: Dữ liệu đã được cập nhật bởi người dùng khác. Vui lòng tải lại và thử lại.
 
 jwt:
   invalid: Token không hợp lệ hoặc đã hết hạn

@@ -10,6 +10,7 @@ import com.sun.expense_management.entity.Expense;
 import com.sun.expense_management.entity.User;
 import com.sun.expense_management.exception.ResourceNotFoundException;
 import com.sun.expense_management.mapper.ExpenseMapper;
+import com.sun.expense_management.repository.BudgetRepository;
 import com.sun.expense_management.repository.CategoryRepository;
 import com.sun.expense_management.repository.ExpenseRepository;
 import com.sun.expense_management.repository.UserRepository;
@@ -31,17 +32,20 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final BudgetRepository budgetRepository;
     private final ExpenseMapper expenseMapper;
     private final MessageUtil messageUtil;
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           CategoryRepository categoryRepository,
                           UserRepository userRepository,
+                          BudgetRepository budgetRepository,
                           ExpenseMapper expenseMapper,
                           MessageUtil messageUtil) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.budgetRepository = budgetRepository;
         this.expenseMapper = expenseMapper;
         this.messageUtil = messageUtil;
     }
@@ -106,6 +110,10 @@ public class ExpenseService {
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
+
+        // Update budget's spentAmount
+        updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
+
         return expenseMapper.toResponse(expense);
     }
 
@@ -125,10 +133,22 @@ public class ExpenseService {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
         }
 
+        // Keep track of old values for budget update
+        Long oldCategoryId = expense.getCategory().getId();
+        java.time.LocalDate oldDate = expense.getExpenseDate();
+
         expenseMapper.updateEntity(request, expense);
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
+
+        // Update budget's spentAmount for both old and new category/date
+        updateBudgetSpentAmount(user.getId(), oldCategoryId, oldDate);
+        if (!oldCategoryId.equals(category.getId()) ||
+            !java.time.YearMonth.from(oldDate).equals(java.time.YearMonth.from(expense.getExpenseDate()))) {
+            updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
+        }
+
         return expenseMapper.toResponse(expense);
     }
 
@@ -140,6 +160,58 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("expense.not.found", id)));
 
+        Long categoryId = expense.getCategory().getId();
+        java.time.LocalDate expenseDate = expense.getExpenseDate();
+
         expenseRepository.delete(expense);
+
+        // Update budget's spentAmount after deletion
+        updateBudgetSpentAmount(user.getId(), categoryId, expenseDate);
+    }
+
+    /**
+     * Update budget's spentAmount for given category and time period
+     * This is called automatically when expense is created/updated/deleted
+     *
+     * Transaction & Concurrency Handling:
+     * - This method runs within a @Transactional context from calling methods
+     * - If any exception occurs (including OptimisticLockException), the entire transaction rolls back
+     * - When updating expense affects 2 budgets (old and new), both updates are atomic:
+     *   * If new budget update fails, old budget update is also rolled back
+     *   * This prevents partial state where only one budget is updated
+     *
+     * Optimistic Locking:
+     * - Budget entity uses @Version for optimistic locking
+     * - If concurrent updates occur, one will fail with OptimisticLockException
+     * - The failed transaction will rollback completely, ensuring data consistency
+     * - Client should retry the operation in case of OptimisticLockException
+     *
+     * @param userId The user ID
+     * @param categoryId The category ID
+     * @param date The expense date (used to determine year/month)
+     * @throws jakarta.persistence.OptimisticLockException if concurrent update detected
+     */
+    private void updateBudgetSpentAmount(Long userId, Long categoryId, java.time.LocalDate date) {
+        java.time.YearMonth yearMonth = java.time.YearMonth.from(date);
+
+        budgetRepository.findByUser_IdAndCategory_IdAndYearAndMonth(
+                userId,
+                categoryId,
+                yearMonth.getYear(),
+                yearMonth.getMonthValue()
+        ).ifPresent(budget -> {
+            // Calculate total spent for this budget period
+            java.math.BigDecimal totalSpent = expenseRepository.sumByUserAndCategoryAndYearMonth(
+                    userId,
+                    categoryId,
+                    yearMonth.getYear(),
+                    yearMonth.getMonthValue()
+            );
+
+            budget.setSpentAmount(totalSpent != null ? totalSpent : java.math.BigDecimal.ZERO);
+            budgetRepository.save(budget);
+            // @Version field is automatically incremented on save
+            // If another transaction modified this budget, OptimisticLockException is thrown
+        });
     }
 }

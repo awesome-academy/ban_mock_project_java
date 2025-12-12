@@ -6,13 +6,19 @@ import com.sun.expense_management.dto.expense.ExpenseRequest;
 import com.sun.expense_management.dto.expense.ExpenseResponse;
 import com.sun.expense_management.service.ExpenseService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Validated
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
@@ -29,13 +35,13 @@ public class ExpenseController {
     @GetMapping
     public ResponseEntity<PageResponse<ExpenseResponse>> getExpenses(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) @Positive Long categoryId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) BigDecimal minAmount,
-            @RequestParam(required = false) BigDecimal maxAmount,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) @DecimalMin("0.0") BigDecimal minAmount,
+            @RequestParam(required = false) @DecimalMin("0.0") BigDecimal maxAmount,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer page,
+            @RequestParam(defaultValue = "10") @Positive @Max(100) Integer size,
             @RequestParam(defaultValue = "expenseDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {

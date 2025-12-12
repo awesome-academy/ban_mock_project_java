@@ -80,11 +80,40 @@ public class Category {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        validateCategoryIntegrity();
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+        validateCategoryIntegrity();
+    }
+
+    /**
+     * Validate category data integrity
+     * Rules:
+     * - Default categories (isDefault = true) must have user = null
+     * - Custom categories (isDefault = false) must have user != null
+     *
+     * Note: These are hardcoded English messages for database-level validation.
+     * Service-level validation uses i18n messages from:
+     * - category.integrity.default.must.not.have.user
+     * - category.integrity.custom.must.have.user
+     */
+    private void validateCategoryIntegrity() {
+        if (isDefault != null && isDefault) {
+            // Default categories should not belong to any specific user
+            if (user != null) {
+                throw new IllegalStateException(
+                        "Data integrity violation: Default category cannot have a user owner");
+            }
+        } else {
+            // Non-default (custom) categories must have an owner
+            if (user == null) {
+                throw new IllegalStateException(
+                        "Data integrity violation: Non-default category must have a user owner");
+            }
+        }
     }
 
     public enum CategoryType {

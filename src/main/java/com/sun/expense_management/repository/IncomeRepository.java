@@ -31,4 +31,74 @@ public interface IncomeRepository extends JpaRepository<Income, Long>, JpaSpecif
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * Count incomes in date range
+     */
+    @Query("SELECT COUNT(i) FROM Income i WHERE i.user.id = :userId " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate")
+    Long countByUserAndDateBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Sum incomes in date range
+     */
+    @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Income i " +
+           "WHERE i.user.id = :userId " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate")
+    BigDecimal sumByUserAndDateBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Group incomes by month for trend analysis
+     */
+    @Query("SELECT YEAR(i.incomeDate), MONTH(i.incomeDate), " +
+           "COALESCE(SUM(i.amount), 0), COUNT(i) " +
+           "FROM Income i " +
+           "WHERE i.user.id = :userId " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate " +
+           "GROUP BY YEAR(i.incomeDate), MONTH(i.incomeDate) " +
+           "ORDER BY YEAR(i.incomeDate), MONTH(i.incomeDate)")
+    java.util.List<Object[]> groupByMonthAndDateBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Group incomes by quarter for trend analysis
+     */
+    @Query("SELECT YEAR(i.incomeDate), QUARTER(i.incomeDate), " +
+           "COALESCE(SUM(i.amount), 0), COUNT(i) " +
+           "FROM Income i " +
+           "WHERE i.user.id = :userId " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate " +
+           "GROUP BY YEAR(i.incomeDate), QUARTER(i.incomeDate) " +
+           "ORDER BY YEAR(i.incomeDate), QUARTER(i.incomeDate)")
+    java.util.List<Object[]> groupByQuarterAndDateBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Group incomes by year for trend analysis
+     */
+    @Query("SELECT YEAR(i.incomeDate), COALESCE(SUM(i.amount), 0), COUNT(i) " +
+           "FROM Income i " +
+           "WHERE i.user.id = :userId " +
+           "AND i.incomeDate BETWEEN :startDate AND :endDate " +
+           "GROUP BY YEAR(i.incomeDate) " +
+           "ORDER BY YEAR(i.incomeDate)")
+    java.util.List<Object[]> groupByYearAndDateBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
