@@ -3,6 +3,7 @@ package com.sunasterisk.expense_management.controller.admin;
 import com.sunasterisk.expense_management.dto.admin.AdminLoginRequest;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.repository.UserRepository;
+import com.sunasterisk.expense_management.util.CommonUtil;
 import com.sunasterisk.expense_management.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +43,8 @@ public class AdminAuthController {
         this.messageUtil = messageUtil;
     }
 
+
+
     /**
      * Show admin login page
      */
@@ -56,7 +59,7 @@ public class AdminAuthController {
         }
 
         // Only save if it's an admin path (not login page itself)
-        if (referer != null && referer.contains("/admin/") && !referer.contains("/admin/login")) {
+        if (CommonUtil.isSafeRedirectUrl(referer) && referer.contains("/admin/") && !referer.contains("/admin/login")) {
             // Extract path from full URL
             try {
                 java.net.URI uri = new java.net.URI(referer);
@@ -121,12 +124,13 @@ public class AdminAuthController {
 
             // Set session timeout if remember me
             if (Boolean.TRUE.equals(loginRequest.getRememberMe())) {
-                session.setMaxInactiveInterval(30 * 24 * 60 * 60); // 30 days
+                session.setMaxInactiveInterval(1 * 24 * 60 * 60); // 1 days
             }
+            // TODO: Implement secure "remember me" functionality using persistent tokens.
 
             // Get saved redirect URL or default to dashboard
             String redirectUrl = (String) session.getAttribute("REDIRECT_URL_AFTER_LOGIN");
-            if (redirectUrl != null) {
+            if (CommonUtil.isSafeRedirectUrl(redirectUrl)) {
                 session.removeAttribute("REDIRECT_URL_AFTER_LOGIN");
             } else {
                 redirectUrl = "/admin/dashboard";

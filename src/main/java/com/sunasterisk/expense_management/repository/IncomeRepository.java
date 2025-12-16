@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -101,4 +102,10 @@ public interface IncomeRepository extends JpaRepository<Income, Long>, JpaSpecif
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("SELECT COALESCE(SUM(i.amount), 0) FROM Income i")
+    Optional<BigDecimal> sumAllIncomes();
+
+    @Query("SELECT COUNT(i) FROM Income i WHERE i.createdAt BETWEEN :start AND :end")
+    Long countIncomesBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

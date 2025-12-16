@@ -48,27 +48,45 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
-        JwtFilter jwtFilter = new JwtFilter(jwtUtil, userDetailsService, messageUtil);
+    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http, AdminAccessDeniedHandler adminAccessDeniedHandler) throws Exception {
         http
+            .securityMatcher("/admin/**")
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/login").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().hasRole("ADMIN")
             )
-        .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-        )
-        .exceptionHandling(exception ->
-            exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-        )
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-        .csrf(csrf -> csrf.disable());
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+            .exceptionHandling(exception ->
+                exception.accessDeniedHandler(adminAccessDeniedHandler)
+            );
 
         return http.build();
     }
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http, AdminAccessDeniedHandler adminAccessDeniedHandler) throws Exception {
+        JwtFilter jwtFilter = new JwtFilter(jwtUtil, userDetailsService, messageUtil);
+        http
+            .securityMatcher("/api/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**", "/actuator/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

@@ -20,6 +20,7 @@ import java.util.Locale;
  * Supports Vietnamese (vi) and English (en)
  * Uses YAML format for message files
  */
+
 @Configuration
 public class I18nConfig implements WebMvcConfigurer {
 
@@ -37,22 +38,24 @@ public class I18nConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocaleResolver localeResolver() {
-        SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-        localeResolver.setDefaultLocale(Locale.forLanguageTag("vi"));
-        return localeResolver;
-    }
-
-    @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
         interceptor.setParamName("lang"); // ?lang=en or ?lang=vi
         return interceptor;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(localeChangeInterceptor());
+    @Bean
+    public ApiLocaleInterceptor apiLocaleInterceptor() {
+        ApiLocaleInterceptor interceptor = new ApiLocaleInterceptor();
+        return interceptor;
+    }
+
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver resolver = new SessionLocaleResolver();
+        resolver.setDefaultLocale(Locale.forLanguageTag("vi"));
+        return resolver;
     }
 
     @Override
@@ -60,5 +63,13 @@ public class I18nConfig implements WebMvcConfigurer {
         // Enable WebJars support
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(apiLocaleInterceptor())
+            .addPathPatterns("/api/**");
+
+        registry.addInterceptor(localeChangeInterceptor())
+                .addPathPatterns("/admin/**");
     }
 }

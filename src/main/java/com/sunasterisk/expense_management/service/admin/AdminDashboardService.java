@@ -40,33 +40,32 @@ public class AdminDashboardService {
     @Transactional(readOnly = true)
     public AdminDashboardStats getDashboardStatistics() {
         // User statistics
-        Long totalUsers = userRepository.count();
-        Long activeUsers = userRepository.countByActive(true);
-        Long inactiveUsers = totalUsers - activeUsers;
+        long totalUsers = userRepository.count();
+        long activeUsers = userRepository.countByActive(true);
+        long inactiveUsers = totalUsers - activeUsers;
 
         // New users this month
         LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        Long newUsersThisMonth = userRepository.countByCreatedAtAfter(startOfMonth);
-
+        long newUsersThisMonth = userRepository.countByCreatedAtAfter(startOfMonth);
         // Financial statistics (all users)
         BigDecimal totalExpenses = getAllExpensesSum();
         BigDecimal totalIncomes = getAllIncomesSum();
         BigDecimal totalBalance = totalIncomes.subtract(totalExpenses);
 
         // Activity statistics
-        Long totalCategories = categoryRepository.count();
-        Long totalBudgets = budgetRepository.count();
-        Long totalExpenseRecords = expenseRepository.count();
-        Long totalIncomeRecords = incomeRepository.count();
+        long totalCategories = categoryRepository.count();
+        long totalBudgets = budgetRepository.count();
+        long totalExpenseRecords = expenseRepository.count();
+        long totalIncomeRecords = incomeRepository.count();
 
         // Today's activity
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
-        Long todayExpenses = countExpensesBetween(startOfDay, endOfDay);
-        Long todayIncomes = countIncomesBetween(startOfDay, endOfDay);
-        Long todayLogins = countLoginsBetween(startOfDay, endOfDay);
+        long todayExpenses = countExpensesBetween(startOfDay, endOfDay);
+        long todayIncomes = countIncomesBetween(startOfDay, endOfDay);
+        long todayLogins = countLoginsBetween(startOfDay, endOfDay);
 
         return AdminDashboardStats.builder()
                 .totalUsers(totalUsers)
@@ -87,29 +86,19 @@ public class AdminDashboardService {
     }
 
     private BigDecimal getAllExpensesSum() {
-        BigDecimal sum = expenseRepository.findAll().stream()
-                .map(com.sunasterisk.expense_management.entity.Expense::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum != null ? sum : BigDecimal.ZERO;
+        return expenseRepository.sumAllExpenses().orElse(BigDecimal.ZERO);
     }
 
     private BigDecimal getAllIncomesSum() {
-        BigDecimal sum = incomeRepository.findAll().stream()
-                .map(com.sunasterisk.expense_management.entity.Income::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum != null ? sum : BigDecimal.ZERO;
+        return incomeRepository.sumAllIncomes().orElse(BigDecimal.ZERO);
     }
 
     private Long countExpensesBetween(LocalDateTime start, LocalDateTime end) {
-        return expenseRepository.findAll().stream()
-                .filter(e -> e.getCreatedAt().isAfter(start) && e.getCreatedAt().isBefore(end))
-                .count();
+        return expenseRepository.countExpensesBetween(start, end);
     }
 
     private Long countIncomesBetween(LocalDateTime start, LocalDateTime end) {
-        return incomeRepository.findAll().stream()
-                .filter(i -> i.getCreatedAt().isAfter(start) && i.getCreatedAt().isBefore(end))
-                .count();
+        return incomeRepository.countIncomesBetween(start, end);
     }
 
     private Long countLoginsBetween(LocalDateTime start, LocalDateTime end) {

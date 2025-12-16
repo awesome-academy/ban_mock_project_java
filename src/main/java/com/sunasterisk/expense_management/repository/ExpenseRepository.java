@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -133,4 +134,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e")
+    Optional<BigDecimal> sumAllExpenses();
+
+    @Query("SELECT COUNT(e) FROM Expense e WHERE e.createdAt BETWEEN :start AND :end")
+    Long countExpensesBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
