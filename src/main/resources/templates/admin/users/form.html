@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(${user.id} != null ? #{admin.user.management.form.edit.title} : #{admin.user.management.form.create.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${user.id} != null ? #{admin.user.management.form.edit.title} : #{admin.user.management.form.create.title}">User Form</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/admin/users/save}" th:object="${user}" method="post">
+                        <input type="hidden" th:if="${user.id}" th:field="*{id}" />
+
+                        <div class="form-group">
+                            <label for="name">
+                                <span th:text="#{user.fields.name}">Name</span> <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="name" class="form-control" th:field="*{name}"
+                                   th:placeholder="#{user.fields.name}" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <span th:text="#{user.fields.email}">Email</span> <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" id="email" class="form-control" th:field="*{email}"
+                                   th:placeholder="#{user.fields.email}" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">
+                                <span th:text="#{user.fields.password}">Password</span>
+                                <span class="text-danger" th:if="${user.id == null}">*</span>
+                            </label>
+                            <input type="password"
+                                class="form-control"
+                                th:field="*{password}"
+                                th:required="${user.id == null}"
+                                th:if="${user.id == null}"
+                                th:placeholder="'******'" />
+
+                            <input type="password"
+                                class="form-control"
+                                th:field="*{password}"
+                                th:unless="${user.id == null}"
+                                th:placeholder="'******'" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" th:text="#{user.fields.phone}">Phone</label>
+                            <input type="tel" id="phone" class="form-control" th:field="*{phone}"
+                                   th:placeholder="#{user.fields.phone}" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="role">
+                                <span th:text="#{user.fields.role}">Role</span> <span class="text-danger">*</span>
+                            </label>
+                            <select id="role" class="form-control" th:field="*{role}">
+                                <option th:value="ADMIN" th:text="#{user.fields.roles.admin}">Admin</option>
+                                <option th:value="USER" th:text="#{user.fields.roles.user}">User</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="active">
+                                <span th:text="#{user.fields.status}">Status</span> <span class="text-danger">*</span>
+                            </label>
+                            <select id="active" class="form-control" th:field="*{active}">
+                                <option th:value="true" th:text="#{user.fields.statuses.active}">Active</option>
+                                <option th:value="false" th:text="#{user.fields.statuses.inactive}">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> <span th:text="#{label.action.save}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/users}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> <span th:text="#{label.action.cancel}">Cancel</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

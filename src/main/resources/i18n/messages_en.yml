@@ -195,6 +195,20 @@ user:
       length: Password must be at least 6 characters
   not:
     found: User not found
+  fields:
+    email: Email
+    name: Name
+    phone: Phone
+    id: ID
+    password: Password
+    status: Status
+    statuses:
+      active: Active
+      inactive: Inactive
+    role: Role
+    roles:
+      admin: Admin
+      user: User
 
 success:
   created: Created successfully
@@ -246,3 +260,15 @@ activity:
       required: Entity type is required
       max:
         length: Entity type must not exceed 50 characters
+
+label:
+  action:
+    create: Create
+    edit: Edit
+    update: Update
+    delete: Delete
+    login: Login
+    logout: Logout
+    save: Save
+    cancel: Cancel
+    back: Back

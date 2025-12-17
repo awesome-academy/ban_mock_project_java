@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.user.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${user.name}">User Detail</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user"></i> <span th:text="#{admin.user.management.detail.info}">Profile Details</span></h3>
+                    <div class="card-tools">
+                        <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> <span th:text="#{admin.user.management.action.edit}">Edit</span>
+                        </a>
+                        <a th:href="@{/admin/users}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{admin.user.management.action.back}">Back to List</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="30%" th:text="#{user.fields.id} + ':'">ID:</th>
+                                    <td th:text="${user.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{user.fields.name} + ':'">Name:</th>
+                                    <td th:text="${user.name}">John Doe</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{user.fields.email} + ':'">Email:</th>
+                                    <td th:text="${user.email}">john.doe@example.com</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{user.fields.phone} + ':'">Phone:</th>
+                                    <td th:text="${user.phone ?: '-'}">N/A</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="30%" th:text="#{admin.user.management.field.role} + ':'">Role:</th>
+                                    <td>
+                                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge badge-danger">
+                                            <i class="fas fa-user-shield"></i> <span th:text="#{admin.user.management.role.admin}">Admin</span>
+                                        </span>
+                                        <span th:if="${user.role.name() == 'USER'}" class="badge badge-primary">
+                                            <i class="fas fa-user"></i> <span th:text="#{admin.user.management.role.user}">User</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.user.management.field.status} + ':'">Status:</th>
+                                    <td>
+                                        <span th:if="${user.active}" class="badge badge-success">
+                                            <i class="fas fa-check-circle"></i> <span th:text="#{admin.user.management.status.active}">Active</span>
+                                        </span>
+                                        <span th:unless="${user.active}" class="badge badge-secondary">
+                                            <i class="fas fa-times-circle"></i> <span th:text="#{admin.user.management.status.inactive}">Inactive</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit User</span>
+                    </a>
+                    <a th:href="@{/admin/users/{id}/delete(id=${user.id})}" class="btn btn-danger"
+                       th:onclick="|return confirm('#{admin.user.management.message.confirm.delete}')|">
+                        <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete User</span>
+                    </a>
+                    <a th:href="@{/admin/users}" class="btn btn-secondary float-right">
+                        <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

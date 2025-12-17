@@ -195,6 +195,20 @@ user:
       length: Mật khẩu phải có ít nhất 6 ký tự
   not:
     found: Người dùng không tồn tại
+  fields:
+    email: Email
+    name: Tên
+    phone: Số điện thoại
+    id: ID
+    password: Mật khẩu
+    status: Trạng thái
+    statuses:
+      active: Hoạt động
+      inactive: Không hoạt động
+    role: Vai trò
+    roles:
+      admin: Quản trị viên
+      user: Người dùng
 
 success:
   created: Tạo mới thành công
@@ -246,3 +260,14 @@ activity:
       required: Loại thực thể không được để trống
       max:
         length: Loại thực thể không được vượt quá 50 ký tự
+label:
+  action:
+    create: Tạo
+    edit: Sửa
+    update: Cập nhật
+    delete: Xóa
+    login: Đăng nhập
+    logout: Đăng xuất
+    save: Lưu
+    cancel: Hủy
+    back: Quay lại

@@ -1,0 +1,81 @@
+admin:
+  user:
+    name:
+      required: Tên không được để trống
+      max:
+        length: Tên không được vượt quá 100 ký tự
+    email:
+      required: Email không được để trống
+      invalid: Định dạng email không hợp lệ
+      exists: Email đã tồn tại
+    password:
+      required: Mật khẩu không được để trống
+      min:
+        length: Mật khẩu phải có ít nhất 6 ký tự
+    phone:
+      max:
+        length: Số điện thoại không được vượt quá 20 ký tự
+    role:
+      required: Vai trò không được để trống
+    active:
+      required: Trạng thái không được để trống
+    not:
+      found: Không tìm thấy người dùng với id {0}
+    created:
+      success: Tạo người dùng thành công
+    updated:
+      success: Cập nhật người dùng thành công
+    deleted:
+      success: Xóa người dùng thành công
+    management:
+      title: Quản lý người dùng
+      list:
+        title: Danh sách người dùng
+      detail:
+        title: Chi tiết người dùng
+        info: Thông tin người dùng
+      form:
+        create:
+          title: Tạo người dùng
+        edit:
+          title: Sửa người dùng
+      table:
+        id: ID
+        name: Tên
+        email: Email
+        phone: Số điện thoại
+        role: Vai trò
+        status: Trạng thái
+        actions: Thao tác
+      action:
+        view: Xem
+        edit: Sửa
+        delete: Xóa
+        create: Tạo người dùng
+        save: Lưu
+        cancel: Hủy
+        back: Quay lại danh sách
+      status:
+        active: Hoạt động
+        inactive: Không hoạt động
+      role:
+        admin: Quản trị viên
+        user: Người dùng
+      field:
+        name: Tên
+        email: Email
+        password: Mật khẩu
+        phone: Số điện thoại
+        role: Vai trò
+        status: Trạng thái
+      placeholder:
+        password:
+          keep: Để trống để giữ mật khẩu hiện tại
+          enter: Nhập mật khẩu
+      message:
+        no:
+          users: Không tìm thấy người dùng
+        confirm:
+          delete: Bạn có chắc chắn muốn xóa người dùng này?
+        password:
+          optional: Để trống để giữ mật khẩu hiện tại
