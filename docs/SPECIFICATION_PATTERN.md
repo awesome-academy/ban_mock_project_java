@@ -377,7 +377,7 @@ Specification<Income> spec = Specification
 
 ### 5. Use Static Imports for Clean Code
 ```java
-import static com.sun.expense_management.repository.specification.IncomeSpecification.*;
+import static com.sunasterisk.expense_management.repository.specification.IncomeSpecification.*;
 
 // Then use directly
 Specification<Income> spec = where(hasUser(user))

@@ -1,0 +1,17 @@
+# Admin Login - Vietnamese
+admin:
+  login:
+    title: Đăng nhập Quản trị
+    subtitle: Hệ thống Quản lý Chi tiêu
+    email:
+      placeholder: Nhập email
+    password:
+      placeholder: Nhập mật khẩu
+    remember:
+      me: Ghi nhớ đăng nhập
+    button: Đăng nhập
+    access:
+      denied: Chỉ quản trị viên mới có thể đăng nhập vào hệ thống này
+      only: Chỉ dành cho Quản trị viên
+  logout:
+    success: Đăng xuất thành công

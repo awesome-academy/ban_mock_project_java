@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'404 - ' + #{error.404.title}">404 - Page Not Found</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/6.4.0/css/all.min.css}">
+    <!-- AdminLTE -->
+    <link rel="stylesheet" th:href="@{/webjars/AdminLTE/3.2.0/dist/css/adminlte.min.css}">
+</head>
+<body class="hold-transition">
+<div class="wrapper">
+    <!-- Main content -->
+    <section class="content">
+        <div class="error-page">
+            <h2 class="headline text-warning"> 404</h2>
+
+            <div class="error-content">
+                <h3><i class="fas fa-exclamation-triangle text-warning"></i> Oops! <span th:text="#{error.404.title}">Page Not Found</span>.</h3>
+
+                <p>
+                    <span th:text="#{error.404.description}">We could not find the page you are looking for.</span><br>
+                    <a th:href="@{/admin/dashboard}" th:text="#{error.404.back.home}">Back to Home</a>
+                </p>
+
+                <div class="input-group" style="max-width: 400px;">
+                    <input type="text" class="form-control" th:placeholder="#{error.404.search.placeholder}">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-warning"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                <p class="mt-3">
+                    <small class="text-muted"><span th:text="#{error.path}">Path</span>: <span th:text="${path}"></span></small>
+                </p>
+            </div>
+            <!-- /.error-content -->
+        </div>
+        <!-- /.error-page -->
+    </section>
+    <!-- /.content -->
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script th:src="@{/webjars/jquery/3.6.4/jquery.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/webjars/bootstrap/4.6.2/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/webjars/AdminLTE/3.2.0/dist/js/adminlte.min.js}"></script>
+</body>
+</html>
