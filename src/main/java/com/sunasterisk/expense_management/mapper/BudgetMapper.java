@@ -29,6 +29,7 @@ public interface BudgetMapper {
     @Mapping(target = "isAlertSent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     Budget toEntity(BudgetRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -38,5 +39,6 @@ public interface BudgetMapper {
     @Mapping(target = "isAlertSent", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     void updateEntity(BudgetRequest request, @MappingTarget Budget budget);
 }

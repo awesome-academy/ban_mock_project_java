@@ -2,11 +2,13 @@ package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.UserDto;
 import com.sunasterisk.expense_management.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -50,10 +52,12 @@ public class UserManagementController {
     /**
      * Show create user form
      */
-    @GetMapping("/users/create")
-    public String create(Model model) {
+    @GetMapping("/users/new")
+    public String newUser(Model model) {
         model.addAttribute("activeMenu", "users");
-        model.addAttribute("user", new UserDto());
+        if (!model.containsAttribute("user")) {
+            model.addAttribute("user", new UserDto());
+        }
         return "admin/users/form";
     }
 
@@ -64,8 +68,10 @@ public class UserManagementController {
     public String edit(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             model.addAttribute("activeMenu", "users");
-            UserDto user = userService.getUserById(id);
-            model.addAttribute("user", user);
+            if (!model.containsAttribute("user")) {
+                UserDto user = userService.getUserById(id);
+                model.addAttribute("user", user);
+            }
             return "admin/users/form";
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -74,33 +80,67 @@ public class UserManagementController {
     }
 
     /**
-     * Save user (create or update)
+     * Create new user
      */
-    @PostMapping("/users/save")
-    public String save(@ModelAttribute UserDto user, RedirectAttributes redirectAttributes) {
+    @PostMapping("/users")
+    public String create(@Valid @ModelAttribute("user") UserDto user, BindingResult bindingResult,
+                        Model model, RedirectAttributes redirectAttributes) {
+        // Check email exists
+        if (userService.existsByEmail(user.getEmail())) {
+            bindingResult.rejectValue("email", "admin.user.email.exists",
+                    messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale()));
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("activeMenu", "users");
+            return "admin/users/form";
+        }
         try {
-            if (user.getId() == null) {
-                // Create new user
-                userService.createUser(user);
-                redirectAttributes.addFlashAttribute("success",
-                        messageSource.getMessage("admin.user.created.success", null, LocaleContextHolder.getLocale()));
-            } else {
-                // Update existing user
-                userService.updateUser(user.getId(), user);
-                redirectAttributes.addFlashAttribute("success",
-                        messageSource.getMessage("admin.user.updated.success", null, LocaleContextHolder.getLocale()));
-            }
+            userService.createUser(user);
+            redirectAttributes.addFlashAttribute("success",
+                    messageSource.getMessage("admin.user.created.success", null, LocaleContextHolder.getLocale()));
             return "redirect:/admin/users";
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/users/create";
+            redirectAttributes.addFlashAttribute("user", user);
+            return "redirect:/admin/users/new";
+        }
+    }
+
+    /**
+     * Update existing user
+     */
+    @PutMapping("/users/{id}")
+    public String update(@PathVariable("id") Long id, @Valid @ModelAttribute("user") UserDto user,
+                        BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        // Check email exists (except current user)
+        UserDto existingUser = userService.getUserById(id);
+        if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
+            bindingResult.rejectValue("email", "admin.user.email.exists",
+                    messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale()));
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("activeMenu", "users");
+            user.setId(id);
+            return "admin/users/form";
+        }
+        try {
+            userService.updateUser(id, user);
+            redirectAttributes.addFlashAttribute("success",
+                    messageSource.getMessage("admin.user.updated.success", null, LocaleContextHolder.getLocale()));
+            return "redirect:/admin/users";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("user", user);
+            return "redirect:/admin/users/" + id + "/edit";
         }
     }
 
     /**
      * Delete user
      */
-    @GetMapping("/users/{id}/delete")
+    @DeleteMapping("/users/{id}")
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);

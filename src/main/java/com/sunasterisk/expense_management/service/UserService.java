@@ -2,6 +2,8 @@ package com.sunasterisk.expense_management.service;
 
 import com.sunasterisk.expense_management.dto.UserDto;
 import com.sunasterisk.expense_management.entity.User;
+import com.sunasterisk.expense_management.exception.DuplicateResourceException;
+import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -49,7 +51,7 @@ public class UserService {
     public UserDto getUserById(Long id) {
         return userRepository.findById(id)
                 .map(UserDto::fromEntity)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
                 ));
     }
@@ -61,8 +63,8 @@ public class UserService {
     public UserDto createUser(UserDto dto) {
         // Check if email already exists
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException(
-                    messageSource.getMessage("user.email.exists", null, LocaleContextHolder.getLocale())
+            throw new DuplicateResourceException(
+                messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale())
             );
         }
 
@@ -85,15 +87,15 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Long id, UserDto dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
                 ));
 
         // Check email uniqueness if changed
         if (!user.getEmail().equals(dto.getEmail())) {
             if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-                throw new RuntimeException(
-                        messageSource.getMessage("user.email.exists", null, LocaleContextHolder.getLocale())
+                throw new DuplicateResourceException(
+                        messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale())
                 );
             }
         }
@@ -119,7 +121,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
                 ));
 

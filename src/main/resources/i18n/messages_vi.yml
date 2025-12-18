@@ -189,6 +189,7 @@ user:
   email:
     required: Email không được để trống
     invalid: Email không hợp lệ
+    exists: Email đã tồn tại
   password:
     required: Mật khẩu không được để trống
     min:

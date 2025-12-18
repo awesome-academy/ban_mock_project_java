@@ -189,6 +189,7 @@ user:
   email:
     required: Email is required
     invalid: Invalid email format
+    exists: Email already exists
   password:
     required: Password is required
     min:

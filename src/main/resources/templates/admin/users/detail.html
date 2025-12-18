@@ -82,10 +82,13 @@
                     <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-warning">
                         <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit User</span>
                     </a>
-                    <a th:href="@{/admin/users/{id}/delete(id=${user.id})}" class="btn btn-danger"
-                       th:onclick="|return confirm('#{admin.user.management.message.confirm.delete}')|">
-                        <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete User</span>
-                    </a>
+                    <form th:action="@{/admin/users/{id}(id=${user.id})}" method="post" style="display: inline;">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="btn btn-danger"
+                                th:onclick="|return confirm('#{admin.user.management.message.confirm.delete}')|">
+                            <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete User</span>
+                        </button>
+                    </form>
                     <a th:href="@{/admin/users}" class="btn btn-secondary float-right">
                         <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
                     </a>

@@ -16,25 +16,34 @@
 
     <section class="content">
         <div class="container-fluid">
+            <!-- Error Message -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <i class="icon fas fa-ban"></i> <span th:text="${error}"></span>
+            </div>
             <div class="card">
                 <div class="card-body">
-                    <form th:action="@{/admin/users/save}" th:object="${user}" method="post">
-                        <input type="hidden" th:if="${user.id}" th:field="*{id}" />
+                    <form th:action="${user.id != null ? '/admin/users/' + user.id : '/admin/users'}" th:object="${user}" method="post">
+                        <input type="hidden" name="_method" th:if="${user.id}" value="PUT" />
 
                         <div class="form-group">
                             <label for="name">
                                 <span th:text="#{user.fields.name}">Name</span> <span class="text-danger">*</span>
                             </label>
-                            <input type="text" id="name" class="form-control" th:field="*{name}"
-                                   th:placeholder="#{user.fields.name}" required />
+                            <input type="text" id="name" th:field="*{name}"
+                                   th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
+                                   th:placeholder="#{user.fields.name}" required/>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                         </div>
 
                         <div class="form-group">
                             <label for="email">
                                 <span th:text="#{user.fields.email}">Email</span> <span class="text-danger">*</span>
                             </label>
-                            <input type="email" id="email" class="form-control" th:field="*{email}"
-                                   th:placeholder="#{user.fields.email}" required />
+                            <input type="email" id="email" th:field="*{email}"
+                                   th:class="${#fields.hasErrors('email')} ? 'form-control is-invalid' : 'form-control'"
+                                   th:placeholder="#{user.fields.email}" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                         </div>
 
                         <div class="form-group">
@@ -42,44 +51,43 @@
                                 <span th:text="#{user.fields.password}">Password</span>
                                 <span class="text-danger" th:if="${user.id == null}">*</span>
                             </label>
-                            <input type="password"
-                                class="form-control"
-                                th:field="*{password}"
-                                th:required="${user.id == null}"
-                                th:if="${user.id == null}"
-                                th:placeholder="'******'" />
-
-                            <input type="password"
-                                class="form-control"
-                                th:field="*{password}"
-                                th:unless="${user.id == null}"
-                                th:placeholder="'******'" />
+                            <input type="password" id="password" th:field="*{password}"
+                                   th:class="${#fields.hasErrors('password')} ? 'form-control is-invalid' : 'form-control'"
+                                   th:required="${user.id == null}"
+                                   th:placeholder="'******'" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
                         </div>
 
                         <div class="form-group">
                             <label for="phone" th:text="#{user.fields.phone}">Phone</label>
-                            <input type="tel" id="phone" class="form-control" th:field="*{phone}"
+                            <input type="tel" id="phone" th:field="*{phone}"
+                                   th:class="${#fields.hasErrors('phone')} ? 'form-control is-invalid' : 'form-control'"
                                    th:placeholder="#{user.fields.phone}" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
                         </div>
 
                         <div class="form-group">
                             <label for="role">
                                 <span th:text="#{user.fields.role}">Role</span> <span class="text-danger">*</span>
                             </label>
-                            <select id="role" class="form-control" th:field="*{role}">
+                            <select id="role" th:field="*{role}"
+                                    th:class="${#fields.hasErrors('role')} ? 'form-control is-invalid' : 'form-control'">
                                 <option th:value="ADMIN" th:text="#{user.fields.roles.admin}">Admin</option>
                                 <option th:value="USER" th:text="#{user.fields.roles.user}">User</option>
                             </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
                         </div>
 
                         <div class="form-group">
                             <label for="active">
                                 <span th:text="#{user.fields.status}">Status</span> <span class="text-danger">*</span>
                             </label>
-                            <select id="active" class="form-control" th:field="*{active}">
+                            <select id="active" th:field="*{active}"
+                                    th:class="${#fields.hasErrors('active')} ? 'form-control is-invalid' : 'form-control'">
                                 <option th:value="true" th:text="#{user.fields.statuses.active}">Active</option>
                                 <option th:value="false" th:text="#{user.fields.statuses.inactive}">Inactive</option>
                             </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('active')}" th:errors="*{active}"></div>
                         </div>
 
                         <div class="form-group">
