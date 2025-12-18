@@ -161,6 +161,8 @@ error:
   forbidden: Không có quyền truy cập
   not:
     found: Không tìm thấy tài nguyên
+  duplicate:
+    entry: Bản ghi trùng lặp
   too:
     many:
       requests: Quá nhiều yêu cầu
@@ -263,6 +265,7 @@ activity:
         length: Loại thực thể không được vượt quá 50 ký tự
 label:
   action:
+    show: Xem
     create: Tạo
     edit: Sửa
     update: Cập nhật

@@ -161,6 +161,8 @@ error:
   forbidden: Access denied
   not:
     found: Resource not found
+  duplicate:
+    entry: Duplicate entry
   too:
     many:
       requests: Too many requests
@@ -264,6 +266,7 @@ activity:
 
 label:
   action:
+    show: Show
     create: Create
     edit: Edit
     update: Update

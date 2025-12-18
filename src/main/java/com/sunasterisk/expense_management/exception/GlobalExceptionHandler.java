@@ -74,6 +74,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+        @ExceptionHandler(com.sunasterisk.expense_management.exception.DuplicateResourceException.class)
+        public ResponseEntity<ErrorResponse> handleDuplicateResourceException(
+                        com.sunasterisk.expense_management.exception.DuplicateResourceException ex,
+                        HttpServletRequest request) {
+
+                // Log conflict for tracing
+                log.info("DuplicateResourceException at {}: {}", request.getRequestURI(), ex.getMessage());
+
+                ErrorResponse response = ErrorResponse.builder()
+                                .status(HttpStatus.CONFLICT.value())
+                                .error(messageUtil.getMessage("error.duplicate.entry"))
+                                .message(ex.getMessage())
+                                .path(request.getRequestURI())
+                                .build();
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(
             AccessDeniedException ex,
