@@ -1,0 +1,137 @@
+package com.sunasterisk.expense_management.service;
+
+import com.sunasterisk.expense_management.dto.UserDto;
+import com.sunasterisk.expense_management.entity.User;
+import com.sunasterisk.expense_management.exception.DuplicateResourceException;
+import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
+import com.sunasterisk.expense_management.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Service for User management
+ */
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final MessageSource messageSource;
+
+    /**
+     * Get all users
+     */
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all users with pagination
+     */
+    public Page<UserDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserDto::fromEntity);
+    }
+
+    /**
+     * Get user by ID
+     */
+    public UserDto getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(UserDto::fromEntity)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
+                ));
+    }
+
+    /**
+     * Create new user
+     */
+    @Transactional
+    public UserDto createUser(UserDto dto) {
+        // Check if email already exists
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new DuplicateResourceException(
+                messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale())
+            );
+        }
+
+        User user = User.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .phone(dto.getPhone())
+                .role(dto.getRole() != null ? dto.getRole() : User.Role.USER)
+                .active(dto.getActive() != null ? dto.getActive() : true)
+                .build();
+
+        User saved = userRepository.save(user);
+        return UserDto.fromEntity(saved);
+    }
+
+    /**
+     * Update user
+     */
+    @Transactional
+    public UserDto updateUser(Long id, UserDto dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
+                ));
+
+        // Check email uniqueness if changed
+        if (!user.getEmail().equals(dto.getEmail())) {
+            if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new DuplicateResourceException(
+                        messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale())
+                );
+            }
+        }
+
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setRole(dto.getRole());
+        user.setActive(dto.getActive());
+
+        // Update password only if provided
+        if (dto.getPassword() != null && !dto.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        User updated = userRepository.save(user);
+        return UserDto.fromEntity(updated);
+    }
+
+    /**
+     * Delete user
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
+                ));
+
+        userRepository.delete(user);
+    }
+
+    /**
+     * Check if user exists by email
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+}

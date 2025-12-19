@@ -161,6 +161,8 @@ error:
   forbidden: Không có quyền truy cập
   not:
     found: Không tìm thấy tài nguyên
+  duplicate:
+    entry: Bản ghi trùng lặp
   too:
     many:
       requests: Quá nhiều yêu cầu
@@ -189,12 +191,27 @@ user:
   email:
     required: Email không được để trống
     invalid: Email không hợp lệ
+    exists: Email đã tồn tại
   password:
     required: Mật khẩu không được để trống
     min:
       length: Mật khẩu phải có ít nhất 6 ký tự
   not:
     found: Người dùng không tồn tại
+  fields:
+    email: Email
+    name: Tên
+    phone: Số điện thoại
+    id: ID
+    password: Mật khẩu
+    status: Trạng thái
+    statuses:
+      active: Hoạt động
+      inactive: Không hoạt động
+    role: Vai trò
+    roles:
+      admin: Quản trị viên
+      user: Người dùng
 
 success:
   created: Tạo mới thành công
@@ -246,3 +263,15 @@ activity:
       required: Loại thực thể không được để trống
       max:
         length: Loại thực thể không được vượt quá 50 ký tự
+label:
+  action:
+    show: Xem
+    create: Tạo
+    edit: Sửa
+    update: Cập nhật
+    delete: Xóa
+    login: Đăng nhập
+    logout: Đăng xuất
+    save: Lưu
+    cancel: Hủy
+    back: Quay lại

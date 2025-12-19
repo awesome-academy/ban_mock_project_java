@@ -1,0 +1,81 @@
+admin:
+  user:
+    name:
+      required: Name is required
+      max:
+        length: Name must not exceed 100 characters
+    email:
+      required: Email is required
+      invalid: Invalid email format
+      exists: Email already exists
+    password:
+      required: Password is required
+      min:
+        length: Password must be at least 6 characters
+    phone:
+      max:
+        length: Phone number must not exceed 20 characters
+    role:
+      required: Role is required
+    active:
+      required: Status is required
+    not:
+      found: User not found with id {0}
+    created:
+      success: User created successfully
+    updated:
+      success: User updated successfully
+    deleted:
+      success: User deleted successfully
+    management:
+      title: User Management
+      list:
+        title: User List
+      detail:
+        title: User Detail
+        info: Profile Details
+      form:
+        create:
+          title: Create User
+        edit:
+          title: Edit User
+      table:
+        id: ID
+        name: Name
+        email: Email
+        phone: Phone
+        role: Role
+        status: Status
+        actions: Actions
+      action:
+        view: View
+        edit: Edit
+        delete: Delete
+        create: Create User
+        save: Save
+        cancel: Cancel
+        back: Back to List
+      status:
+        active: Active
+        inactive: Inactive
+      role:
+        admin: Admin
+        user: User
+      field:
+        name: Name
+        email: Email
+        password: Password
+        phone: Phone
+        role: Role
+        status: Status
+      placeholder:
+        password:
+          keep: Leave blank to keep current password
+          enter: Enter password
+      message:
+        no:
+          users: No users found
+        confirm:
+          delete: Are you sure you want to delete this user?
+        password:
+          optional: Leave blank to keep the current password
