@@ -26,6 +26,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class CategoryService {
 
@@ -145,5 +147,12 @@ public class CategoryService {
         // Soft delete by setting active = false
         category.setActive(false);
         categoryRepository.save(category);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getActiveCategories() {
+        return categoryRepository.findByActiveTrue().stream()
+                .map(categoryMapper::toResponse)
+                .toList();
     }
 }

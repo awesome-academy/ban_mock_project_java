@@ -7,7 +7,9 @@ admin:
       dashboard: Bảng điều khiển
       users: Quản lý người dùng
       categories: Danh mục
-      budgets: Mẫu ngân sách
+      budget:
+        templates: Mẫu ngân sách
+      budgets: Ngân sách
       expenses: Chi tiêu
       incomes: Thu nhập
       activity:

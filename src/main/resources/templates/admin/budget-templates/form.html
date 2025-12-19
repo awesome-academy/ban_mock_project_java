@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(${templateId} != null ? #{admin.budget.template.management.form.edit.title} : #{admin.budget.template.management.form.create.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${templateId} != null ? #{admin.budget.template.management.form.edit.title} : #{admin.budget.template.management.form.create.title}">Budget Template Form</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <i class="icon fas fa-ban"></i> <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="${templateId != null ? '/admin/budget-templates/' + templateId : '/admin/budget-templates'}"
+                  th:object="${template}" method="post">
+                <input type="hidden" name="_method" th:if="${templateId}" value="PUT" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title" th:text="#{admin.budget.template.form.basic.info}">Basic Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="name">
+                                        <span th:text="#{admin.budget.template.field.name}">Name</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="name" th:field="*{name}"
+                                           th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.budget.template.field.name}" required/>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description">
+                                        <span th:text="#{admin.budget.template.field.description}">Description</span>
+                                    </label>
+                                    <textarea id="description" th:field="*{description}"
+                                              th:class="${#fields.hasErrors('description')} ? 'form-control is-invalid' : 'form-control'"
+                                              th:placeholder="#{admin.budget.template.field.description}" rows="3"></textarea>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="active">
+                                        <span th:text="#{admin.budget.template.field.status}">Status</span>
+                                    </label>
+                                    <select id="active" th:field="*{active}" class="form-control">
+                                        <option th:value="true" th:text="#{admin.budget.template.status.active}">Active</option>
+                                        <option th:value="false" th:text="#{admin.budget.template.status.inactive}">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title" th:text="#{admin.budget.template.form.items}">Template Items</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="items-container">
+                                    <div th:each="item, itemStat : *{items}" class="item-row mb-3 p-3 border rounded">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label th:for="'items' + ${itemStat.index} + '.categoryId'">
+                                                        <span th:text="#{admin.budget.template.item.category.title}">Category</span>
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select th:id="'items' + ${itemStat.index} + '.categoryId'"
+                                                            th:field="*{items[__${itemStat.index}__].categoryId}"
+                                                            class="form-control" required>
+                                                        <option value="" th:text="#{label.select.category}">Select category</option>
+                                                        <option th:each="cat : ${categories}"
+                                                                th:value="${cat.id}"
+                                                                th:text="${cat.name}">Category</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label th:for="'items' + ${itemStat.index} + '.defaultAmount'">
+                                                        <span th:text="#{admin.budget.template.item.amount}">Amount</span>
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="number" step="1000" min="0"
+                                                           th:id="'items' + ${itemStat.index} + '.defaultAmount'"
+                                                           th:field="*{items[__${itemStat.index}__].defaultAmount}"
+                                                           class="form-control" required/>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-item-btn" onclick="removeItem(this)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-success btn-sm" onclick="addItem()">
+                                    <i class="fas fa-plus"></i> <span th:text="#{admin.budget.template.action.add.item}">Add Item</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> <span th:text="#{label.action.save}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/budget-templates}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> <span th:text="#{label.action.cancel}">Cancel</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let itemIndex = /*[[${#lists.size(template.items)}]]*/ 0;
+        const categories = /*[[${categories}]]*/ [];
+
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const itemHtml = `
+                <div class="item-row mb-3 p-3 border rounded">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="items${itemIndex}.categoryId">
+                                    <span th:text="#{admin.budget.template.item.category.title}">Category</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <select id="items${itemIndex}.categoryId" name="items[${itemIndex}].categoryId" class="form-control" required>
+                                    <option value="">[[#{label.select.category}]]</option>
+                                    ${categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="items${itemIndex}.defaultAmount">
+                                    <span th:text="#{admin.budget.template.item.amount}">Amount</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" step="1000" min="0" id="items${itemIndex}.defaultAmount"
+                                       name="items[${itemIndex}].defaultAmount" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-center">
+                            <button type="button" class="btn btn-danger btn-sm remove-item-btn" onclick="removeItem(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            itemIndex++;
+        }
+
+        function removeItem(button) {
+            button.closest('.item-row').remove();
+        }
+        /*]]>*/
+    </script>
+</th:block>
+</body>
+</html>

@@ -283,6 +283,10 @@ label:
     save: Save
     cancel: Cancel
     back: Back
-  fields:
-    createdAt: Created At
-    updatedAt: Updated At
+  select:
+    category: Select category
+  field:
+    created:
+      at: Created At
+    updated:
+      at: Updated At

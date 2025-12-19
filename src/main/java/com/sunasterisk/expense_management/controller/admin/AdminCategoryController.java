@@ -7,7 +7,6 @@ import com.sunasterisk.expense_management.dto.CategoryDto;
 import com.sunasterisk.expense_management.dto.category.CategoryRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryResponse;
 import com.sunasterisk.expense_management.service.CategoryService;
-import com.sunasterisk.expense_management.entity.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -7,7 +7,9 @@ admin:
       dashboard: Dashboard
       users: User Management
       categories: Categories
-      budgets: Budget Templates
+      budget:
+        templates: Budget Templates
+      budgets: Budgets
       expenses: Expenses
       incomes: Incomes
       activity:

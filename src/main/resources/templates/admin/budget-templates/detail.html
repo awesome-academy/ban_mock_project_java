@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.budget.template.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="#{admin.budget.template.management.detail.title}">Budget Template Detail</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a th:href="@{'/admin/budget-templates/' + ${template.id} + '/edit'}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit</span>
+                    </a>
+                    <a th:href="@{/admin/budget-templates}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> <span th:text="#{admin.budget.template.action.back}">Back</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title" th:text="#{admin.budget.template.detail.basic.info}">Basic Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width: 40%" th:text="#{admin.budget.template.table.id}">ID</th>
+                                    <td th:text="${template.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.template.table.name}">Name</th>
+                                    <td th:text="${template.name}">Monthly Budget</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.template.table.description}">Description</th>
+                                    <td th:text="${template.description} ?: '-'">Template description</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.template.table.status}">Status</th>
+                                    <td>
+                                        <span th:if="${template.active}" class="badge badge-success" th:text="#{admin.budget.template.status.active}">Active</span>
+                                        <span th:if="${!template.active}" class="badge badge-secondary" th:text="#{admin.budget.template.status.inactive}">Inactive</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${template.createdAt}">
+                                    <th th:text="#{label.field.created.at}">Created At</th>
+                                    <td th:text="${#temporals.format(template.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                <tr th:if="${template.updatedAt}">
+                                    <th th:text="#{label.field.updated.at}">Updated At</th>
+                                    <td th:text="${#temporals.format(template.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title" th:text="#{admin.budget.template.detail.items}">Template Items</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th th:text="#{admin.budget.template.item.category.title}">Category</th>
+                                    <th class="text-right" th:text="#{admin.budget.template.item.amount}">Amount</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="item : ${template.items}">
+                                    <td th:text="${item.categoryName}">Food</td>
+                                    <td class="text-right" th:text="${#numbers.formatDecimal(item.defaultAmount, 0, 'COMMA', 0, 'POINT')}">3,000,000</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(template.items)}">
+                                    <td colspan="2" class="text-center" th:text="#{admin.budget.template.message.no.items}">No items</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <form th:action="@{'/admin/budget-templates/' + ${template.id}}" method="post" style="display:inline-block"
+                          onsubmit="return confirm('Are you sure you want to delete this template?');">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

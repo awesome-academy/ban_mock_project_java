@@ -73,7 +73,7 @@ admin:
           keep: Để trống để giữ mật khẩu hiện tại
           enter: Nhập mật khẩu
       message:
-        no:
+        'no':
           users: Không tìm thấy người dùng
         confirm:
           delete: Bạn có chắc chắn muốn xóa người dùng này?

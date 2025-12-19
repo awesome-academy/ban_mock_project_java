@@ -1,0 +1,68 @@
+admin:
+  budget:
+    template:
+      name:
+        required: Template name is required
+        max:
+          length: Template name must not exceed 200 characters
+      not:
+        found: Budget template not found with id {0}
+      created:
+        success: Budget template created successfully
+      updated:
+        success: Budget template updated successfully
+      deleted:
+        success: Budget template deleted successfully
+      management:
+        message:
+          confirm:
+            delete: Are you sure you want to delete this budget template?
+        title: Budget Template Management
+        list:
+          title: Budget Template List
+        detail:
+          title: Budget Template Detail
+        form:
+          create:
+            title: Create Budget Template
+          edit:
+            title: Edit Budget Template
+      table:
+        id: ID
+        name: Name
+        description: Description
+        items:
+          count: Items
+        status: Status
+        actions: Actions
+      field:
+        name: Name
+        description: Description
+        status: Status
+      form:
+        basic:
+          info: Basic Information
+        items: Template Items
+      detail:
+        basic:
+          info: Basic Information
+        items: Template Items
+      item:
+        category:
+          title: Category
+          required: Category is required
+        amount: Amount
+      action:
+        create: Create Template
+        save: Save
+        cancel: Cancel
+        back: Back to List
+        add:
+          item: Add Item
+      status:
+        active: Active
+        inactive: Inactive
+      message:
+        no:
+          templates: No budget templates found
+          items: No items in this template

@@ -1,0 +1,68 @@
+admin:
+  budget:
+    template:
+      name:
+        required: Tên mẫu là bắt buộc
+        max:
+          length: Tên mẫu không được vượt quá 200 ký tự
+      not:
+        found: Không tìm thấy mẫu ngân sách với id {0}
+      created:
+        success: Tạo mẫu ngân sách thành công
+      updated:
+        success: Cập nhật mẫu ngân sách thành công
+      deleted:
+        success: Xóa mẫu ngân sách thành công
+      management:
+        message:
+          confirm:
+            delete: Bạn có chắc chắn muốn xóa mẫu ngân sách này không?
+        title: Quản lý mẫu ngân sách
+        list:
+          title: Danh sách mẫu ngân sách
+        detail:
+          title: Chi tiết mẫu ngân sách
+        form:
+          create:
+            title: Tạo mẫu ngân sách
+          edit:
+            title: Chỉnh sửa mẫu ngân sách
+      table:
+        id: ID
+        name: Tên
+        description: Mô tả
+        items:
+          count: Số mục
+        status: Trạng thái
+        actions: Hành động
+      field:
+        name: Tên
+        description: Mô tả
+        status: Trạng thái
+      form:
+        basic:
+          info: Thông tin cơ bản
+        items: Các mục trong mẫu
+      detail:
+        basic:
+          info: Thông tin cơ bản
+        items: Các mục trong mẫu
+      item:
+        category:
+          title: Danh mục
+          required: Danh mục là bắt buộc
+        amount: Số tiền
+      action:
+        create: Tạo mẫu
+        save: Lưu
+        cancel: Hủy
+        back: Quay lại danh sách
+        add:
+          item: Thêm mục
+      status:
+        active: Kích hoạt
+        inactive: Không kích hoạt
+      message:
+        'no':
+          templates: Không tìm thấy mẫu ngân sách nào
+          items: Không có mục nào trong mẫu này

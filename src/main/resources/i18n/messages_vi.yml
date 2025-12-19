@@ -282,6 +282,10 @@ label:
     save: Lưu
     cancel: Hủy
     back: Quay lại
-  fields:
-    createdAt: Ngày tạo
-    updatedAt: Ngày cập nhật
+  select:
+    category: Chọn danh mục
+  field:
+    created:
+      at: Ngày tạo
+    updated:
+      at: Ngày cập nhật
