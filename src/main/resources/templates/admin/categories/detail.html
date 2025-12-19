@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.category.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${category.name}">Category Detail</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user"></i> <span th:text="#{admin.category.management.detail.title}">Category Details</span></h3>
+                    <div class="card-tools">
+                        <a th:href="@{/admin/categories/{id}/edit(id=${category.id})}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit</span>
+                        </a>
+                        <a th:href="@{/admin/categories}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width: 40%" th:text="#{admin.category.table.id}">ID</th>
+                                    <td th:text="${category.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.category.table.name}">Name</th>
+                                    <td th:text="${category.name}">Food</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.category.field.description}">Description</th>
+                                    <td th:text="${category.description} ?: '-'">Category description</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.category.table.type}">Type</th>
+                                    <td>
+                                        <span th:if="${category.type == 'EXPENSE'}" class="badge badge-danger" th:text="#{category.fields.types.expense}">Expense</span>
+                                        <span th:if="${category.type == 'INCOME'}" class="badge badge-success" th:text="#{category.fields.types.income}">Income</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.category.table.status}">Status</th>
+                                    <td>
+                                        <span th:if="${category.active}" class="badge badge-success" th:text="#{admin.category.status.active}">Active</span>
+                                        <span th:if="${!category.active}" class="badge badge-secondary" th:text="#{admin.category.status.inactive}">Inactive</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${category.icon}">
+                                    <th th:text="#{admin.category.field.icon}">Icon</th>
+                                    <td>
+                                        <i th:class="${'fas fa-' + category.icon}"></i>
+                                        <span th:text="${category.icon}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${category.color}">
+                                    <th th:text="#{admin.category.field.color}">Color</th>
+                                    <td>
+                                        <span class="badge" th:style="'background-color: ' + ${category.color}" th:text="${category.color}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${category.createdAt}">
+                                    <th th:text="#{label.fields.createdAt}">Created At</th>
+                                    <td th:text="${#temporals.format(category.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                <tr th:if="${category.updatedAt}">
+                                    <th th:text="#{label.fields.updatedAt}">Updated At</th>
+                                    <td th:text="${#temporals.format(category.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <form th:action="@{'/admin/categories/' + ${category.id}}" method="post" style="display:inline-block"
+                                  th:onsubmit="|return confirm('#{admin.category.management.message.confirm.delete}')|">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

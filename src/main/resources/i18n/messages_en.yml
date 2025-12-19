@@ -86,6 +86,13 @@ expense:
     denied: You do not have permission to access this expense
 
 category:
+  fields:
+    types:
+      income: Income
+      expense: Expense
+    statuses:
+      active: Active
+      inactive: Inactive
   invalid:
     type:
       income: Category is not of type income
@@ -276,3 +283,6 @@ label:
     save: Save
     cancel: Cancel
     back: Back
+  fields:
+    createdAt: Created At
+    updatedAt: Updated At

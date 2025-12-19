@@ -86,6 +86,13 @@ expense:
     denied: Bạn không có quyền truy cập chi tiêu này
 
 category:
+  fields:
+    types:
+      income: Thu nhập
+      expense: Chi tiêu
+    statuses:
+      active: Hoạt động
+      inactive: Không hoạt động
   invalid:
     type:
       income: Danh mục không phải loại thu nhập
@@ -275,3 +282,6 @@ label:
     save: Lưu
     cancel: Hủy
     back: Quay lại
+  fields:
+    createdAt: Ngày tạo
+    updatedAt: Ngày cập nhật

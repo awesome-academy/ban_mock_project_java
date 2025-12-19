@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.category.management.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="#{admin.category.management.title}">Category List</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a th:href="@{/admin/categories/new}" class="btn btn-primary"> <i class="fas fa-plus"></i> <span th:text="#{admin.category.action.create}">Create</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div th:if="${error}" class="alert alert-danger"> <span th:text="${error}"></span></div>
+            <div th:if="${success}" class="alert alert-success"> <span th:text="${success}"></span></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-users"></i> <span th:text="#{admin.category.management.list.title}">Category List</span></h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th th:text="#{admin.category.table.id}">ID</th>
+                            <th th:text="#{admin.category.table.name}">Name</th>
+                            <th th:text="#{admin.category.table.type}">Type</th>
+                            <th th:text="#{admin.category.table.status}">Status</th>
+                            <th th:text="#{admin.category.table.actions}">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cat : ${categories}">
+                            <td th:text="${cat.id}">1</td>
+                            <td th:text="${cat.name}">Food</td>
+                            <td th:text="${cat.type}">EXPENSE</td>
+                            <td th:text="${cat.active} ? #{admin.category.status.active} : #{admin.category.status.inactive}">Active</td>
+                            <td>
+                                <a th:href="@{'/admin/categories/' + ${cat.id}}" class="btn btn-sm btn-info" th:title="#{label.action.show}">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{'/admin/categories/' + ${cat.id} + '/edit'}" class="btn btn-sm btn-warning" th:title="#{label.action.edit}">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{'/admin/categories/' + ${cat.id}}" method="post" style="display:inline-block">
+                                    <input type="hidden" name="_method" value="DELETE" />
+                                    <button type="submit" class="btn btn-sm btn-danger" th:title="#{label.action.delete}"
+                                            th:onclick="|return confirm('#{admin.category.management.message.confirm.delete}')|">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(categories)}">
+                            <td colspan="5" th:text="#{admin.category.message.no.categories}">No categories found</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

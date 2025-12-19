@@ -72,7 +72,7 @@
                             </label>
                             <select id="role" th:field="*{role}"
                                     th:class="${#fields.hasErrors('role')} ? 'form-control is-invalid' : 'form-control'">
-                                <option th:each="r : *{role.getClass().getEnumConstants()}"
+                                <option th:each="r : ${T(com.sunasterisk.expense_management.entity.User.Role).values()}"
                                         th:value="${r}"
                                         th:text="${#messages.msgOrNull('user.fields.roles.' + r.name().toLowerCase()) ?: r.name()}">
                                     Role
