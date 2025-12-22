@@ -97,7 +97,7 @@
             <div class="row mt-3">
                 <div class="col-md-12">
                     <form th:action="@{'/admin/budget-templates/' + ${template.id}}" method="post" style="display:inline-block"
-                          onsubmit="return confirm('Are you sure you want to delete this template?');">
+                          th:onsubmit="|return confirm('#{admin.budget.template.management.message.confirm.delete}');|">
                         <input type="hidden" name="_method" value="DELETE" />
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>

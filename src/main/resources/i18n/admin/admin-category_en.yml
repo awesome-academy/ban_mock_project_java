@@ -47,3 +47,7 @@ admin:
     status:
       active: Active
       inactive: Inactive
+    message:
+      'no':
+        templates: No budget templates found
+        items: No items in this template

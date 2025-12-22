@@ -2,7 +2,6 @@ package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.category.CategoryFilterRequest;
-import com.sunasterisk.expense_management.config.RequestLoggingFilter;
 import com.sunasterisk.expense_management.dto.CategoryDto;
 import com.sunasterisk.expense_management.dto.category.CategoryRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryResponse;
@@ -10,8 +9,6 @@ import com.sunasterisk.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
@@ -70,8 +67,6 @@ public class AdminCategoryController {
             model.addAttribute("activeMenu", "categories");
             if (!model.containsAttribute("category")) {
                 CategoryResponse category = categoryService.getCategoryById(id);
-                Logger log = LoggerFactory.getLogger(RequestLoggingFilter.class);
-                log.debug("Editing Category: " + category.getName());
                 CategoryDto dto = CategoryDto.builder()
                         .id(category.getId())
                         .name(category.getName())

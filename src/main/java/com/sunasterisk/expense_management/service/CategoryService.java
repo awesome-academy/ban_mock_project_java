@@ -1,6 +1,5 @@
 package com.sunasterisk.expense_management.service;
 
-import com.sunasterisk.expense_management.config.RequestLoggingFilter;
 import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.category.CategoryFilterRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryRequest;
@@ -14,8 +13,6 @@ import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.CategorySpecification;
 import com.sunasterisk.expense_management.util.MessageUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +93,7 @@ public class CategoryService {
 
         Category category = categoryMapper.toEntity(request);
         // If user is not admin, set the user and isDefault fields accordingly
-        if (user.getRole().name().equals(User.Role.ADMIN.name())) {
+        if (User.Role.ADMIN.equals(user.getRole())) {
             category.setUser(null); // Admin-created categories are global
             category.setIsDefault(true);
         } else {
@@ -113,7 +110,7 @@ public class CategoryService {
         User user = getCurrentUser();
         Category category;
         // Admins can update any category
-        if (user.getRole().name().equals(User.Role.ADMIN.name())) {
+        if (User.Role.ADMIN.equals(user.getRole())) {
             category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     messageUtil.getMessage("category.not.found", id)));
@@ -134,7 +131,7 @@ public class CategoryService {
     public void deleteCategory(Long id) {
         User user = getCurrentUser();
         Category category;
-        if (user.getRole().name().equals(User.Role.ADMIN.name())) {
+        if (User.Role.ADMIN.equals(user.getRole())) {
             category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                     messageUtil.getMessage("category.not.found", id)));

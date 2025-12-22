@@ -47,3 +47,7 @@ admin:
     status:
       active: Kích hoạt
       inactive: Không kích hoạt
+    message:
+      'no':
+        templates: Không tìm thấy mẫu ngân sách nào
+        items: Không có mục nào trong mẫu này
