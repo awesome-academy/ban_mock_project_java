@@ -4,6 +4,8 @@ import com.sunasterisk.expense_management.entity.Income;
 import com.sunasterisk.expense_management.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,9 +20,33 @@ import java.util.Optional;
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, Long>, JpaSpecificationExecutor<Income> {
 
+    @EntityGraph(attributePaths = {"user", "category"})
     Page<Income> findByUser(User user, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"user", "category"})
     Optional<Income> findByIdAndUser(Long id, User user);
+
+    /**
+     * Find income by ID with eager loading of user and category relationships.
+     * Prevents additional queries when accessing user and category details.
+     *
+     * @param id Income ID
+     * @return Optional containing income with user and category eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"user", "category"})
+    Optional<Income> findById(Long id);
+
+    /**
+     * Find all incomes with eager loading of user and category relationships.
+     * This prevents N+1 queries when fetching incomes with their related entities.
+     * Used by admin services to efficiently load income data with user and category details.
+     *
+     * @param spec     Specification for filtering
+     * @param pageable Pagination information
+     * @return Page of incomes with user and category eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"user", "category"})
+    Page<Income> findAll(Specification<Income> spec, Pageable pageable);
 
     // Old @Query method removed - now using Specification pattern
     // See IncomeSpecification.withFilters() for flexible dynamic queries

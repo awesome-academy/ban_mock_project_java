@@ -7,9 +7,10 @@ import com.sunasterisk.expense_management.dto.income.IncomeResponse;
 import com.sunasterisk.expense_management.service.admin.AdminIncomeService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDate;
+
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,12 +19,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-public class AdminIncomeController {
+public class AdminIncomeController extends BaseAdminController {
+
+    private static final String MODULE = "incomes";
 
     private final CategoryService categoryService;
     private final AdminIncomeService adminIncomeService;
-    private final MessageSource messageSource;
+
+    public AdminIncomeController(CategoryService categoryService,
+                                 AdminIncomeService adminIncomeService,
+                                 MessageSource messageSource) {
+        super(messageSource);
+        this.categoryService = categoryService;
+        this.adminIncomeService = adminIncomeService;
+    }
 
     @GetMapping("/incomes")
     public String index(Model model,
@@ -41,11 +50,14 @@ public class AdminIncomeController {
                 .page(page)
                 .size(size);
 
-        if (startDate != null && !startDate.isEmpty()) {
-            filterBuilder.startDate(java.time.LocalDate.parse(startDate));
+        LocalDate parsedStartDate = parseLocalDate(startDate);
+        LocalDate parsedEndDate = parseLocalDate(endDate);
+
+        if (parsedStartDate != null) {
+            filterBuilder.startDate(parsedStartDate);
         }
-        if (endDate != null && !endDate.isEmpty()) {
-            filterBuilder.endDate(java.time.LocalDate.parse(endDate));
+        if (parsedEndDate != null) {
+            filterBuilder.endDate(parsedEndDate);
         }
 
         AdminIncomeFilterRequest filter = filterBuilder.build();
@@ -58,26 +70,26 @@ public class AdminIncomeController {
         model.addAttribute("totalElements", response.getTotalElements());
         model.addAttribute("filter", filter);
 
-        return "admin/incomes/index";
+        return viewIndex(MODULE);
     }
 
     @GetMapping("/incomes/{id}")
     public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "incomes");
+            model.addAttribute("activeMenu", MODULE);
             IncomeResponse income = adminIncomeService.getIncomeById(id);
             model.addAttribute("income", income);
-            return "admin/incomes/detail";
+            return viewDetail(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/incomes";
+            return redirectToIndex(MODULE);
         }
     }
 
     @GetMapping("/incomes/{id}/edit")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "incomes");
+            model.addAttribute("activeMenu", MODULE);
             IncomeResponse income = adminIncomeService.getIncomeById(id);
 
             if (!model.containsAttribute("incomeRequest")) {
@@ -95,10 +107,10 @@ public class AdminIncomeController {
             }
 
             model.addAttribute("categories", categoryService.getActiveIncomeCategories());
-            return "admin/incomes/form";
+            return viewForm(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/incomes";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -109,20 +121,20 @@ public class AdminIncomeController {
                         Model model,
                         RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "incomes");
+            model.addAttribute("activeMenu", MODULE);
             model.addAttribute("categories", categoryService.getActiveIncomeCategories());
-            return "admin/incomes/form";
+            return viewForm(MODULE);
         }
 
         try {
             adminIncomeService.updateIncome(id, incomeRequest);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.income.updated.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/incomes";
+                    getMessage("admin.income.updated.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("incomeRequest", incomeRequest);
-            return "redirect:/admin/incomes/" + id + "/edit";
+            return redirectToEdit(MODULE, id);
         }
     }
 
@@ -131,10 +143,10 @@ public class AdminIncomeController {
         try {
             adminIncomeService.deleteIncome(id);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.income.deleted.success", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.income.deleted.success"));
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/incomes";
+        return redirectToIndex(MODULE);
     }
 }

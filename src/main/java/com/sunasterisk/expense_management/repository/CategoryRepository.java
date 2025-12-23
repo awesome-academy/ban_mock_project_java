@@ -14,8 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
 
     List<Category> findByTypeAndActiveTrue(CategoryType type);
 
-    List<Category> findByActiveTrueAndType(CategoryType type);
-
     Optional<Category> findByIdAndActiveTrue(Long id);
 
     List<Category> findByActiveTrue();

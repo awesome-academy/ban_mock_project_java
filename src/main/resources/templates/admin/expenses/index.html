@@ -138,17 +138,20 @@
                             <nav>
                                 <ul class="pagination justify-content-end">
                                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/expenses(page=${currentPage - 1}, size=${filter.size})}"
-                                           th:text="#{label.pagination.previous}">Previous</a>
+                                        <a class="page-link"
+                                            th:href="@{/admin/expenses(page=${currentPage - 1}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
+                                            th:text="#{label.pagination.previous}">Previous</a>
                                     </li>
                                     <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                                         th:classappend="${i == currentPage} ? 'active'">
-                                        <a class="page-link" th:href="@{/admin/expenses(page=${i}, size=${filter.size})}"
-                                           th:text="${i + 1}">1</a>
+                                        <a class="page-link"
+                                            th:href="@{/admin/expenses(page=${i}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
+                                            th:text="${i + 1}">1</a>
                                     </li>
                                     <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/expenses(page=${currentPage + 1}, size=${filter.size})}"
-                                           th:text="#{label.pagination.next}">Next</a>
+                                        <a class="page-link"
+                                            th:href="@{/admin/expenses(page=${currentPage + 1}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
+                                            th:text="#{label.pagination.next}">Next</a>
                                     </li>
                                 </ul>
                             </nav>

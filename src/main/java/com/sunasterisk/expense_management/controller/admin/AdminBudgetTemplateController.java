@@ -7,9 +7,7 @@ import com.sunasterisk.expense_management.dto.budgettemplate.BudgetTemplateRespo
 import com.sunasterisk.expense_management.service.BudgetTemplateService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,12 +16,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-public class AdminBudgetTemplateController {
+public class AdminBudgetTemplateController extends BaseAdminController {
+
+    private static final String MODULE = "budget-templates";
 
     private final BudgetTemplateService budgetTemplateService;
     private final CategoryService categoryService;
-    private final MessageSource messageSource;
+
+    public AdminBudgetTemplateController(BudgetTemplateService budgetTemplateService,
+                                         CategoryService categoryService,
+                                         MessageSource messageSource) {
+        super(messageSource);
+        this.budgetTemplateService = budgetTemplateService;
+        this.categoryService = categoryService;
+    }
 
     @GetMapping("/budget-templates")
     public String index(Model model,
@@ -34,39 +40,39 @@ public class AdminBudgetTemplateController {
                 .size(size)
                 .build();
         PageResponse<BudgetTemplateResponse> response = budgetTemplateService.getBudgetTemplates(filter);
-        model.addAttribute("activeMenu", "budget-templates");
+        model.addAttribute("activeMenu", MODULE);
         model.addAttribute("templates", response.getContent());
-        return "admin/budget-templates/index";
+        return viewIndex(MODULE);
     }
 
     @GetMapping("/budget-templates/new")
     public String newBudgetTemplate(Model model) {
-        model.addAttribute("activeMenu", "budget-templates");
+        model.addAttribute("activeMenu", MODULE);
         if (!model.containsAttribute("template")) {
             model.addAttribute("template", new BudgetTemplateRequest());
         }
         // Load active categories for dropdown
         model.addAttribute("categories", categoryService.getActiveCategories());
-        return "admin/budget-templates/form";
+        return viewForm(MODULE);
     }
 
     @GetMapping("/budget-templates/{id}")
     public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "budget-templates");
+            model.addAttribute("activeMenu", MODULE);
             BudgetTemplateResponse template = budgetTemplateService.getBudgetTemplateById(id);
             model.addAttribute("template", template);
-            return "admin/budget-templates/detail";
+            return viewDetail(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/budget-templates";
+            return redirectToIndex(MODULE);
         }
     }
 
     @GetMapping("/budget-templates/{id}/edit")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "budget-templates");
+            model.addAttribute("activeMenu", MODULE);
             if (!model.containsAttribute("template")) {
                 BudgetTemplateResponse template = budgetTemplateService.getBudgetTemplateById(id);
                 BudgetTemplateRequest request = BudgetTemplateRequest.builder()
@@ -83,10 +89,10 @@ public class AdminBudgetTemplateController {
             }
             // Load active categories for dropdown
             model.addAttribute("categories", categoryService.getActiveCategories());
-            return "admin/budget-templates/form";
+            return viewForm(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/budget-templates";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -96,19 +102,19 @@ public class AdminBudgetTemplateController {
                          Model model,
                          RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "budget-templates");
+            model.addAttribute("activeMenu", MODULE);
             model.addAttribute("categories", categoryService.getActiveCategories());
-            return "admin/budget-templates/form";
+            return viewForm(MODULE);
         }
         try {
             budgetTemplateService.createBudgetTemplate(template);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.budget.template.created.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/budget-templates";
+                    getMessage("admin.budget.template.created.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("template", template);
-            return "redirect:/admin/budget-templates/new";
+            return REDIRECT_PREFIX + MODULE + "/new";
         }
     }
 
@@ -119,21 +125,21 @@ public class AdminBudgetTemplateController {
                          Model model,
                          RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "budget-templates");
+            model.addAttribute("activeMenu", MODULE);
             model.addAttribute("categories", categoryService.getActiveCategories());
             model.addAttribute("templateId", id);
-            return "admin/budget-templates/form";
+            return viewForm(MODULE);
         }
         try {
             budgetTemplateService.updateBudgetTemplate(id, template);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.budget.template.updated.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/budget-templates";
+                    getMessage("admin.budget.template.updated.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("template", template);
             redirectAttributes.addFlashAttribute("templateId", id);
-            return "redirect:/admin/budget-templates/" + id + "/edit";
+            return redirectToEdit(MODULE, id);
         }
     }
 
@@ -142,10 +148,10 @@ public class AdminBudgetTemplateController {
         try {
             budgetTemplateService.deleteBudgetTemplate(id);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.budget.template.deleted.success", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.budget.template.deleted.success"));
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/budget-templates";
+        return redirectToIndex(MODULE);
     }
 }

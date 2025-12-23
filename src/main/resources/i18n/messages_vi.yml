@@ -286,11 +286,6 @@ label:
     reset: Đặt lại
   select:
     category: Chọn danh mục
-  field:
-    created:
-      at: Ngày tạo
-    updated:
-      at: Ngày cập nhật
   fields:
     created:
       at: Ngày tạo

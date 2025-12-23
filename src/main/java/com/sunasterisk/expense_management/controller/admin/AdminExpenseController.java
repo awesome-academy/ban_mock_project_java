@@ -7,9 +7,10 @@ import com.sunasterisk.expense_management.dto.expense.ExpenseResponse;
 import com.sunasterisk.expense_management.service.admin.AdminExpenseService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDate;
+
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,12 +19,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-public class AdminExpenseController {
+public class AdminExpenseController extends BaseAdminController {
+
+    private static final String MODULE = "expenses";
 
     private final AdminExpenseService adminExpenseService;
     private final CategoryService categoryService;
-    private final MessageSource messageSource;
+
+    public AdminExpenseController(AdminExpenseService adminExpenseService,
+                                  CategoryService categoryService,
+                                  MessageSource messageSource) {
+        super(messageSource);
+        this.adminExpenseService = adminExpenseService;
+        this.categoryService = categoryService;
+    }
 
     @GetMapping("/expenses")
     public String index(Model model,
@@ -41,11 +50,14 @@ public class AdminExpenseController {
                 .page(page)
                 .size(size);
 
-        if (startDate != null && !startDate.isEmpty()) {
-            filterBuilder.startDate(java.time.LocalDate.parse(startDate));
+        LocalDate parsedStartDate = parseLocalDate(startDate);
+        LocalDate parsedEndDate = parseLocalDate(endDate);
+
+        if (parsedStartDate != null) {
+            filterBuilder.startDate(parsedStartDate);
         }
-        if (endDate != null && !endDate.isEmpty()) {
-            filterBuilder.endDate(java.time.LocalDate.parse(endDate));
+        if (parsedEndDate != null) {
+            filterBuilder.endDate(parsedEndDate);
         }
 
         AdminExpenseFilterRequest filter = filterBuilder.build();
@@ -58,26 +70,26 @@ public class AdminExpenseController {
         model.addAttribute("totalElements", response.getTotalElements());
         model.addAttribute("filter", filter);
 
-        return "admin/expenses/index";
+        return viewIndex(MODULE);
     }
 
     @GetMapping("/expenses/{id}")
     public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "expenses");
+            model.addAttribute("activeMenu", MODULE);
             ExpenseResponse expense = adminExpenseService.getExpenseById(id);
             model.addAttribute("expense", expense);
-            return "admin/expenses/detail";
+            return viewDetail(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/expenses";
+            return redirectToIndex(MODULE);
         }
     }
 
     @GetMapping("/expenses/{id}/edit")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "expenses");
+            model.addAttribute("activeMenu", MODULE);
             ExpenseResponse expense = adminExpenseService.getExpenseById(id);
 
             if (!model.containsAttribute("expenseRequest")) {
@@ -96,10 +108,10 @@ public class AdminExpenseController {
             }
 
             model.addAttribute("categories", categoryService.getActiveExpenseCategories());
-            return "admin/expenses/form";
+            return viewForm(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/expenses";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -110,20 +122,20 @@ public class AdminExpenseController {
                         Model model,
                         RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "expenses");
+            model.addAttribute("activeMenu", MODULE);
             model.addAttribute("categories", categoryService.getActiveExpenseCategories());
-            return "admin/expenses/form";
+            return viewForm(MODULE);
         }
 
         try {
             adminExpenseService.updateExpense(id, expenseRequest);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.expense.updated.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/expenses";
+                    getMessage("admin.expense.updated.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("expenseRequest", expenseRequest);
-            return "redirect:/admin/expenses/" + id + "/edit";
+            return redirectToEdit(MODULE, id);
         }
     }
 
@@ -132,10 +144,10 @@ public class AdminExpenseController {
         try {
             adminExpenseService.deleteExpense(id);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.expense.deleted.success", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.expense.deleted.success"));
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/expenses";
+        return redirectToIndex(MODULE);
     }
 }

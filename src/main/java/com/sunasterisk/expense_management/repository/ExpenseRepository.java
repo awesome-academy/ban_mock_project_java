@@ -4,6 +4,8 @@ import com.sunasterisk.expense_management.entity.Expense;
 import com.sunasterisk.expense_management.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,9 +20,33 @@ import java.util.Optional;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
 
+    @EntityGraph(attributePaths = {"user", "category"})
     Page<Expense> findByUser(User user, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"user", "category"})
     Optional<Expense> findByIdAndUser(Long id, User user);
+
+    /**
+     * Find expense by ID with eager loading of user and category relationships.
+     * Prevents additional queries when accessing user and category details.
+     *
+     * @param id Expense ID
+     * @return Optional containing expense with user and category eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"user", "category"})
+    Optional<Expense> findById(Long id);
+
+    /**
+     * Find all expenses with eager loading of user and category relationships.
+     * This prevents N+1 queries when fetching expenses with their related entities.
+     * Used by admin services to efficiently load expense data with user and category details.
+     *
+     * @param spec     Specification for filtering
+     * @param pageable Pagination information
+     * @return Page of expenses with user and category eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"user", "category"})
+    Page<Expense> findAll(Specification<Expense> spec, Pageable pageable);
 
     // Old @Query method removed - now using Specification pattern
     // See ExpenseSpecification.withFilters() for flexible dynamic queries

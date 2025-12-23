@@ -85,7 +85,7 @@ public class IncomeService {
         User user = getCurrentUser();
         Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("income.not.found", new Object[]{id})));
+                        messageUtil.getMessage("income.not.found", id)));
         return incomeMapper.toResponse(income);
     }
 
@@ -95,7 +95,7 @@ public class IncomeService {
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", new Object[]{request.getCategoryId()})));
+                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
 
         if (category.getType() != CategoryType.INCOME) {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
@@ -115,12 +115,11 @@ public class IncomeService {
 
         Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("income.not.found", new Object[]{id})));
+                        messageUtil.getMessage("income.not.found", id)));
 
         Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", new Object[]{request.getCategoryId()})));
-
+                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
         if (category.getType() != CategoryType.INCOME) {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.income"));
         }
@@ -138,7 +137,7 @@ public class IncomeService {
 
         Income income = incomeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("income.not.found", new Object[]{id})));
+                        messageUtil.getMessage("income.not.found", id)));
 
         incomeRepository.delete(income);
     }

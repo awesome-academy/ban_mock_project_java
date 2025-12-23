@@ -287,11 +287,6 @@ label:
     reset: Reset
   select:
     category: Select category
-  field:
-    created:
-      at: Created At
-    updated:
-      at: Updated At
   fields:
     created:
       at: Created At
