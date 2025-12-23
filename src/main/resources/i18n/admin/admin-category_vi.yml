@@ -1,0 +1,53 @@
+admin:
+  category:
+    name:
+      required: Tên là bắt buộc
+      max:
+        length: Tên không được vượt quá 100 ký tự
+    not:
+      found: Không tìm thấy danh mục với id {0}
+    created:
+      success: Tạo danh mục thành công
+    updated:
+      success: Cập nhật danh mục thành công
+    deleted:
+      success: Xóa danh mục thành công
+    management:
+      message:
+        confirm:
+          delete: Bạn có chắc chắn muốn xóa danh mục này không?
+      title: Quản lý danh mục
+      list:
+        title: Danh sách danh mục
+      detail:
+        title: Chi tiết danh mục
+      form:
+        create:
+          title: Tạo danh mục
+        edit:
+          title: Chỉnh sửa danh mục
+    table:
+      id: ID
+      name: Tên
+      type: Loại
+      status: Trạng thái
+      actions: Hành động
+    field:
+      name: Tên
+      description: Mô tả
+      type: Loại
+      icon: Biểu tượng
+      color: Màu
+      status: Trạng thái
+    action:
+      create: Tạo danh mục
+      save: Lưu
+      cancel: Hủy
+      back: Quay lại danh sách
+    status:
+      active: Kích hoạt
+      inactive: Không kích hoạt
+    message:
+      'no':
+        templates: Không tìm thấy mẫu ngân sách nào
+        items: Không có mục nào trong mẫu này

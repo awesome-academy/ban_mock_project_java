@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(${category.id} != null ? #{admin.category.management.form.edit.title} : #{admin.category.management.form.create.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${category.id} != null ? #{admin.category.management.form.edit.title} : #{admin.category.management.form.create.title}">Category Form</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div th:if="${error}" class="alert alert-danger"> <span th:text="${error}"></span></div>
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="${category.id != null ? '/admin/categories/' + category.id : '/admin/categories'}" th:object="${category}" method="post">
+                        <input type="hidden" name="_method" th:if="${category.id}" value="PUT" />
+
+                        <div class="form-group">
+                            <label for="name"><span th:text="#{admin.category.field.name}">Name</span> <span class="text-danger">*</span></label>
+                            <input type="text" id="name" th:field="*{name}" th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'" th:placeholder="#{admin.category.field.name}" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description"><span th:text="#{admin.category.field.description}">Description</span></label>
+                            <textarea id="description" th:field="*{description}" th:class="${#fields.hasErrors('description')} ? 'form-control is-invalid' : 'form-control'" th:placeholder="#{admin.category.field.description}"></textarea>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type"><span th:text="#{admin.category.field.type}">Type</span> <span class="text-danger">*</span></label>
+                            <select id="type" th:field="*{type}" th:class="${#fields.hasErrors('type')} ? 'form-control is-invalid' : 'form-control'">
+                                <option th:value="EXPENSE" th:text="#{category.fields.types.expense}">Expense</option>
+                                <option th:value="INCOME" th:text="#{category.fields.types.income}">Income</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="active"><span th:text="#{admin.category.field.status}">Status</span></label>
+                            <select id="active" th:field="*{active}" class="form-control">
+                                <option th:value="true" th:text="#{category.fields.statuses.active}">Active</option>
+                                <option th:value="false" th:text="#{category.fields.statuses.inactive}">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> <span th:text="#{admin.category.action.save}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/categories}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> <span th:text="#{admin.category.action.cancel}">Cancel</span>
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

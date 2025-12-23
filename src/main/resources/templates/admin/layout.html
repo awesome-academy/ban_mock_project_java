@@ -101,9 +101,15 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="/admin/budget-templates" class="nav-link" th:classappend="${activeMenu == 'budget-templates'} ? 'active' : ''">
+                                    <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                                    <p th:text="#{admin.layout.menu.budget.templates}">Budget Templates</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="/admin/budgets" class="nav-link" th:classappend="${activeMenu == 'budgets'} ? 'active' : ''">
                                     <i class="nav-icon fas fa-wallet"></i>
-                                    <p th:text="#{admin.layout.menu.budgets}">Budget Templates</p>
+                                    <p th:text="#{admin.layout.menu.budgets}">Budgets</p>
                                 </a>
                             </li>
                             <li class="nav-item">

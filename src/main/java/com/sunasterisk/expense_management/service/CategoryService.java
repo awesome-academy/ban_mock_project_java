@@ -12,6 +12,7 @@ import com.sunasterisk.expense_management.repository.CategoryRepository;
 import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.CategorySpecification;
 import com.sunasterisk.expense_management.util.MessageUtil;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class CategoryService {
@@ -89,8 +92,14 @@ public class CategoryService {
         User user = getCurrentUser();
 
         Category category = categoryMapper.toEntity(request);
-        category.setUser(user);
-        category.setIsDefault(false); // User-created categories are not default
+        // If user is not admin, set the user and isDefault fields accordingly
+        if (User.Role.ADMIN.equals(user.getRole())) {
+            category.setUser(null); // Admin-created categories are global
+            category.setIsDefault(true);
+        } else {
+            category.setUser(user);
+            category.setIsDefault(false);
+        }
 
         category = categoryRepository.save(category);
         return categoryMapper.toResponse(category);
@@ -99,11 +108,18 @@ public class CategoryService {
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
         User user = getCurrentUser();
-
-        // Only allow updating user's own categories (not default categories)
-        Category category = categoryRepository.findByIdAndUser_Id(id, user.getId())
+        Category category;
+        // Admins can update any category
+        if (User.Role.ADMIN.equals(user.getRole())) {
+            category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", id)));
+                    messageUtil.getMessage("category.not.found", id)));
+        } else {
+            // Only allow updating user's own categories (not default categories)
+            category = categoryRepository.findByIdAndUser_Id(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    messageUtil.getMessage("category.not.found", id)));
+        }
 
         categoryMapper.updateEntity(request, category);
 
@@ -114,14 +130,26 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Long id) {
         User user = getCurrentUser();
-
-        // Only allow deleting user's own categories (not default categories)
-        Category category = categoryRepository.findByIdAndUser_Id(id, user.getId())
+        Category category;
+        if (User.Role.ADMIN.equals(user.getRole())) {
+            category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", id)));
+                    messageUtil.getMessage("category.not.found", id)));
+        } else {
+            category = categoryRepository.findByIdAndUser_Id(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    messageUtil.getMessage("category.not.found", id)));
+        }
 
         // Soft delete by setting active = false
         category.setActive(false);
         categoryRepository.save(category);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getActiveCategories() {
+        return categoryRepository.findByActiveTrue().stream()
+                .map(categoryMapper::toResponse)
+                .toList();
     }
 }
