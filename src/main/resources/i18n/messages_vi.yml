@@ -282,6 +282,8 @@ label:
     save: Lưu
     cancel: Hủy
     back: Quay lại
+    search: Tìm kiếm
+    reset: Đặt lại
   select:
     category: Chọn danh mục
   field:
@@ -289,3 +291,13 @@ label:
       at: Ngày tạo
     updated:
       at: Ngày cập nhật
+  fields:
+    created:
+      at: Ngày tạo
+    updated:
+      at: Ngày cập nhật
+  'yes': Có
+  'no': Không
+  pagination:
+    previous: Trước
+    next: Sau

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.expense.management.form.edit.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="#{admin.expense.management.form.edit.title}">Edit Expense</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div th:if="${error}" class="alert alert-danger">
+                <span th:text="${error}"></span>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span th:text="#{admin.expense.management.form.edit.title}">Edit Expense</span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{'/admin/expenses/' + ${expenseRequest.id}}" th:object="${expenseRequest}" method="post">
+                        <input type="hidden" name="_method" value="PUT" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">
+                                        <span th:text="#{admin.expense.field.name}">Name</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="name" th:field="*{name}"
+                                           th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.expense.field.name}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="amount">
+                                        <span th:text="#{admin.expense.field.amount}">Amount</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" id="amount" th:field="*{amount}" step="1000" min="0"
+                                           th:class="${#fields.hasErrors('amount')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.expense.field.amount}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="expenseDate">
+                                        <span th:text="#{admin.expense.field.date}">Date</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" id="expenseDate" th:field="*{expenseDate}"
+                                           th:class="${#fields.hasErrors('expenseDate')} ? 'form-control is-invalid' : 'form-control'" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('expenseDate')}" th:errors="*{expenseDate}"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="categoryId">
+                                        <span th:text="#{admin.expense.table.category}">Category</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="categoryId" th:field="*{categoryId}"
+                                            th:class="${#fields.hasErrors('categoryId')} ? 'form-control is-invalid' : 'form-control'">
+                                        <option value="" th:text="#{label.select.category}">Select category</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="location">
+                                        <span th:text="#{admin.expense.field.location}">Location</span>
+                                    </label>
+                                    <input type="text" id="location" th:field="*{location}" class="form-control"
+                                           th:placeholder="#{admin.expense.field.location}" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="paymentMethod">
+                                        <span th:text="#{admin.expense.field.payment.method}">Payment Method</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="paymentMethod" th:field="*{paymentMethod}" class="form-control">
+                                        <option value="CASH">Cash</option>
+                                        <option value="CREDIT_CARD">Credit Card</option>
+                                        <option value="DEBIT_CARD">Debit Card</option>
+                                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                                        <option value="E_WALLET">E-Wallet</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="note">
+                                        <span th:text="#{admin.expense.field.note}">Note</span>
+                                    </label>
+                                    <textarea id="note" th:field="*{note}" class="form-control" rows="3"
+                                              th:placeholder="#{admin.expense.field.note}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="isRecurring"
+                                               th:field="*{isRecurring}" />
+                                        <label class="custom-control-label" for="isRecurring"
+                                               th:text="#{admin.expense.field.recurring.title}">Recurring</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group" id="recurringTypeGroup">
+                                    <label for="recurringType">
+                                        <span th:text="#{admin.expense.field.recurring.type}">Recurring Type</span>
+                                    </label>
+                                    <select id="recurringType" th:field="*{recurringType}"
+                                            th:class="${#fields.hasErrors('recurringType')} ? 'form-control is-invalid' : 'form-control'">
+                                        <option value="">None</option>
+                                        <option value="DAILY">Daily</option>
+                                        <option value="WEEKLY">Weekly</option>
+                                        <option value="MONTHLY">Monthly</option>
+                                        <option value="YEARLY">Yearly</option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('recurringType')}" th:errors="*{recurringType}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> <span th:text="#{label.action.save}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/expenses}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> <span th:text="#{label.action.cancel}">Cancel</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            function toggleRecurringType() {
+                if ($('#isRecurring').is(':checked')) {
+                    $('#recurringTypeGroup').show();
+                } else {
+                    $('#recurringTypeGroup').hide();
+                    $('#recurringType').val('');
+                }
+            }
+
+            toggleRecurringType();
+            $('#isRecurring').change(toggleRecurringType);
+        });
+    </script>
+</th:block>
+</body>
+</html>

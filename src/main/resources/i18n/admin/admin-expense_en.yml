@@ -1,0 +1,49 @@
+admin:
+  expense:
+    not:
+      found: Expense not found with id {0}
+    deleted:
+      success: Expense deleted successfully
+    updated:
+      success: Expense updated successfully
+    management:
+      message:
+        confirm:
+          delete: Are you sure you want to delete this expense?
+      title: Expense Management
+      list:
+        title: Expense List
+      detail:
+        title: Expense Detail
+      form:
+        edit:
+          title: Edit Expense
+    table:
+      id: ID
+      user: User
+      name: Name
+      amount: Amount
+      category: Category
+      date: Date
+      actions: Actions
+    field:
+      name: Name
+      amount: Amount
+      date: Expense Date
+      location: Location
+      payment:
+        method: Payment Method
+      recurring:
+        title: Recurring
+        type: Recurring Type
+      note: Note
+    filter:
+      start:
+        date: Start Date
+      end:
+        date: End Date
+    pagination:
+      info: Showing page {0} of {1} ({2} total expenses)
+    message:
+      'no':
+        expenses: No expenses found

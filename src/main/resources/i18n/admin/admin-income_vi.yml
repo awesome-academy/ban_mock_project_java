@@ -1,0 +1,47 @@
+admin:
+  income:
+    not:
+      found: Không tìm thấy thu nhập với id {0}
+    deleted:
+      success: Xóa thu nhập thành công
+    updated:
+      success: Cập nhật thu nhập thành công
+    management:
+      message:
+        confirm:
+          delete: Bạn có chắc chắn muốn xóa thu nhập này không?
+      title: Quản lý thu nhập
+      list:
+        title: Danh sách thu nhập
+      detail:
+        title: Chi tiết thu nhập
+      form:
+        edit:
+          title: Chỉnh sửa thu nhập
+    table:
+      id: ID
+      user: Người dùng
+      name: Tên
+      amount: Số tiền
+      category: Danh mục
+      date: Ngày
+      actions: Hành động
+    field:
+      name: Tên
+      amount: Số tiền
+      date: Ngày thu nhập
+      source: Nguồn
+      recurring:
+        title: Thu nhập định kỳ
+        type: Loại định kỳ
+      note: Ghi chú
+    filter:
+      start:
+        date: Từ ngày
+      end:
+        date: Đến ngày
+    pagination:
+      info: Hiển thị trang {0} / {1} (Tổng {2} thu nhập)
+    message:
+      'no':
+        incomes: Không tìm thấy thu nhập nào

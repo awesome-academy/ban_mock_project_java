@@ -1,0 +1,49 @@
+admin:
+  expense:
+    not:
+      found: Không tìm thấy chi tiêu với id {0}
+    deleted:
+      success: Xóa chi tiêu thành công
+    updated:
+      success: Cập nhật chi tiêu thành công
+    management:
+      message:
+        confirm:
+          delete: Bạn có chắc chắn muốn xóa chi tiêu này không?
+      title: Quản lý chi tiêu
+      list:
+        title: Danh sách chi tiêu
+      detail:
+        title: Chi tiết chi tiêu
+      form:
+        edit:
+          title: Chỉnh sửa chi tiêu
+    table:
+      id: ID
+      user: Người dùng
+      name: Tên
+      amount: Số tiền
+      category: Danh mục
+      date: Ngày
+      actions: Hành động
+    field:
+      name: Tên
+      amount: Số tiền
+      date: Ngày chi tiêu
+      location: Địa điểm
+      payment:
+        method: Phương thức thanh toán
+      recurring:
+        title: Chi tiêu định kỳ
+        type: Loại định kỳ
+      note: Ghi chú
+    filter:
+      start:
+        date: Từ ngày
+      end:
+        date: Đến ngày
+    pagination:
+      info: Hiển thị trang {0} / {1} (Tổng {2} chi tiêu)
+    message:
+      'no':
+        expenses: Không tìm thấy chi tiêu nào

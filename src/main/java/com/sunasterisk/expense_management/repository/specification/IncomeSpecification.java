@@ -139,6 +139,18 @@ public class IncomeSpecification {
     }
 
     /**
+     * Filter by user ID (for admin queries)
+     */
+    public static Specification<Income> hasUserId(Long userId) {
+        return (root, query, cb) -> {
+            if (userId == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("user").get("id"), userId);
+        };
+    }
+
+    /**
      * Combine all filters for flexible querying.
      * This is a convenience method that combines all common filters.
      *
@@ -160,6 +172,28 @@ public class IncomeSpecification {
             BigDecimal maxAmount
     ) {
         return Specification.where(hasUser(user))
+                .and(hasNameLike(name))
+                .and(hasCategoryId(categoryId))
+                .and(hasIncomeDateFrom(startDate))
+                .and(hasIncomeDateTo(endDate))
+                .and(hasMinAmount(minAmount))
+                .and(hasMaxAmount(maxAmount));
+    }
+
+    /**
+     * Combine all filters for admin queries (without user restriction).
+     * This is for admin to view all incomes across all users.
+     */
+    public static Specification<Income> withAdminFilters(
+            Long userId,
+            String name,
+            Long categoryId,
+            LocalDate startDate,
+            LocalDate endDate,
+            BigDecimal minAmount,
+            BigDecimal maxAmount
+    ) {
+        return Specification.where(hasUserId(userId))
                 .and(hasNameLike(name))
                 .and(hasCategoryId(categoryId))
                 .and(hasIncomeDateFrom(startDate))

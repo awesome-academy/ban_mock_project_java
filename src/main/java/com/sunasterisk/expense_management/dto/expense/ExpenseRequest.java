@@ -13,6 +13,8 @@ import java.time.LocalDate;
 @ValidRecurringExpense
 public class ExpenseRequest {
 
+    private Long id;
+
     @NotBlank(message = "{expense.name.required}")
     @Size(max = 200, message = "{expense.name.max.length}")
     private String name;

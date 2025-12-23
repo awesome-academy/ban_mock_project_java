@@ -152,4 +152,18 @@ public class CategoryService {
                 .map(categoryMapper::toResponse)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getActiveExpenseCategories() {
+        return categoryRepository.findByActiveTrueAndType(Category.CategoryType.EXPENSE).stream()
+                .map(categoryMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getActiveIncomeCategories() {
+        return categoryRepository.findByActiveTrueAndType(Category.CategoryType.INCOME).stream()
+                .map(categoryMapper::toResponse)
+                .toList();
+    }
 }
