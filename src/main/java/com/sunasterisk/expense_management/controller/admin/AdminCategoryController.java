@@ -7,10 +7,7 @@ import com.sunasterisk.expense_management.dto.category.CategoryRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryResponse;
 import com.sunasterisk.expense_management.service.CategoryService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,11 +16,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-public class AdminCategoryController {
+public class AdminCategoryController extends BaseAdminController {
+
+    private static final String MODULE = "categories";
 
     private final CategoryService categoryService;
-    private final MessageSource messageSource;
+
+    public AdminCategoryController(CategoryService categoryService, MessageSource messageSource) {
+        super(messageSource);
+        this.categoryService = categoryService;
+    }
 
     @GetMapping("/categories")
     public String index(Model model,
@@ -34,37 +36,37 @@ public class AdminCategoryController {
                 .size(size)
                 .build();
         PageResponse<CategoryResponse> response = categoryService.getCategories(filter);
-        model.addAttribute("activeMenu", "categories");
+        model.addAttribute("activeMenu", MODULE);
         model.addAttribute("categories", response.getContent());
-        return "admin/categories/index";
+        return viewIndex(MODULE);
     }
 
     @GetMapping("/categories/new")
     public String newCategory(Model model) {
-        model.addAttribute("activeMenu", "categories");
+        model.addAttribute("activeMenu", MODULE);
         if (!model.containsAttribute("category")) {
             model.addAttribute("category", new CategoryDto());
         }
-        return "admin/categories/form";
+        return viewForm(MODULE);
     }
 
     @GetMapping("/categories/{id}")
     public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "categories");
+            model.addAttribute("activeMenu", MODULE);
             CategoryResponse category = categoryService.getCategoryById(id);
             model.addAttribute("category", category);
-            return "admin/categories/detail";
+            return viewDetail(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/categories";
+            return redirectToIndex(MODULE);
         }
     }
 
     @GetMapping("/categories/{id}/edit")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "categories");
+            model.addAttribute("activeMenu", MODULE);
             if (!model.containsAttribute("category")) {
                 CategoryResponse category = categoryService.getCategoryById(id);
                 CategoryDto dto = CategoryDto.builder()
@@ -79,10 +81,10 @@ public class AdminCategoryController {
                         .build();
                 model.addAttribute("category", dto);
             }
-            return "admin/categories/form";
+            return viewForm(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/categories";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -90,8 +92,8 @@ public class AdminCategoryController {
     public String create(@Valid @ModelAttribute("category") CategoryDto category, BindingResult bindingResult,
                          Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "categories");
-            return "admin/categories/form";
+            model.addAttribute("activeMenu", MODULE);
+            return viewForm(MODULE);
         }
         try {
             CategoryRequest request = CategoryRequest.builder()
@@ -104,12 +106,12 @@ public class AdminCategoryController {
                     .build();
             categoryService.createCategory(request);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.category.created.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/categories";
+                    getMessage("admin.category.created.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("category", category);
-            return "redirect:/admin/categories/new";
+            return REDIRECT_PREFIX + MODULE + "/new";
         }
     }
 
@@ -117,8 +119,8 @@ public class AdminCategoryController {
     public String update(@PathVariable Long id, @Valid @ModelAttribute("category") CategoryDto category,
                          BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "categories");
-            return "admin/categories/form";
+            model.addAttribute("activeMenu", MODULE);
+            return viewForm(MODULE);
         }
         try {
             CategoryRequest request = CategoryRequest.builder()
@@ -131,12 +133,12 @@ public class AdminCategoryController {
                     .build();
             categoryService.updateCategory(id, request);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.category.updated.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/categories";
+                    getMessage("admin.category.updated.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("category", category);
-            return "redirect:/admin/categories/" + id + "/edit";
+            return redirectToEdit(MODULE, id);
         }
     }
 
@@ -145,10 +147,10 @@ public class AdminCategoryController {
         try {
             categoryService.deleteCategory(id);
             redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.category.deleted.success", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.category.deleted.success"));
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/categories";
+        return redirectToIndex(MODULE);
     }
 }

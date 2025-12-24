@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.income.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${income.name}">Income Detail</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span th:text="#{admin.income.management.detail.title}">Income Details</span>
+                    </h3>
+                    <div class="card-tools">
+                        <a th:href="@{'/admin/incomes/' + ${income.id} + '/edit'}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit</span>
+                        </a>
+                        <a th:href="@{/admin/incomes}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width: 40%" th:text="#{admin.income.table.id}">ID</th>
+                                    <td th:text="${income.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.table.user}">User</th>
+                                    <td>
+                                        <div th:text="${income.userName}">John Doe</div>
+                                        <small class="text-muted" th:text="${income.userEmail}">john@example.com</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.table.name}">Name</th>
+                                    <td th:text="${income.name}">Salary</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.field.amount}">Amount</th>
+                                    <td>
+                                        <strong class="text-success"
+                                                th:text="${#numbers.formatDecimal(income.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            1,000,000 ₫
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.field.date}">Date</th>
+                                    <td th:text="${#temporals.format(income.incomeDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.table.category}">Category</th>
+                                    <td>
+                                        <i th:if="${income.categoryIcon}" th:class="${'fas fa-' + income.categoryIcon}"></i>
+                                        <span th:text="${income.categoryName}">Salary</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${income.source}">
+                                    <th th:text="#{admin.income.field.source}">Source</th>
+                                    <td th:text="${income.source}">Company</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.income.field.recurring.title}">Recurring</th>
+                                    <td>
+                                        <span th:if="${income.isRecurring}" class="badge badge-info" th:text="#{label.yes}">Yes</span>
+                                        <span th:unless="${income.isRecurring}" class="badge badge-secondary" th:text="#{label.no}">No</span>
+                                        <span th:if="${income.isRecurring and income.recurringType != null}"
+                                              th:text="' (' + ${income.recurringType} + ')'"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${income.note}">
+                                    <th th:text="#{admin.income.field.note}">Note</th>
+                                    <td th:text="${income.note}">Some notes</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{label.fields.created.at}">Created At</th>
+                                    <td th:text="${#temporals.format(income.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                <tr th:if="${income.updatedAt}">
+                                    <th th:text="#{label.fields.updated.at}">Updated At</th>
+                                    <td th:text="${#temporals.format(income.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <form th:action="@{'/admin/incomes/' + ${income.id}}" method="post"
+                                  style="display:inline-block"
+                                  th:onsubmit="|return confirm('#{admin.income.management.message.confirm.delete}')|">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

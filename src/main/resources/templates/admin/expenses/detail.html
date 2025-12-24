@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.expense.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${expense.name}">Expense Detail</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span th:text="#{admin.expense.management.detail.title}">Expense Details</span>
+                    </h3>
+                    <div class="card-tools">
+                        <a th:href="@{'/admin/expenses/' + ${expense.id} + '/edit'}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit</span>
+                        </a>
+                        <a th:href="@{/admin/expenses}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width: 40%" th:text="#{admin.expense.table.id}">ID</th>
+                                    <td th:text="${expense.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.table.user}">User</th>
+                                    <td>
+                                        <div th:text="${expense.userName}">John Doe</div>
+                                        <small class="text-muted" th:text="${expense.userEmail}">john@example.com</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.table.name}">Name</th>
+                                    <td th:text="${expense.name}">Lunch</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.field.amount}">Amount</th>
+                                    <td>
+                                        <strong class="text-danger" th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">100,000 ₫</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.field.date}">Date</th>
+                                    <td th:text="${#temporals.format(expense.expenseDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.table.category}">Category</th>
+                                    <td>
+                                        <i th:if="${expense.categoryIcon}" th:class="${'fas fa-' + expense.categoryIcon}"></i>
+                                        <span th:text="${expense.categoryName}">Food</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${expense.location}">
+                                    <th th:text="#{admin.expense.field.location}">Location</th>
+                                    <td th:text="${expense.location}">Restaurant</td>
+                                </tr>
+                                <tr th:if="${expense.paymentMethod}">
+                                    <th th:text="#{admin.expense.field.payment.method}">Payment Method</th>
+                                    <td th:text="${expense.paymentMethod}">CASH</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.expense.field.recurring.title}">Recurring</th>
+                                    <td>
+                                        <span th:if="${expense.isRecurring}" class="badge badge-info" th:text="#{label.yes}">Yes</span>
+                                        <span th:unless="${expense.isRecurring}" class="badge badge-secondary" th:text="#{label.no}">No</span>
+                                        <span th:if="${expense.isRecurring and expense.recurringType != null}"
+                                              th:text="' (' + ${expense.recurringType} + ')'"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${expense.note}">
+                                    <th th:text="#{admin.expense.field.note}">Note</th>
+                                    <td th:text="${expense.note}">Some notes</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{label.fields.created.at}">Created At</th>
+                                    <td th:text="${#temporals.format(expense.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                <tr th:if="${expense.updatedAt}">
+                                    <th th:text="#{label.fields.updated.at}">Updated At</th>
+                                    <td th:text="${#temporals.format(expense.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <form th:action="@{'/admin/expenses/' + ${expense.id}}" method="post"
+                                  style="display:inline-block"
+                                  th:onsubmit="|return confirm('#{admin.expense.management.message.confirm.delete}')|">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

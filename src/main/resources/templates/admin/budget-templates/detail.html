@@ -53,11 +53,11 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${template.createdAt}">
-                                    <th th:text="#{label.field.created.at}">Created At</th>
+                                    <th th:text="#{label.fields.created.at}">Created At</th>
                                     <td th:text="${#temporals.format(template.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
                                 </tr>
                                 <tr th:if="${template.updatedAt}">
-                                    <th th:text="#{label.field.updated.at}">Updated At</th>
+                                    <th th:text="#{label.fields.updated.at}">Updated At</th>
                                     <td th:text="${#temporals.format(template.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
                                 </tr>
                                 </tbody>

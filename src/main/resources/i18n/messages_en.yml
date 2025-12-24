@@ -283,10 +283,17 @@ label:
     save: Save
     cancel: Cancel
     back: Back
+    search: Search
+    reset: Reset
   select:
     category: Select category
-  field:
+  fields:
     created:
       at: Created At
     updated:
       at: Updated At
+  'yes': Yes
+  'no': No
+  pagination:
+    previous: Previous
+    next: Next

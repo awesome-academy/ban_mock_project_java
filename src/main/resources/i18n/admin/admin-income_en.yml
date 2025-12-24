@@ -1,0 +1,47 @@
+admin:
+  income:
+    not:
+      found: Income not found with id {0}
+    deleted:
+      success: Income deleted successfully
+    updated:
+      success: Income updated successfully
+    management:
+      message:
+        confirm:
+          delete: Are you sure you want to delete this income?
+      title: Income Management
+      list:
+        title: Income List
+      detail:
+        title: Income Detail
+      form:
+        edit:
+          title: Edit Income
+    table:
+      id: ID
+      user: User
+      name: Name
+      amount: Amount
+      category: Category
+      date: Date
+      actions: Actions
+    field:
+      name: Name
+      amount: Amount
+      date: Income Date
+      source: Source
+      recurring:
+        title: Recurring
+        type: Recurring Type
+      note: Note
+    filter:
+      start:
+        date: Start Date
+      end:
+        date: End Date
+    pagination:
+      info: Showing page {0} of {1} ({2} total incomes)
+    message:
+      'no':
+        incomes: No incomes found

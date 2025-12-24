@@ -12,6 +12,8 @@ import java.time.LocalDate;
 @ValidRecurringIncome
 public class IncomeRequest {
 
+    private Long id;
+
     @NotBlank(message = "{income.name.required}")
     @Size(max = 200, message = "{income.name.max.length}")
     private String name;

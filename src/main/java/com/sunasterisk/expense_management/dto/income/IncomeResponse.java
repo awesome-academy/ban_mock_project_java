@@ -1,8 +1,10 @@
 package com.sunasterisk.expense_management.dto.income;
 
 import com.sunasterisk.expense_management.entity.Income.RecurringType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class IncomeResponse {
 
     private Long id;
@@ -22,6 +26,10 @@ public class IncomeResponse {
     private RecurringType recurringType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Long userId;
+    private String userName;
+    private String userEmail;
 
     private Long categoryId;
     private String categoryName;
