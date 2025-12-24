@@ -4,6 +4,7 @@ import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.budget.BudgetFilterRequest;
 import com.sunasterisk.expense_management.dto.budget.BudgetRequest;
 import com.sunasterisk.expense_management.dto.budget.BudgetResponse;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.Budget;
 import com.sunasterisk.expense_management.entity.Category;
 import com.sunasterisk.expense_management.entity.User;
@@ -14,6 +15,7 @@ import com.sunasterisk.expense_management.repository.CategoryRepository;
 import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.BudgetSpecification;
 import com.sunasterisk.expense_management.util.MessageUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,17 +34,23 @@ public class BudgetService {
     private final UserRepository userRepository;
     private final BudgetMapper budgetMapper;
     private final MessageUtil messageUtil;
+    private final ActivityLogService activityLogService;
+    private final ObjectMapper objectMapper;
 
     public BudgetService(BudgetRepository budgetRepository,
                         CategoryRepository categoryRepository,
                         UserRepository userRepository,
                         BudgetMapper budgetMapper,
-                        MessageUtil messageUtil) {
+                        MessageUtil messageUtil,
+                        ActivityLogService activityLogService,
+                        ObjectMapper objectMapper) {
         this.budgetRepository = budgetRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.budgetMapper = budgetMapper;
         this.messageUtil = messageUtil;
+        this.activityLogService = activityLogService;
+        this.objectMapper = objectMapper;
     }
 
     private User getCurrentUser() {
@@ -160,6 +168,32 @@ public class BudgetService {
         budget.setCategory(category);
 
         budget = budgetRepository.save(budget);
+
+        // Log activity with new values
+        String categoryName = category != null ? category.getName() : "All Categories";
+        try {
+            String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+            activityLogService.logWithValues(
+                ActionType.CREATE,
+                user,
+                "Budget",
+                budget.getId(),
+                String.format("Created budget for %s (%d/%d) with limit %.2f",
+                    categoryName, budget.getMonth(), budget.getYear(), budget.getAmountLimit()),
+                null,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.CREATE,
+                user,
+                "Budget",
+                budget.getId(),
+                String.format("Created budget for %s (%d/%d) with limit %.2f",
+                    categoryName, budget.getMonth(), budget.getYear(), budget.getAmountLimit())
+            );
+        }
+
         return budgetMapper.toResponse(budget);
     }
 
@@ -213,10 +247,47 @@ public class BudgetService {
             validateCategoryAccess(category, user);
         }
 
+        // Keep old value for logging
+        String oldValue = null;
+        try {
+            oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+        } catch (Exception e) {
+            // Ignore
+        }
+
         budgetMapper.updateEntity(request, budget);
         budget.setCategory(category);
 
         budget = budgetRepository.save(budget);
+
+        // Build description of changes
+        String categoryName = category != null ? category.getName() : "All Categories";
+        StringBuilder changeDesc = new StringBuilder("Updated budget: ");
+        changeDesc.append(categoryName).append(" (").append(budget.getMonth())
+                  .append("/").append(budget.getYear()).append(")");
+
+        // Log activity with old and new values
+        try {
+            String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                user,
+                "Budget",
+                budget.getId(),
+                changeDesc.toString(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.UPDATE,
+                user,
+                "Budget",
+                budget.getId(),
+                changeDesc.toString()
+            );
+        }
+
         return budgetMapper.toResponse(budget);
     }
 
@@ -227,6 +298,31 @@ public class BudgetService {
         Budget budget = budgetRepository.findByIdAndUser_Id(id, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
+
+        // Log activity before soft delete with old values
+        String categoryName = budget.getCategory() != null ? budget.getCategory().getName() : "All Categories";
+        try {
+            String oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+            activityLogService.logWithValues(
+                ActionType.DELETE,
+                user,
+                "Budget",
+                budget.getId(),
+                String.format("Deleted budget for %s (%d/%d)",
+                    categoryName, budget.getMonth(), budget.getYear()),
+                oldValue,
+                null
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.DELETE,
+                user,
+                "Budget",
+                budget.getId(),
+                String.format("Deleted budget for %s (%d/%d)",
+                    categoryName, budget.getMonth(), budget.getYear())
+            );
+        }
 
         // Soft delete
         budget.setActive(false);

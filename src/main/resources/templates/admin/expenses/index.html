@@ -128,35 +128,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div th:if="${totalPages > 1}" class="row mt-3">
-                        <div class="col-md-6">
-                            <p th:text="#{admin.expense.pagination.info(${currentPage + 1}, ${totalPages}, ${totalElements})}">
-                                Showing page 1 of 10 (100 total)
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <nav>
-                                <ul class="pagination justify-content-end">
-                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                        <a class="page-link"
-                                            th:href="@{/admin/expenses(page=${currentPage - 1}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
-                                            th:text="#{label.pagination.previous}">Previous</a>
-                                    </li>
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                                        th:classappend="${i == currentPage} ? 'active'">
-                                        <a class="page-link"
-                                            th:href="@{/admin/expenses(page=${i}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
-                                            th:text="${i + 1}">1</a>
-                                    </li>
-                                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                                        <a class="page-link"
-                                            th:href="@{/admin/expenses(page=${currentPage + 1}, size=${filter.size}, name=${filter.name}, startDate=${filter.startDate}, endDate=${filter.endDate})}"
-                                            th:text="#{label.pagination.next}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+                    <th:block th:replace="~{fragments/pagination :: expensesPagination(${currentPage}, ${totalPages}, ${totalElements}, ${filter.size}, ${filter.name}, ${filter.startDate}, ${filter.endDate})}"></th:block>
                 </div>
             </div>
         </div>

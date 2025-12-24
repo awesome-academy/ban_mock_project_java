@@ -1,0 +1,78 @@
+# Activity Logs - Vietnamese
+admin:
+  activity:
+    logs:
+      title: Nhật ký hoạt động
+      filter:
+        user: ID Người dùng
+        action: Hành động
+        entity:
+          type: Loại thực thể
+        start:
+          date: Ngày bắt đầu
+        end:
+          date: Ngày kết thúc
+        all:
+          actions: Tất cả hành động
+        button:
+          filter: Tìm kiếm
+          clear: Đăt lại
+        placeholder:
+          user:
+            id: Nhập ID người dùng
+          entity:
+            type: "VD: Expense, Income"
+      table:
+        header:
+          id: ID
+          timestamp: Thời gian
+          action: Hành động
+          user: Người dùng
+          entity: Thực thể
+          description: Mô tả
+          ip:
+            address: Địa chỉ IP
+          actions: Thao tác
+      timestamp: Thời gian
+      action: Hành động
+      user: Người dùng
+      entity: Thực thể
+      description: Mô tả
+      ip: Địa chỉ IP
+      'no':
+        data: Không tìm thấy nhật ký hoạt động
+      pagination:
+        showing: Hiển thị
+        of: trong tổng số
+        entries: mục
+      system: Hệ thống
+    log:
+      detail:
+        title: Chi tiết nhật ký hoạt động
+        info: Thông tin nhật ký
+      field:
+        id: ID
+        timestamp: Thời gian
+        action: Hành động
+        entity:
+          type: Loại thực thể
+          id: ID thực thể
+        description: Mô tả
+        old:
+          value: Giá trị cũ
+        new:
+          value: Giá trị mới
+        ip:
+          address: Địa chỉ IP
+        user:
+          title: Người dùng
+          agent: User Agent
+      confirm:
+        delete: Bạn có chắc chắn muốn xóa nhật ký này không?
+      deleted:
+        success: Đã xóa nhật ký hoạt động thành công
+  common:
+    back: Quay lại
+    delete: Xóa
+    view:
+      detail: Xem chi tiết
