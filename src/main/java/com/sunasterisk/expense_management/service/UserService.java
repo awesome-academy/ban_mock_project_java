@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * Service for User management
  */
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -32,17 +34,7 @@ public class UserService {
     private final ActivityLogService activityLogService;
     private final ObjectMapper objectMapper;
 
-    public UserService(UserRepository userRepository,
-                      PasswordEncoder passwordEncoder,
-                      MessageSource messageSource,
-                      ActivityLogService activityLogService,
-                      ObjectMapper objectMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.messageSource = messageSource;
-        this.activityLogService = activityLogService;
-        this.objectMapper = objectMapper;
-    }
+
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

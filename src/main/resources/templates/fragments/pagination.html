@@ -74,12 +74,17 @@
 </th:block>
 
 <!--
-    Pagination Fragment for Expenses
+    Generic Pagination Fragment
+    Parameters:
+    - endpoint: The base URL (e.g., '/admin/expenses', '/admin/incomes')
+    - paginationInfoKey: i18n key for pagination info message
+    - currentPage, totalPages, totalElements, size: pagination state
+    - name, startDate, endDate: filter parameters
 -->
-<th:block th:fragment="expensesPagination(currentPage, totalPages, totalElements, size, name, startDate, endDate)">
+<th:block th:fragment="genericPagination(endpoint, paginationInfoKey, currentPage, totalPages, totalElements, size, name, startDate, endDate)">
     <div class="row" th:if="${totalPages > 1}">
         <div class="col-md-6">
-            <p th:text="#{admin.expense.pagination.info(${currentPage + 1}, ${totalPages}, ${totalElements})}">
+            <p th:text="#{${paginationInfoKey}(${currentPage + 1}, ${totalPages}, ${totalElements})}">
                 Page 1 of 10 (100 total)
             </p>
         </div>
@@ -89,7 +94,7 @@
                     <!-- Previous Button -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/admin/expenses(page=${currentPage - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
+                           th:href="@{${endpoint}(page=${currentPage - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
                            th:text="#{label.pagination.previous}">Previous</a>
                     </li>
 
@@ -97,7 +102,7 @@
                     <li class="page-item" th:if="${currentPage > 2}"
                         th:classappend="${0 == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/admin/expenses(page=0, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
+                           th:href="@{${endpoint}(page=0, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
                            th:text="1">1</a>
                     </li>
 
@@ -112,7 +117,7 @@
                                                          currentPage + 2 >= totalPages ? totalPages - 1 : currentPage + 2)}"
                         th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/admin/expenses(page=${i}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
+                           th:href="@{${endpoint}(page=${i}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
                            th:text="${i + 1}">1</a>
                     </li>
 
@@ -125,14 +130,14 @@
                     <li class="page-item" th:if="${currentPage < totalPages - 3}"
                         th:classappend="${totalPages - 1 == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/admin/expenses(page=${totalPages - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
+                           th:href="@{${endpoint}(page=${totalPages - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
                            th:text="${totalPages}">10</a>
                     </li>
 
                     <!-- Next Button -->
                     <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/admin/expenses(page=${currentPage + 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
+                           th:href="@{${endpoint}(page=${currentPage + 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
                            th:text="#{label.pagination.next}">Next</a>
                     </li>
                 </ul>
@@ -142,71 +147,17 @@
 </th:block>
 
 <!--
-    Pagination Fragment for Incomes
+    Pagination Fragment for Expenses - delegates to generic pagination
+-->
+<th:block th:fragment="expensesPagination(currentPage, totalPages, totalElements, size, name, startDate, endDate)">
+    <th:block th:replace="~{fragments/pagination :: genericPagination('/admin/expenses', 'admin.expense.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, ${startDate}, ${endDate})}"></th:block>
+</th:block>
+
+<!--
+    Pagination Fragment for Incomes - delegates to generic pagination
 -->
 <th:block th:fragment="incomesPagination(currentPage, totalPages, totalElements, size, name, startDate, endDate)">
-    <div class="row" th:if="${totalPages > 1}">
-        <div class="col-md-6">
-            <p th:text="#{admin.income.pagination.info(${currentPage + 1}, ${totalPages}, ${totalElements})}">
-                Page 1 of 10 (100 total)
-            </p>
-        </div>
-        <div class="col-md-6">
-            <nav>
-                <ul class="pagination justify-content-end">
-                    <!-- Previous Button -->
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/incomes(page=${currentPage - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="#{label.pagination.previous}">Previous</a>
-                    </li>
-
-                    <!-- First page -->
-                    <li class="page-item" th:if="${currentPage > 2}"
-                        th:classappend="${0 == currentPage} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/incomes(page=0, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="1">1</a>
-                    </li>
-
-                    <!-- Ellipsis before -->
-                    <li class="page-item" th:if="${currentPage > 3}">
-                        <span class="page-link">...</span>
-                    </li>
-
-                    <!-- Current page ± 2 -->
-                    <li class="page-item"
-                        th:each="i : ${#numbers.sequence(currentPage - 2 < 0 ? 0 : currentPage - 2,
-                                                         currentPage + 2 >= totalPages ? totalPages - 1 : currentPage + 2)}"
-                        th:classappend="${i == currentPage} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/incomes(page=${i}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="${i + 1}">1</a>
-                    </li>
-
-                    <!-- Ellipsis after -->
-                    <li class="page-item" th:if="${currentPage < totalPages - 4}">
-                        <span class="page-link">...</span>
-                    </li>
-
-                    <!-- Last page -->
-                    <li class="page-item" th:if="${currentPage < totalPages - 3}"
-                        th:classappend="${totalPages - 1 == currentPage} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/incomes(page=${totalPages - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="${totalPages}">10</a>
-                    </li>
-
-                    <!-- Next Button -->
-                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/admin/incomes(page=${currentPage + 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="#{label.pagination.next}">Next</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/pagination :: genericPagination('/admin/incomes', 'admin.income.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, ${startDate}, ${endDate})}"></th:block>
 </th:block>
 </body>
 </html>

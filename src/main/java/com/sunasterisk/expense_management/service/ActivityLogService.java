@@ -5,10 +5,13 @@ import com.sunasterisk.expense_management.dto.activitylog.ActivityLogFilterReque
 import com.sunasterisk.expense_management.dto.activitylog.ActivityLogResponse;
 import com.sunasterisk.expense_management.entity.ActivityLog;
 import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
+import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.mapper.ActivityLogMapper;
 import com.sunasterisk.expense_management.repository.ActivityLogRepository;
 import com.sunasterisk.expense_management.repository.specification.ActivityLogSpecification;
+import com.sunasterisk.expense_management.util.MessageUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
     private final ActivityLogMapper activityLogMapper;
+    private final MessageUtil messageUtil;
 
     /**
      * Log an activity asynchronously.
@@ -50,6 +54,7 @@ public class ActivityLogService {
                     .entityId(entityId)
                     .description(description)
                     .ipAddress(ipAddress)
+                    .userAgent(getUserAgent())
                     .build();
 
             activityLogRepository.save(activityLog);
@@ -78,6 +83,7 @@ public class ActivityLogService {
                     .oldValue(oldValue)
                     .newValue(newValue)
                     .ipAddress(ipAddress)
+                    .userAgent(getUserAgent())
                     .build();
 
             activityLogRepository.save(activityLog);
@@ -129,7 +135,7 @@ public class ActivityLogService {
     @Transactional(readOnly = true)
     public ActivityLogResponse getLogById(Long id) {
         ActivityLog log = activityLogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity log not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage("budget.not.found", id)));
         return activityLogMapper.toResponse(log);
     }
 
@@ -146,9 +152,24 @@ public class ActivityLogService {
      */
     @Transactional
     public void deleteOldLogs(int daysToKeep) {
+        if (daysToKeep < 0) {
+            throw new IllegalArgumentException("daysToKeep must be non-negative, but was: " + daysToKeep);
+        }
+
+        long totalBefore = activityLogRepository.count();
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysToKeep);
         activityLogRepository.deleteByCreatedAtBefore(cutoffDate);
-        log.info("Deleted activity logs older than {} days", daysToKeep);
+        long totalAfter = activityLogRepository.count();
+        long deletedCount = Math.max(0L, totalBefore - totalAfter);
+
+        log.info(
+                "Deleted {} activity logs older than {} days (cutoff: {}). Total before: {}, total after: {}",
+                deletedCount,
+                daysToKeep,
+                cutoffDate,
+                totalBefore,
+                totalAfter
+        );
     }
 
     /**
@@ -174,6 +195,25 @@ public class ActivityLogService {
             }
         } catch (Exception e) {
             log.warn("Failed to get client IP: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Get User-Agent header from current request.
+     */
+    private String getUserAgent() {
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                String ua = request.getHeader("User-Agent");
+                if (ua != null && !ua.isEmpty()) {
+                    return ua;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to get user agent: {}", e.getMessage());
         }
         return null;
     }

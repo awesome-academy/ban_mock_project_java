@@ -16,7 +16,7 @@ admin:
           actions: Tất cả hành động
         button:
           filter: Tìm kiếm
-          clear: Đăt lại
+          clear: Đặt lại
         placeholder:
           user:
             id: Nhập ID người dùng

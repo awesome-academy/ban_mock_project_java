@@ -23,6 +23,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long>,
      * Find all activity logs with eager loading of user relationship.
      */
     @EntityGraph(attributePaths = {"user"})
+    @Override
     Page<ActivityLog> findAll(Specification<ActivityLog> spec, Pageable pageable);
 
     /**
