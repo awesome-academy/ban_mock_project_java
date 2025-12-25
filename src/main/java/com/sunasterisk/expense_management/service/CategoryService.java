@@ -4,6 +4,7 @@ import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.category.CategoryFilterRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryResponse;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.Category;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.CategorySpecification;
 import com.sunasterisk.expense_management.util.MessageUtil;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,15 +34,21 @@ public class CategoryService {
     private final UserRepository userRepository;
     private final CategoryMapper categoryMapper;
     private final MessageUtil messageUtil;
+    private final ActivityLogService activityLogService;
+    private final ObjectMapper objectMapper;
 
     public CategoryService(CategoryRepository categoryRepository,
                           UserRepository userRepository,
                           CategoryMapper categoryMapper,
-                          MessageUtil messageUtil) {
+                          MessageUtil messageUtil,
+                          ActivityLogService activityLogService,
+                          ObjectMapper objectMapper) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.categoryMapper = categoryMapper;
         this.messageUtil = messageUtil;
+        this.activityLogService = activityLogService;
+        this.objectMapper = objectMapper;
     }
 
     private User getCurrentUser() {
@@ -102,6 +110,29 @@ public class CategoryService {
         }
 
         category = categoryRepository.save(category);
+
+        // Log activity with new values
+        try {
+            String newValue = objectMapper.writeValueAsString(categoryMapper.toResponse(category));
+            activityLogService.logWithValues(
+                ActionType.CREATE,
+                user,
+                "Category",
+                category.getId(),
+                String.format("Created category '%s' (%s)", category.getName(), category.getType()),
+                null,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.CREATE,
+                user,
+                "Category",
+                category.getId(),
+                String.format("Created category '%s' (%s)", category.getName(), category.getType())
+            );
+        }
+
         return categoryMapper.toResponse(category);
     }
 
@@ -121,9 +152,44 @@ public class CategoryService {
                     messageUtil.getMessage("category.not.found", id)));
         }
 
+        // Keep old value for logging
+        String oldValue = null;
+        try {
+            oldValue = objectMapper.writeValueAsString(categoryMapper.toResponse(category));
+        } catch (Exception e) {
+            // Ignore
+        }
+
         categoryMapper.updateEntity(request, category);
 
         category = categoryRepository.save(category);
+
+        // Build description of changes
+        StringBuilder changeDesc = new StringBuilder("Updated category: ");
+        changeDesc.append(category.getName()).append(" (").append(category.getType()).append(")");
+
+        // Log activity with old and new values
+        try {
+            String newValue = objectMapper.writeValueAsString(categoryMapper.toResponse(category));
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                user,
+                "Category",
+                category.getId(),
+                changeDesc.toString(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.UPDATE,
+                user,
+                "Category",
+                category.getId(),
+                changeDesc.toString()
+            );
+        }
+
         return categoryMapper.toResponse(category);
     }
 
@@ -139,6 +205,28 @@ public class CategoryService {
             category = categoryRepository.findByIdAndUser_Id(id, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                     messageUtil.getMessage("category.not.found", id)));
+        }
+
+        // Log activity before soft delete with old values
+        try {
+            String oldValue = objectMapper.writeValueAsString(categoryMapper.toResponse(category));
+            activityLogService.logWithValues(
+                ActionType.DELETE,
+                user,
+                "Category",
+                category.getId(),
+                String.format("Deleted category '%s' (%s)", category.getName(), category.getType()),
+                oldValue,
+                null
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.DELETE,
+                user,
+                "Category",
+                category.getId(),
+                String.format("Deleted category '%s' (%s)", category.getName(), category.getType())
+            );
         }
 
         // Soft delete by setting active = false

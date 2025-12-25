@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.activity.log.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="#{admin.activity.log.detail.title}">Activity Log Detail</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a th:href="@{/admin/activity-logs}" th:text="#{admin.activity.logs.title}">Activity Logs</a></li>
+                        <li class="breadcrumb-item active" th:text="#{admin.activity.log.detail.title}">Detail</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Flash Messages -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Activity Log Detail Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-info-circle"></i> <span th:text="#{admin.activity.log.detail.info}">Log Information</span></h3>
+                    <div class="card-tools">
+                        <a th:href="@{/admin/activity-logs}" class="btn btn-sm btn-default">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{admin.common.back}">Back</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Left Column -->
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.id}">ID:</dt>
+                                <dd class="col-sm-8" th:text="${log.id}">1</dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.timestamp}">Timestamp:</dt>
+                                <dd class="col-sm-8">
+                                    <span th:text="${#temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2025 10:00:00</span>
+                                </dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.action}">Action:</dt>
+                                <dd class="col-sm-8">
+                                    <span th:class="${'badge badge-lg ' +
+                                                     (log.action.name() == 'LOGIN' ? 'badge-success' :
+                                                      log.action.name() == 'LOGOUT' ? 'badge-secondary' :
+                                                      log.action.name() == 'CREATE' ? 'badge-primary' :
+                                                      log.action.name() == 'UPDATE' ? 'badge-info' :
+                                                      log.action.name() == 'DELETE' ? 'badge-danger' :
+                                                      log.action.name() == 'EXPORT' ? 'badge-warning' :
+                                                      log.action.name() == 'IMPORT' ? 'badge-warning' :
+                                                      log.action.name() == 'VIEW' ? 'badge-light' : 'badge-secondary')}"
+                                          th:text="${log.action}">LOGIN</span>
+                                </dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.entity.type}">Entity Type:</dt>
+                                <dd class="col-sm-8">
+                                    <strong th:text="${log.entityType}">Expense</strong>
+                                </dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.entity.id}">Entity ID:</dt>
+                                <dd class="col-sm-8">
+                                    <code th:text="${log.entityId}">123</code>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.user.title}">User:</dt>
+                                <dd class="col-sm-8">
+                                    <div th:if="${log.userName}">
+                                        <strong th:text="${log.userName}">User Name</strong><br/>
+                                        <small class="text-muted" th:text="${log.userEmail}">email@example.com</small><br/>
+                                        <small class="text-muted">ID: <span th:text="${log.userId}">1</span></small>
+                                    </div>
+                                    <span th:unless="${log.userName}" class="text-muted"><i>System</i></span>
+                                </dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.ip.address}">IP Address:</dt>
+                                <dd class="col-sm-8">
+                                    <code th:text="${log.ipAddress} ?: '-'">192.168.1.1</code>
+                                </dd>
+
+                                <dt class="col-sm-4" th:text="#{admin.activity.log.field.user.agent}">User Agent:</dt>
+                                <dd class="col-sm-8">
+                                    <small class="text-muted" th:text="${log.userAgent} ?: '-'">Mozilla/5.0...</small>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <!-- Description -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 th:text="#{admin.activity.log.field.description}">Description</h5>
+                            <p class="text-muted" th:text="${log.description} ?: '-'">Description of the action</p>
+                        </div>
+                    </div>
+
+                    <!-- Old Value & New Value -->
+                    <div class="row" th:if="${log.oldValue != null or log.newValue != null}">
+                        <div class="col-md-6" th:if="${log.oldValue != null}">
+                            <h5 th:text="#{admin.activity.log.field.old.value}">Old Value</h5>
+                            <div class="bg-light p-3 rounded">
+                                <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;"><code th:text="${log.oldValue}">Old value</code></pre>
+                            </div>
+                        </div>
+                        <div class="col-md-6" th:if="${log.newValue != null}">
+                            <h5 th:text="#{admin.activity.log.field.new.value}">New Value</h5>
+                            <div class="bg-light p-3 rounded">
+                                <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;"><code th:text="${log.newValue}">New value</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/admin/activity-logs}" class="btn btn-default">
+                        <i class="fas fa-arrow-left"></i> <span th:text="#{admin.common.back}">Back to List</span>
+                    </a>
+                    <form th:action="@{'/admin/activity-logs/' + ${log.id}}"
+                          method="post"
+                          style="display:inline-block; float: right;"
+                          th:onsubmit="|return confirm('#{admin.activity.log.confirm.delete}')|">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> <span th:text="#{admin.common.delete}">Delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

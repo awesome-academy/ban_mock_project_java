@@ -42,7 +42,7 @@ public class AdminExpenseController extends BaseAdminController {
                         @RequestParam(required = false) String startDate,
                         @RequestParam(required = false) String endDate,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "20") Integer size) {
+                        @RequestParam(defaultValue = "1") Integer size) {
         AdminExpenseFilterRequest.AdminExpenseFilterRequestBuilder filterBuilder = AdminExpenseFilterRequest.builder()
                 .name(name)
                 .userId(userId)

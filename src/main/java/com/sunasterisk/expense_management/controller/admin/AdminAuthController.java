@@ -1,8 +1,10 @@
 package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.admin.AdminLoginRequest;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.repository.UserRepository;
+import com.sunasterisk.expense_management.service.ActivityLogService;
 import com.sunasterisk.expense_management.util.CommonUtil;
 import com.sunasterisk.expense_management.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,13 +36,16 @@ public class AdminAuthController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final MessageUtil messageUtil;
+    private final ActivityLogService activityLogService;
 
     public AdminAuthController(AuthenticationManager authenticationManager,
                               UserRepository userRepository,
-                              MessageUtil messageUtil) {
+                              MessageUtil messageUtil,
+                              ActivityLogService activityLogService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.messageUtil = messageUtil;
+        this.activityLogService = activityLogService;
     }
 
 
@@ -122,6 +127,15 @@ public class AdminAuthController {
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
+            // Log successful admin login
+            activityLogService.log(
+                ActionType.LOGIN,
+                user,
+                "User",
+                user.getId(),
+                "Admin logged in successfully"
+            );
+
             // Set session timeout if remember me
             if (Boolean.TRUE.equals(loginRequest.getRememberMe())) {
                 session.setMaxInactiveInterval(1 * 24 * 60 * 60); // 1 days
@@ -153,6 +167,22 @@ public class AdminAuthController {
      */
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        // Get current user before clearing context
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            String email = auth.getName();
+            userRepository.findByEmail(email).ifPresent(user -> {
+                // Log logout activity
+                activityLogService.log(
+                    ActionType.LOGOUT,
+                    user,
+                    "User",
+                    user.getId(),
+                    "User logged out successfully"
+                );
+            });
+        }
+
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
