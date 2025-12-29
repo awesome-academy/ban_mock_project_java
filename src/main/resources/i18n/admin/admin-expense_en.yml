@@ -4,6 +4,8 @@ admin:
       found: Expense not found with id {0}
     deleted:
       success: Expense deleted successfully
+    export:
+      failed: Failed to export expenses
     updated:
       success: Expense updated successfully
     management:

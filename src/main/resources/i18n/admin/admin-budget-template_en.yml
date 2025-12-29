@@ -13,6 +13,8 @@ admin:
         success: Budget template updated successfully
       deleted:
         success: Budget template deleted successfully
+      export:
+        failed: Failed to export budgets
       management:
         message:
           confirm:

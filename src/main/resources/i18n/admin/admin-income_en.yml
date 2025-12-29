@@ -4,6 +4,8 @@ admin:
       found: Income not found with id {0}
     deleted:
       success: Income deleted successfully
+    export:
+      failed: Failed to export incomes
     updated:
       success: Income updated successfully
     management:

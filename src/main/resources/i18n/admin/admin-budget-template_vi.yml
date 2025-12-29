@@ -13,6 +13,8 @@ admin:
         success: Cập nhật mẫu ngân sách thành công
       deleted:
         success: Xóa mẫu ngân sách thành công
+      export:
+        failed: Xuất danh sách ngân sách thất bại
       management:
         message:
           confirm:

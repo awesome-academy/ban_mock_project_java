@@ -12,6 +12,8 @@ admin:
       success: Category updated successfully
     deleted:
       success: Category deleted successfully
+    export:
+      failed: Failed to export categories
     management:
       message:
         confirm:

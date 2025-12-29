@@ -12,6 +12,8 @@ admin:
       success: Cập nhật danh mục thành công
     deleted:
       success: Xóa danh mục thành công
+    export:
+      failed: Xuất danh sách danh mục thất bại
     management:
       message:
         confirm:
