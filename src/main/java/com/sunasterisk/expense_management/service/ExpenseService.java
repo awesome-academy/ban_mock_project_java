@@ -4,6 +4,7 @@ import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.expense.ExpenseFilterRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseResponse;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.Category;
 import com.sunasterisk.expense_management.entity.Category.CategoryType;
 import com.sunasterisk.expense_management.entity.Expense;
@@ -16,6 +17,7 @@ import com.sunasterisk.expense_management.repository.ExpenseRepository;
 import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.ExpenseSpecification;
 import com.sunasterisk.expense_management.util.MessageUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,19 +37,25 @@ public class ExpenseService {
     private final BudgetRepository budgetRepository;
     private final ExpenseMapper expenseMapper;
     private final MessageUtil messageUtil;
+    private final ActivityLogService activityLogService;
+    private final ObjectMapper objectMapper;
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           CategoryRepository categoryRepository,
                           UserRepository userRepository,
                           BudgetRepository budgetRepository,
                           ExpenseMapper expenseMapper,
-                          MessageUtil messageUtil) {
+                          MessageUtil messageUtil,
+                          ActivityLogService activityLogService,
+                          ObjectMapper objectMapper) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.budgetRepository = budgetRepository;
         this.expenseMapper = expenseMapper;
         this.messageUtil = messageUtil;
+        this.activityLogService = activityLogService;
+        this.objectMapper = objectMapper;
     }
 
     private User getCurrentUser() {
@@ -111,6 +119,29 @@ public class ExpenseService {
 
         expense = expenseRepository.save(expense);
 
+        // Log activity with new values
+        try {
+            String newValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+            activityLogService.logWithValues(
+                ActionType.CREATE,
+                user,
+                "Expense",
+                expense.getId(),
+                String.format("Created expense '%s' with amount %.2f", expense.getName(), expense.getAmount()),
+                null,
+                newValue
+            );
+        } catch (Exception e) {
+            // Fallback to simple log if JSON serialization fails
+            activityLogService.log(
+                ActionType.CREATE,
+                user,
+                "Expense",
+                expense.getId(),
+                String.format("Created expense '%s' with amount %.2f", expense.getName(), expense.getAmount())
+            );
+        }
+
         // Update budget's spentAmount
         updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
 
@@ -133,20 +164,108 @@ public class ExpenseService {
             throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
         }
 
-        // Keep track of old values for budget update
+        // Keep track of old values for budget update and logging
         Long oldCategoryId = expense.getCategory().getId();
         java.time.LocalDate oldDate = expense.getExpenseDate();
+        String oldValue = null;
+        try {
+            oldValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+        } catch (Exception e) {
+            // Ignore serialization errors
+        }
 
         expenseMapper.updateEntity(request, expense);
         expense.setCategory(category);
 
         expense = expenseRepository.save(expense);
 
+        // Build description of changes
+        StringBuilder changeDesc = new StringBuilder("Updated expense: ");
+        changeDesc.append(expense.getName());
+
+        // Log activity with old and new values
+        try {
+            String newValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                user,
+                "Expense",
+                expense.getId(),
+                changeDesc.toString(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            // Fallback to simple log if JSON serialization fails
+            activityLogService.log(
+                ActionType.UPDATE,
+                user,
+                "Expense",
+                expense.getId(),
+                changeDesc.toString()
+            );
+        }
+
         // Update budget's spentAmount for both old and new category/date
         updateBudgetSpentAmount(user.getId(), oldCategoryId, oldDate);
         if (!oldCategoryId.equals(category.getId()) ||
             !java.time.YearMonth.from(oldDate).equals(java.time.YearMonth.from(expense.getExpenseDate()))) {
             updateBudgetSpentAmount(user.getId(), category.getId(), expense.getExpenseDate());
+        }
+
+        return expenseMapper.toResponse(expense);
+    }
+
+    /**
+     * Internal method to update expense - can be called by admin service
+     */
+    @Transactional
+    public ExpenseResponse updateExpenseInternal(Long id, ExpenseRequest request, User actingUser) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("expense.not.found", id)));
+
+        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
+
+        if (category.getType() != CategoryType.EXPENSE) {
+            throw new IllegalArgumentException(messageUtil.getMessage("category.invalid.type.expense"));
+        }
+
+        // Keep old values for logging
+        String oldValue = null;
+        try {
+            oldValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        expenseMapper.updateEntity(request, expense);
+        expense.setCategory(category);
+
+        expense = expenseRepository.save(expense);
+
+        // Log activity
+        try {
+            String newValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                actingUser,
+                "Expense",
+                expense.getId(),
+                "Updated expense: " + expense.getName(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.UPDATE,
+                actingUser,
+                "Expense",
+                expense.getId(),
+                "Updated expense: " + expense.getName()
+            );
         }
 
         return expenseMapper.toResponse(expense);
@@ -163,10 +282,67 @@ public class ExpenseService {
         Long categoryId = expense.getCategory().getId();
         java.time.LocalDate expenseDate = expense.getExpenseDate();
 
+        // Log activity before deletion with old values
+        try {
+            String oldValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+            activityLogService.logWithValues(
+                ActionType.DELETE,
+                user,
+                "Expense",
+                expense.getId(),
+                String.format("Deleted expense '%s' with amount %.2f", expense.getName(), expense.getAmount()),
+                oldValue,
+                null
+            );
+        } catch (Exception e) {
+            // Fallback to simple log if JSON serialization fails
+            activityLogService.log(
+                ActionType.DELETE,
+                user,
+                "Expense",
+                expense.getId(),
+                String.format("Deleted expense '%s' with amount %.2f", expense.getName(), expense.getAmount())
+            );
+        }
+
         expenseRepository.delete(expense);
 
         // Update budget's spentAmount after deletion
         updateBudgetSpentAmount(user.getId(), categoryId, expenseDate);
+    }
+
+    /**
+     * Internal method to delete expense - can be called by admin service
+     */
+    @Transactional
+    public void deleteExpenseInternal(Long id, User actingUser) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("expense.not.found", id)));
+
+        // Log activity before deletion
+        try {
+            String oldValue = objectMapper.writeValueAsString(expenseMapper.toResponse(expense));
+            activityLogService.logWithValues(
+                ActionType.DELETE,
+                actingUser,
+                "Expense",
+                expense.getId(),
+                "Deleted expense: " + expense.getName(),
+                oldValue,
+                null
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.DELETE,
+                actingUser,
+                "Expense",
+                expense.getId(),
+                "Deleted expense: " + expense.getName()
+            );
+        }
+
+        expenseRepository.delete(expense);
     }
 
     /**

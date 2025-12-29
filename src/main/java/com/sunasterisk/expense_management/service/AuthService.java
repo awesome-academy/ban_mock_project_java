@@ -2,6 +2,7 @@ package com.sunasterisk.expense_management.service;
 
 import com.sunasterisk.expense_management.dto.AuthRequest;
 import com.sunasterisk.expense_management.dto.AuthResponse;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.RateLimitExceededException;
 import com.sunasterisk.expense_management.repository.UserRepository;
@@ -22,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final LoginRateLimiterService rateLimiterService;
+    private final ActivityLogService activityLogService;
     private final HttpServletRequest request;
     private final MessageUtil messageUtil;
 
@@ -29,12 +31,14 @@ public class AuthService {
                       PasswordEncoder passwordEncoder,
                       JwtUtil jwtUtil,
                       LoginRateLimiterService rateLimiterService,
+                      ActivityLogService activityLogService,
                       HttpServletRequest request,
                       MessageUtil messageUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.rateLimiterService = rateLimiterService;
+        this.activityLogService = activityLogService;
         this.request = request;
         this.messageUtil = messageUtil;
     }
@@ -74,6 +78,10 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail());
         log.info("Login successful for: {} from IP: {}", user.getEmail(), ipAddress);
+
+        // Log successful login
+        activityLogService.log(ActionType.LOGIN, user, "User", user.getId(),
+                "User logged in successfully");
 
         return new AuthResponse(token);
     }

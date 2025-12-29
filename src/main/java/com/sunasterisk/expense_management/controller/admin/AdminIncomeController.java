@@ -42,7 +42,7 @@ public class AdminIncomeController extends BaseAdminController {
                         @RequestParam(required = false) String startDate,
                         @RequestParam(required = false) String endDate,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "20") Integer size) {
+                        @RequestParam(defaultValue = "1") Integer size) {
         AdminIncomeFilterRequest.AdminIncomeFilterRequestBuilder filterBuilder = AdminIncomeFilterRequest.builder()
                 .name(name)
                 .userId(userId)

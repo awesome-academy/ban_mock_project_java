@@ -4,16 +4,18 @@ import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.expense.AdminExpenseFilterRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseResponse;
-import com.sunasterisk.expense_management.entity.Category;
-import com.sunasterisk.expense_management.entity.Category.CategoryType;
 import com.sunasterisk.expense_management.entity.Expense;
+import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.mapper.ExpenseMapper;
-import com.sunasterisk.expense_management.repository.CategoryRepository;
 import com.sunasterisk.expense_management.repository.ExpenseRepository;
+import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.ExpenseSpecification;
+import com.sunasterisk.expense_management.service.ExpenseService;
 import com.sunasterisk.expense_management.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +29,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminExpenseService {
 
     private final ExpenseRepository expenseRepository;
-    private final CategoryRepository categoryRepository;
     private final ExpenseMapper expenseMapper;
     private final MessageUtil messageUtil;
+    private final ExpenseService expenseService;
+    private final UserRepository userRepository;
+
+    private User getCurrentAdminUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(messageUtil.getMessage("user.not.found")));
+    }
 
     @Transactional(readOnly = true)
     public PageResponse<ExpenseResponse> getAllExpenses(AdminExpenseFilterRequest filter) {
@@ -64,38 +74,13 @@ public class AdminExpenseService {
 
     @Transactional
     public ExpenseResponse updateExpense(Long id, ExpenseRequest request) {
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("expense.not.found", id)));
-
-        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("category.not.found", request.getCategoryId())));
-
-        if (category.getType() != CategoryType.EXPENSE) {
-            throw new IllegalArgumentException(
-                    messageUtil.getMessage("category.type.must.be.expense"));
-        }
-
-        expense.setName(request.getName());
-        expense.setAmount(request.getAmount());
-        expense.setExpenseDate(request.getExpenseDate());
-        expense.setNote(request.getNote());
-        expense.setLocation(request.getLocation());
-        expense.setPaymentMethod(request.getPaymentMethod());
-        expense.setIsRecurring(request.getIsRecurring());
-        expense.setRecurringType(request.getRecurringType());
-        expense.setCategory(category);
-
-        Expense updatedExpense = expenseRepository.save(expense);
-        return expenseMapper.toResponse(updatedExpense);
+        User adminUser = getCurrentAdminUser();
+        return expenseService.updateExpenseInternal(id, request, adminUser);
     }
 
     @Transactional
     public void deleteExpense(Long id) {
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        messageUtil.getMessage("expense.not.found", id)));
-        expenseRepository.delete(expense);
+        User adminUser = getCurrentAdminUser();
+        expenseService.deleteExpenseInternal(id, adminUser);
     }
 }

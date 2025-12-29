@@ -1,18 +1,22 @@
 package com.sunasterisk.expense_management.service;
 
 import com.sunasterisk.expense_management.dto.UserDto;
+import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.DuplicateResourceException;
 import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +31,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MessageSource messageSource;
+    private final ActivityLogService activityLogService;
+    private final ObjectMapper objectMapper;
+
+
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
+        String email = authentication.getName();
+        return userRepository.findByEmail(email).orElse(null);
+    }
 
     /**
      * Get all users
@@ -78,6 +95,32 @@ public class UserService {
                 .build();
 
         User saved = userRepository.save(user);
+
+        // Log activity with new values
+        User currentUser = getCurrentUser();
+        try {
+            UserDto savedDto = UserDto.fromEntity(saved);
+            savedDto.setPassword(null); // Don't log password
+            String newValue = objectMapper.writeValueAsString(savedDto);
+            activityLogService.logWithValues(
+                ActionType.CREATE,
+                currentUser,
+                "User",
+                saved.getId(),
+                String.format("Created user '%s' (%s) with role %s", saved.getName(), saved.getEmail(), saved.getRole()),
+                null,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.CREATE,
+                currentUser,
+                "User",
+                saved.getId(),
+                String.format("Created user '%s' (%s) with role %s", saved.getName(), saved.getEmail(), saved.getRole())
+            );
+        }
+
         return UserDto.fromEntity(saved);
     }
 
@@ -100,6 +143,16 @@ public class UserService {
             }
         }
 
+        // Keep old value for logging
+        String oldValue = null;
+        try {
+            UserDto oldDto = UserDto.fromEntity(user);
+            oldDto.setPassword(null); // Don't log password
+            oldValue = objectMapper.writeValueAsString(oldDto);
+        } catch (Exception e) {
+            // Ignore
+        }
+
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
@@ -112,6 +165,36 @@ public class UserService {
         }
 
         User updated = userRepository.save(user);
+
+        // Build description of changes
+        StringBuilder changeDesc = new StringBuilder("Updated user: ");
+        changeDesc.append(updated.getName()).append(" (").append(updated.getEmail()).append(")");
+
+        // Log activity with old and new values
+        User currentUser = getCurrentUser();
+        try {
+            UserDto updatedDto = UserDto.fromEntity(updated);
+            updatedDto.setPassword(null); // Don't log password
+            String newValue = objectMapper.writeValueAsString(updatedDto);
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                currentUser,
+                "User",
+                updated.getId(),
+                changeDesc.toString(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.UPDATE,
+                currentUser,
+                "User",
+                updated.getId(),
+                changeDesc.toString()
+            );
+        }
+
         return UserDto.fromEntity(updated);
     }
 
@@ -124,6 +207,31 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())
                 ));
+
+        // Log activity before deletion with old values
+        User currentUser = getCurrentUser();
+        try {
+            UserDto userDto = UserDto.fromEntity(user);
+            userDto.setPassword(null); // Don't log password
+            String oldValue = objectMapper.writeValueAsString(userDto);
+            activityLogService.logWithValues(
+                ActionType.DELETE,
+                currentUser,
+                "User",
+                user.getId(),
+                String.format("Deleted user '%s' (%s)", user.getName(), user.getEmail()),
+                oldValue,
+                null
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.DELETE,
+                currentUser,
+                "User",
+                user.getId(),
+                String.format("Deleted user '%s' (%s)", user.getName(), user.getEmail())
+            );
+        }
 
         userRepository.delete(user);
     }
