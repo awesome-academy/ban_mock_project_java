@@ -166,4 +166,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
 
     @Query("SELECT COUNT(e) FROM Expense e WHERE e.createdAt BETWEEN :start AND :end")
     Long countExpensesBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    /**
+     * Sum expenses grouped by user for CSV export
+     * Returns [userId, totalExpenses]
+     */
+    @Query("SELECT e.user.id, COALESCE(SUM(e.amount), 0) " +
+           "FROM Expense e " +
+           "WHERE e.user IS NOT NULL " +
+           "GROUP BY e.user.id")
+    java.util.List<Object[]> sumByUser();
 }

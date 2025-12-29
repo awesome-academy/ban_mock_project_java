@@ -27,6 +27,8 @@ admin:
       success: User updated successfully
     deleted:
       success: User deleted successfully
+    export:
+      failed: Failed to export users
     management:
       title: User Management
       list:

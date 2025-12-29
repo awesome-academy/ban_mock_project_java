@@ -4,6 +4,8 @@ admin:
       found: Không tìm thấy thu nhập với id {0}
     deleted:
       success: Xóa thu nhập thành công
+    export:
+      failed: Xuất danh sách thu nhập thất bại
     updated:
       success: Cập nhật thu nhập thành công
     management:

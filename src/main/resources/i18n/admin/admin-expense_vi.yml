@@ -4,6 +4,8 @@ admin:
       found: Không tìm thấy chi tiêu với id {0}
     deleted:
       success: Xóa chi tiêu thành công
+    export:
+      failed: Xuất danh sách chi tiêu thất bại
     updated:
       success: Cập nhật chi tiêu thành công
     management:

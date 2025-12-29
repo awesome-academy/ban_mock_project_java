@@ -134,4 +134,14 @@ public interface IncomeRepository extends JpaRepository<Income, Long>, JpaSpecif
 
     @Query("SELECT COUNT(i) FROM Income i WHERE i.createdAt BETWEEN :start AND :end")
     Long countIncomesBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    /**
+     * Sum incomes grouped by user for CSV export
+     * Returns [userId, totalIncomes]
+     */
+    @Query("SELECT i.user.id, COALESCE(SUM(i.amount), 0) " +
+           "FROM Income i " +
+           "WHERE i.user IS NOT NULL " +
+           "GROUP BY i.user.id")
+    java.util.List<Object[]> sumByUser();
 }
