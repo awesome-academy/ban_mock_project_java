@@ -159,5 +159,73 @@
 <th:block th:fragment="incomesPagination(currentPage, totalPages, totalElements, size, name, startDate, endDate)">
     <th:block th:replace="~{fragments/pagination :: genericPagination('/admin/incomes', 'admin.income.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, ${startDate}, ${endDate})}"></th:block>
 </th:block>
+
+<!--
+    Pagination Fragment for Budgets - delegates to generic pagination
+-->
+<th:block th:fragment="budgetsPagination(currentPage, totalPages, totalElements, size, name, userId, categoryId, year, month, isOverBudget, active)">
+    <div class="row" th:if="${totalPages > 1}">
+        <div class="col-md-6">
+            <p th:text="#{admin.budget.pagination.info(${currentPage + 1}, ${totalPages}, ${totalElements})}">
+                Page 1 of 10 (100 total)
+            </p>
+        </div>
+        <div class="col-md-6">
+            <nav>
+                <ul class="pagination justify-content-end">
+                    <!-- Previous Button -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/budgets(page=${currentPage - 1}, size=${size}, name=${name}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active})}"
+                           th:text="#{label.pagination.previous}">Previous</a>
+                    </li>
+
+                    <!-- First page -->
+                    <li class="page-item" th:if="${currentPage > 2}"
+                        th:classappend="${0 == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/admin/budgets(page=0, size=${size}, name=${name}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active})}"
+                           th:text="1">1</a>
+                    </li>
+
+                    <!-- Ellipsis before -->
+                    <li class="page-item" th:if="${currentPage > 3}">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <!-- Current page ± 2 -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(currentPage - 2 < 0 ? 0 : currentPage - 2,
+                                                         currentPage + 2 >= totalPages ? totalPages - 1 : currentPage + 2)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/admin/budgets(page=${i}, size=${size}, name=${name}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+
+                    <!-- Ellipsis after -->
+                    <li class="page-item" th:if="${currentPage < totalPages - 4}">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <!-- Last page -->
+                    <li class="page-item" th:if="${currentPage < totalPages - 3}"
+                        th:classappend="${totalPages - 1 == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/admin/budgets(page=${totalPages - 1}, size=${size}, name=${name}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active})}"
+                           th:text="${totalPages}">10</a>
+                    </li>
+
+                    <!-- Next Button -->
+                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/budgets(page=${currentPage + 1}, size=${size}, name=${name}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active})}"
+                           th:text="#{label.pagination.next}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</th:block>
 </body>
 </html>

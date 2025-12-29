@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.budget.management.detail.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="${budget.name}">Budget Detail</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-wallet"></i> <span th:text="#{admin.budget.management.detail.title}">Budget Details</span></h3>
+                    <div class="card-tools">
+                        <a th:href="@{/admin/budgets/{id}/edit(id=${budget.id})}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> <span th:text="#{label.action.edit}">Edit</span>
+                        </a>
+                        <a th:href="@{/admin/budgets}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> <span th:text="#{label.action.back}">Back to List</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width: 40%" th:text="#{admin.budget.table.id}">ID</th>
+                                    <td th:text="${budget.id}">1</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.name}">Name</th>
+                                    <td th:text="${budget.name}">Monthly Food Budget</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.period}">Period</th>
+                                    <td th:text="${budget.month + '/' + budget.year}">12/2024</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.category}">Category</th>
+                                    <td>
+                                        <span th:if="${budget.categoryName}" th:text="${budget.categoryName}">Food</span>
+                                        <span th:if="${!budget.categoryName}" class="text-muted" th:text="#{admin.budget.field.all.categories}">All Categories</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.user}">User</th>
+                                    <td th:text="${budget.userName}">John Doe</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.amount}">Amount Limit</th>
+                                    <td th:text="${#numbers.formatDecimal(budget.amountLimit, 0, 'COMMA', 0, 'POINT')} + ' VND'">1,000,000 VND</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.spent}">Spent Amount</th>
+                                    <td>
+                                        <span th:text="${#numbers.formatDecimal(budget.spentAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">500,000 VND</span>
+                                        <span th:if="${budget.isOverBudget}" class="badge badge-danger ml-2" th:text="#{admin.budget.status.over}">Over Budget</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.remaining}">Remaining</th>
+                                    <td th:text="${#numbers.formatDecimal(budget.remainingAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">500,000 VND</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.field.usage.percentage}">Usage</th>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar"
+                                                 th:classappend="${budget.usagePercentage >= 100} ? 'bg-danger' : (${budget.usagePercentage >= budget.alertThreshold} ? 'bg-warning' : 'bg-success')"
+                                                 role="progressbar"
+                                                 th:style="'width: ' + ${budget.usagePercentage > 100 ? 100 : budget.usagePercentage} + '%'"
+                                                 th:attr="aria-valuenow=${budget.usagePercentage}">
+                                                <span th:text="${#numbers.formatDecimal(budget.usagePercentage, 0, 'COMMA', 2, 'POINT')} + '%'">50%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.field.alert.threshold.label}">Alert Threshold</th>
+                                    <td th:text="${budget.alertThreshold} + '%'">80%</td>
+                                </tr>
+                                <tr th:if="${budget.note}">
+                                    <th th:text="#{admin.budget.field.note}">Note</th>
+                                    <td th:text="${budget.note}">Budget note</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{admin.budget.table.status}">Status</th>
+                                    <td>
+                                        <span th:if="${budget.active}" class="badge badge-success" th:text="#{admin.budget.status.active}">Active</span>
+                                        <span th:if="${!budget.active}" class="badge badge-secondary" th:text="#{admin.budget.status.inactive}">Inactive</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${budget.createdAt}">
+                                    <th th:text="#{label.fields.created.at}">Created At</th>
+                                    <td th:text="${#temporals.format(budget.createdAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                <tr th:if="${budget.updatedAt}">
+                                    <th th:text="#{label.fields.updated.at}">Updated At</th>
+                                    <td th:text="${#temporals.format(budget.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <form th:action="@{'/admin/budgets/' + ${budget.id}}" method="post" style="display:inline-block"
+                                  th:onsubmit="|return confirm('#{admin.budget.management.message.confirm.delete}')|">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> <span th:text="#{label.action.delete}">Delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

@@ -161,14 +161,14 @@ public class AdminBudgetTemplateController extends BaseAdminController {
     }
 
     /**
-     * Export budgets to CSV
+     * Export budget templates to CSV
      */
-    @GetMapping("/budgets/export")
-    public void exportBudgets(HttpServletResponse response) {
+    @GetMapping("/budget-templates/export")
+    public void exportBudgetTemplates(HttpServletResponse response) {
         try {
-            csvExportService.exportBudgets(response);
+            csvExportService.exportBudgetTemplates(response);
         } catch (Exception e) {
-            throw new RuntimeException(getMessage("admin.budget.export.failed") + ": " + e.getMessage(), e);
+            throw new RuntimeException(getMessage("admin.budget.template.export.failed") + ": " + e.getMessage(), e);
         }
     }
 }

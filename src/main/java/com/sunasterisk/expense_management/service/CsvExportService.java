@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Service for exporting data to CSV format
@@ -30,6 +29,7 @@ public class CsvExportService {
     private final IncomeRepository incomeRepository;
     private final CategoryRepository categoryRepository;
     private final BudgetRepository budgetRepository;
+    private final BudgetTemplateRepository budgetTemplateRepository;
     private final MessageUtil messageUtil;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -271,6 +271,44 @@ public class CsvExportService {
         }
 
         log.info("Exported {} budgets to CSV", budgets.size());
+    }
+
+    /**
+     * Export all budget templates to CSV
+     */
+    public void exportBudgetTemplates(HttpServletResponse response) throws IOException {
+        List<BudgetTemplate> templates = budgetTemplateRepository.findAll();
+
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"budget-templates.csv\"");
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write('\ufeff');
+
+            // Header
+            writer.println(String.join(",",
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.id")),
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.name")),
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.description")),
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.items.count")),
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.active")),
+                    escapeCSV(messageUtil.getMessage("csv.budget.template.created.at"))
+            ));
+
+            // Data
+            for (BudgetTemplate template : templates) {
+                writer.println(String.join(",",
+                        escapeCSV(template.getId().toString()),
+                        escapeCSV(template.getName()),
+                        escapeCSV(template.getDescription() != null ? template.getDescription() : ""),
+                        escapeCSV(String.valueOf(template.getItems() != null ? template.getItems().size() : 0)),
+                        escapeCSV(template.getActive().toString()),
+                        escapeCSV(template.getCreatedAt() != null ? template.getCreatedAt().format(DATETIME_FORMATTER) : "")
+                ));
+            }
+        }
+
+        log.info("Exported {} budget templates to CSV", templates.size());
     }
 
     /**

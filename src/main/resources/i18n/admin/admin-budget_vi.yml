@@ -1,0 +1,74 @@
+admin:
+  budget:
+    name:
+      required: Tên ngân sách là bắt buộc
+      max:
+        length: Tên ngân sách không được vượt quá 200 ký tự
+    not:
+      found: Không tìm thấy ngân sách với id {0}
+    created:
+      success: Tạo ngân sách thành công
+    updated:
+      success: Cập nhật ngân sách thành công
+    deleted:
+      success: Xóa ngân sách thành công
+    export:
+      failed: Xuất danh sách ngân sách thất bại
+    management:
+      message:
+        confirm:
+          delete: Bạn có chắc chắn muốn xóa ngân sách này?
+      title: Quản lý ngân sách
+      list:
+        title: Danh sách ngân sách
+      detail:
+        title: Chi tiết ngân sách
+      form:
+        create:
+          title: Tạo ngân sách
+        edit:
+          title: Chỉnh sửa ngân sách
+    pagination:
+      info: "Trang {0} / {1} ({2} ngân sách)"
+    table:
+      id: ID
+      name: Tên
+      period: Thời kỳ
+      category: Danh mục
+      user: Người dùng
+      amount: Giới hạn
+      spent: Đã chi
+      remaining: Còn lại
+      status: Trạng thái
+      actions: Thao tác
+    field:
+      name: Tên
+      amount:
+        limit: Giới hạn ngân sách
+      year: Năm
+      month: Tháng
+      category:
+        name: Danh mục
+        help: Để trống để theo dõi tất cả danh mục
+      all:
+        categories: Tất cả danh mục
+      note: Ghi chú
+      alert:
+        threshold:
+          label: Ngưỡng cảnh báo (%)
+          help: Cảnh báo khi mức sử dụng vượt quá tỷ lệ này (mặc định 80%)
+      status: Trạng thái
+      usage:
+        percentage: Tỷ lệ sử dụng
+    action:
+      create: Tạo ngân sách
+      save: Lưu
+      cancel: Hủy
+      back: Quay lại danh sách
+    status:
+      active: Hoạt động
+      inactive: Không hoạt động
+      over: Vượt ngân sách
+    message:
+      'no':
+        budgets: Không tìm thấy ngân sách nào

@@ -299,13 +299,127 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
+        deleteBudgetInternal(budget, user);
+    }
+
+    /**
+     * Internal method for updating budget - can be called by admin service
+     */
+    @Transactional
+    public BudgetResponse updateBudgetInternal(Long id, BudgetRequest request, User adminUser) {
+        Budget budget = budgetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("budget.not.found", id)));
+
+        User budgetOwner = budget.getUser();
+
+        // Check if category is being changed
+        Long existingCategoryId = budget.getCategory() != null ? budget.getCategory().getId() : null;
+        Long newCategoryId = request.getCategoryId();
+
+        boolean categoryChanged = (existingCategoryId == null && newCategoryId != null) ||
+                                  (existingCategoryId != null && newCategoryId == null) ||
+                                  (existingCategoryId != null && !existingCategoryId.equals(newCategoryId));
+
+        // If category is being changed, check for duplicates
+        if (categoryChanged) {
+            boolean exists;
+            if (newCategoryId != null) {
+                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
+                        budgetOwner.getId(),
+                        newCategoryId,
+                        request.getYear(),
+                        request.getMonth()
+                );
+            } else {
+                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
+                        budgetOwner.getId(),
+                        request.getYear(),
+                        request.getMonth()
+                );
+            }
+
+            if (exists) {
+                throw new IllegalArgumentException(
+                        messageUtil.getMessage("budget.already.exists"));
+            }
+        }
+
+        // Validate and set the new category
+        Category category = null;
+        if (newCategoryId != null) {
+            category = categoryRepository.findByIdAndActiveTrue(newCategoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            messageUtil.getMessage("category.not.found", newCategoryId)));
+        }
+
+        // Keep old value for logging
+        String oldValue = null;
+        try {
+            oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        budgetMapper.updateEntity(request, budget);
+        budget.setCategory(category);
+
+        budget = budgetRepository.save(budget);
+
+        // Build description of changes
+        String categoryName = category != null ? category.getName() : "All Categories";
+        StringBuilder changeDesc = new StringBuilder("Updated budget: ");
+        changeDesc.append(categoryName).append(" (").append(budget.getMonth())
+                  .append("/").append(budget.getYear()).append(")");
+
+        // Log activity with old and new values
+        try {
+            String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
+            activityLogService.logWithValues(
+                ActionType.UPDATE,
+                adminUser,
+                "Budget",
+                budget.getId(),
+                changeDesc.toString(),
+                oldValue,
+                newValue
+            );
+        } catch (Exception e) {
+            activityLogService.log(
+                ActionType.UPDATE,
+                adminUser,
+                "Budget",
+                budget.getId(),
+                changeDesc.toString()
+            );
+        }
+
+        return budgetMapper.toResponse(budget);
+    }
+
+    /**
+     * Internal method for deleting budget - can be called by admin service
+     */
+    @Transactional
+    public void deleteBudgetInternal(Long id, User adminUser) {
+        Budget budget = budgetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("budget.not.found", id)));
+
+        deleteBudgetInternal(budget, adminUser);
+    }
+
+    /**
+     * Common delete logic
+     */
+    private void deleteBudgetInternal(Budget budget, User actionUser) {
         // Log activity before soft delete with old values
         String categoryName = budget.getCategory() != null ? budget.getCategory().getName() : "All Categories";
         try {
             String oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
             activityLogService.logWithValues(
                 ActionType.DELETE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 String.format("Deleted budget for %s (%d/%d)",
@@ -316,7 +430,7 @@ public class BudgetService {
         } catch (Exception e) {
             activityLogService.log(
                 ActionType.DELETE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 String.format("Deleted budget for %s (%d/%d)",

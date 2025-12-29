@@ -285,8 +285,14 @@ label:
     back: Back
     search: Search
     reset: Reset
+    filter: Filter
+    export:
+      csv: Export CSV
+  filter:
+    all: All
   select:
     category: Select category
+    month: Select Month
   fields:
     created:
       at: Created At
@@ -352,3 +358,12 @@ csv:
     user: User
     created:
       at: Created At
+    template:
+      id: Template ID
+      name: Name
+      description: Description
+      items:
+        count: Items Count
+      active: Active
+      created:
+        at: Created At
