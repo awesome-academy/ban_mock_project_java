@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(#{admin.budget.management.form.edit.title}, ~{::content}, 'sidebar-mini')}">
+<head></head>
+<body>
+<th:block th:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0" th:text="#{admin.budget.management.form.edit.title}">Edit Budget</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div th:if="${error}" class="alert alert-danger">
+                <span th:text="${error}"></span>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{'/admin/budgets/' + ${budgetId}}"
+                          th:object="${budgetRequest}" method="post">
+                        <input type="hidden" name="_method" value="PUT" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">
+                                        <span th:text="#{admin.budget.field.name}">Name</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="name" th:field="*{name}"
+                                           th:class="${#fields.hasErrors('name')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.budget.field.name}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="amountLimit">
+                                        <span th:text="#{admin.budget.field.amount.limit}">Amount Limit</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" id="amountLimit" th:field="*{amountLimit}" step="1000"
+                                           th:class="${#fields.hasErrors('amountLimit')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.budget.field.amount.limit}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('amountLimit')}" th:errors="*{amountLimit}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="year">
+                                        <span th:text="#{admin.budget.field.year}">Year</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" id="year" th:field="*{year}" min="2000" max="2100"
+                                           th:class="${#fields.hasErrors('year')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.budget.field.year}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="month">
+                                        <span th:text="#{admin.budget.field.month}">Month</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="month" th:field="*{month}"
+                                            th:class="${#fields.hasErrors('month')} ? 'form-control is-invalid' : 'form-control'">
+                                        <option value="" th:text="#{label.select.month}">Select Month</option>
+                                        <option th:each="i : ${#numbers.sequence(1, 12)}" th:value="${i}"
+                                                th:text="${i}">1</option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('month')}" th:errors="*{month}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="categoryId">
+                                        <span th:text="#{admin.budget.field.category.name}">Category</span>
+                                    </label>
+                                    <select id="categoryId" th:field="*{categoryId}" class="form-control">
+                                        <option value="" th:text="#{admin.budget.field.all.categories}">All Categories</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
+                                    </select>
+                                    <small class="form-text text-muted" th:text="#{admin.budget.field.category.help}">
+                                        Leave empty for tracking all categories
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="alertThreshold">
+                                        <span th:text="#{admin.budget.field.alert.threshold.label}">Alert Threshold (%)</span>
+                                    </label>
+                                    <input type="number" id="alertThreshold" th:field="*{alertThreshold}" min="0" max="100"
+                                           th:class="${#fields.hasErrors('alertThreshold')} ? 'form-control is-invalid' : 'form-control'"
+                                           th:placeholder="#{admin.budget.field.alert.threshold.label}" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('alertThreshold')}" th:errors="*{alertThreshold}"></div>
+                                    <small class="form-text text-muted" th:text="#{admin.budget.field.alert.threshold.help}">
+                                        Alert when usage exceeds this percentage (default: 80%)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="note">
+                                <span th:text="#{admin.budget.field.note}">Note</span>
+                            </label>
+                            <textarea id="note" th:field="*{note}" rows="3"
+                                      th:class="${#fields.hasErrors('note')} ? 'form-control is-invalid' : 'form-control'"
+                                      th:placeholder="#{admin.budget.field.note}"></textarea>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="active">
+                                <span th:text="#{admin.budget.field.status}">Status</span>
+                            </label>
+                            <select id="active" th:field="*{active}" class="form-control">
+                                <option th:value="true" th:text="#{admin.budget.status.active}">Active</option>
+                                <option th:value="false" th:text="#{admin.budget.status.inactive}">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> <span th:text="#{admin.budget.action.save}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/budgets}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> <span th:text="#{admin.budget.action.cancel}">Cancel</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

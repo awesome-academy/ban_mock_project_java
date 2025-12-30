@@ -14,7 +14,7 @@ admin:
       deleted:
         success: Budget template deleted successfully
       export:
-        failed: Failed to export budgets
+        failed: Failed to export budget templates
       management:
         message:
           confirm:

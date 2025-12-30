@@ -205,6 +205,47 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
+        return updateBudgetInternal(budget, request, user, user, true);
+    }
+
+    @Transactional
+    public void deleteBudget(Long id) {
+        User user = getCurrentUser();
+
+        Budget budget = budgetRepository.findByIdAndUser_Id(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("budget.not.found", id)));
+
+        deleteBudgetInternal(budget, user);
+    }
+
+    /**
+     * Internal method for updating budget - can be called by admin service
+     */
+    @Transactional
+    public BudgetResponse updateBudgetInternal(Long id, BudgetRequest request, User adminUser) {
+        Budget budget = budgetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageUtil.getMessage("budget.not.found", id)));
+
+        return updateBudgetInternal(budget, request, budget.getUser(), adminUser, false);
+    }
+
+    /**
+     * Common update logic for budget
+     *
+     * @param budget The budget to update
+     * @param request The update request
+     * @param budgetOwner The user who owns the budget (for duplicate checks)
+     * @param actionUser The user performing the action (for logging)
+     * @param validateAccess Whether to validate category access
+     * @return The updated budget response
+     */
+    private BudgetResponse updateBudgetInternal(Budget budget, BudgetRequest request,
+                                                 User budgetOwner, User actionUser,
+                                                 boolean validateAccess) {
+        Long id = budget.getId();
+
         // Check if category is being changed
         Long existingCategoryId = budget.getCategory() != null ? budget.getCategory().getId() : null;
         Long newCategoryId = request.getCategoryId();
@@ -213,21 +254,26 @@ public class BudgetService {
                                   (existingCategoryId != null && newCategoryId == null) ||
                                   (existingCategoryId != null && !existingCategoryId.equals(newCategoryId));
 
-        // If category is being changed, check for duplicates
-        if (categoryChanged) {
+        boolean periodChanged = !budget.getYear().equals(request.getYear()) ||
+                                !budget.getMonth().equals(request.getMonth());
+
+        // If category, year, or month is being changed, check for duplicates (excluding current budget)
+        if (categoryChanged || periodChanged) {
             boolean exists;
             if (newCategoryId != null) {
-                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
-                        user.getId(),
+                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonthAndIdNot(
+                        budgetOwner.getId(),
                         newCategoryId,
                         request.getYear(),
-                        request.getMonth()
+                        request.getMonth(),
+                        id
                 );
             } else {
-                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
-                        user.getId(),
+                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonthAndIdNot(
+                        budgetOwner.getId(),
                         request.getYear(),
-                        request.getMonth()
+                        request.getMonth(),
+                        id
                 );
             }
 
@@ -244,7 +290,9 @@ public class BudgetService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             messageUtil.getMessage("category.not.found", newCategoryId)));
 
-            validateCategoryAccess(category, user);
+            if (validateAccess) {
+                validateCategoryAccess(category, budgetOwner);
+            }
         }
 
         // Keep old value for logging
@@ -271,7 +319,7 @@ public class BudgetService {
             String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
             activityLogService.logWithValues(
                 ActionType.UPDATE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 changeDesc.toString(),
@@ -281,7 +329,7 @@ public class BudgetService {
         } catch (Exception e) {
             activityLogService.log(
                 ActionType.UPDATE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 changeDesc.toString()
@@ -291,21 +339,29 @@ public class BudgetService {
         return budgetMapper.toResponse(budget);
     }
 
+    /**
+     * Internal method for deleting budget - can be called by admin service
+     */
     @Transactional
-    public void deleteBudget(Long id) {
-        User user = getCurrentUser();
-
-        Budget budget = budgetRepository.findByIdAndUser_Id(id, user.getId())
+    public void deleteBudgetInternal(Long id, User adminUser) {
+        Budget budget = budgetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
+        deleteBudgetInternal(budget, adminUser);
+    }
+
+    /**
+     * Common delete logic
+     */
+    private void deleteBudgetInternal(Budget budget, User actionUser) {
         // Log activity before soft delete with old values
         String categoryName = budget.getCategory() != null ? budget.getCategory().getName() : "All Categories";
         try {
             String oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
             activityLogService.logWithValues(
                 ActionType.DELETE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 String.format("Deleted budget for %s (%d/%d)",
@@ -316,7 +372,7 @@ public class BudgetService {
         } catch (Exception e) {
             activityLogService.log(
                 ActionType.DELETE,
-                user,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 String.format("Deleted budget for %s (%d/%d)",

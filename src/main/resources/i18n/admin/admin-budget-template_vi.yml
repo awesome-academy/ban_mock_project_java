@@ -14,7 +14,7 @@ admin:
       deleted:
         success: Xóa mẫu ngân sách thành công
       export:
-        failed: Xuất danh sách ngân sách thất bại
+        failed: Xuất danh sách mẫu ngân sách thất bại
       management:
         message:
           confirm:

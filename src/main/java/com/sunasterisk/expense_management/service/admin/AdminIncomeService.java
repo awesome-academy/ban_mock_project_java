@@ -9,7 +9,6 @@ import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.mapper.IncomeMapper;
 import com.sunasterisk.expense_management.repository.IncomeRepository;
-import com.sunasterisk.expense_management.repository.UserRepository;
 import com.sunasterisk.expense_management.repository.specification.IncomeSpecification;
 import com.sunasterisk.expense_management.service.IncomeService;
 import com.sunasterisk.expense_management.util.CurrentUserHolder;

@@ -87,4 +87,83 @@ public class BudgetSpecification {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
+    /**
+     * Build dynamic query specification for Admin Budget filtering
+     * Similar to withFilters but allows filtering by userId instead of requiring a user object
+     *
+     * @param userId Filter by user ID (optional for admin)
+     * @param name Filter by budget name (partial match)
+     * @param categoryId Filter by category ID
+     * @param year Filter by year
+     * @param month Filter by month
+     * @param isOverBudget Filter by over budget status
+     * @param active Filter by active status
+     * @return Specification for Budget query
+     */
+    public static Specification<Budget> withAdminFilters(
+            Long userId,
+            String name,
+            Long categoryId,
+            Integer year,
+            Integer month,
+            Boolean isOverBudget,
+            Boolean active
+    ) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter by user ID (optional for admin)
+            if (userId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("user").get("id"), userId));
+            }
+
+            // Filter by name (case-insensitive partial match)
+            if (name != null && !name.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("name")),
+                        "%" + name.toLowerCase() + "%"
+                ));
+            }
+
+            // Filter by category
+            if (categoryId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("category").get("id"), categoryId));
+            }
+
+            // Filter by year
+            if (year != null) {
+                predicates.add(criteriaBuilder.equal(root.get("year"), year));
+            }
+
+            // Filter by month
+            if (month != null) {
+                predicates.add(criteriaBuilder.equal(root.get("month"), month));
+            }
+
+            // Filter by over budget status
+            if (isOverBudget != null) {
+                if (isOverBudget) {
+                    // spentAmount > amountLimit
+                    predicates.add(criteriaBuilder.greaterThan(
+                            root.get("spentAmount"),
+                            root.get("amountLimit")
+                    ));
+                } else {
+                    // spentAmount <= amountLimit
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                            root.get("spentAmount"),
+                            root.get("amountLimit")
+                    ));
+                }
+            }
+
+            // Filter by active status
+            if (active != null) {
+                predicates.add(criteriaBuilder.equal(root.get("active"), active));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
 }
