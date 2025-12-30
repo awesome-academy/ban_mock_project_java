@@ -2,18 +2,20 @@ package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.UserDto;
+import com.sunasterisk.expense_management.dto.csv.CsvImportResult;
 import com.sunasterisk.expense_management.dto.user.AdminUserFilterRequest;
 import com.sunasterisk.expense_management.entity.User.Role;
 import com.sunasterisk.expense_management.service.CsvExportService;
+import com.sunasterisk.expense_management.service.CsvImportService;
 import com.sunasterisk.expense_management.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -27,13 +29,16 @@ public class AdminUserController extends BaseAdminController {
 
     private final UserService userService;
     private final CsvExportService csvExportService;
+    private final CsvImportService csvImportService;
 
     public AdminUserController(UserService userService,
                                     CsvExportService csvExportService,
+                                    CsvImportService csvImportService,
                                     MessageSource messageSource) {
         super(messageSource);
         this.userService = userService;
         this.csvExportService = csvExportService;
+        this.csvImportService = csvImportService;
     }
 
     /**
@@ -46,7 +51,7 @@ public class AdminUserController extends BaseAdminController {
                         @RequestParam(required = false) Role role,
                         @RequestParam(required = false) Boolean active,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "2") Integer size) {
+                        @RequestParam(defaultValue = "20") Integer size) {
 
         AdminUserFilterRequest filter = AdminUserFilterRequest.builder()
                 .name(name)
@@ -200,5 +205,26 @@ public class AdminUserController extends BaseAdminController {
         } catch (Exception e) {
             throw new RuntimeException(getMessage("admin.user.export.failed") + ": " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Import users from CSV
+     */
+    @PostMapping("/users/import")
+    public String importUsers(@RequestParam("file") MultipartFile file,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            CsvImportResult result = csvImportService.importUsers(file);
+            redirectAttributes.addFlashAttribute("importResult", result);
+
+            if (!result.hasErrors()) {
+                redirectAttributes.addFlashAttribute("success",
+                        getMessage("admin.user.import.success", result.getSuccessCount()));
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    getMessage("admin.user.import.failed") + ": " + e.getMessage());
+        }
+        return redirectToIndex(MODULE);
     }
 }

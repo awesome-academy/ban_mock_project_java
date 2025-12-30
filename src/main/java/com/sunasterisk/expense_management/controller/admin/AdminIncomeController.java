@@ -1,12 +1,14 @@
 package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
+import com.sunasterisk.expense_management.dto.csv.CsvImportResult;
 import com.sunasterisk.expense_management.dto.income.AdminIncomeFilterRequest;
 import com.sunasterisk.expense_management.dto.income.IncomeRequest;
 import com.sunasterisk.expense_management.dto.income.IncomeResponse;
 import com.sunasterisk.expense_management.service.admin.AdminIncomeService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import com.sunasterisk.expense_management.service.CsvExportService;
+import com.sunasterisk.expense_management.service.CsvImportService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -28,15 +31,18 @@ public class AdminIncomeController extends BaseAdminController {
     private final CategoryService categoryService;
     private final AdminIncomeService adminIncomeService;
     private final CsvExportService csvExportService;
+    private final CsvImportService csvImportService;
 
     public AdminIncomeController(CategoryService categoryService,
                                  AdminIncomeService adminIncomeService,
                                  CsvExportService csvExportService,
+                                 CsvImportService csvImportService,
                                  MessageSource messageSource) {
         super(messageSource);
         this.categoryService = categoryService;
         this.adminIncomeService = adminIncomeService;
         this.csvExportService = csvExportService;
+        this.csvImportService = csvImportService;
     }
 
     @GetMapping("/incomes")
@@ -47,7 +53,7 @@ public class AdminIncomeController extends BaseAdminController {
                         @RequestParam(required = false) String startDate,
                         @RequestParam(required = false) String endDate,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "1") Integer size) {
+                        @RequestParam(defaultValue = "20") Integer size) {
         AdminIncomeFilterRequest.AdminIncomeFilterRequestBuilder filterBuilder = AdminIncomeFilterRequest.builder()
                 .name(name)
                 .userId(userId)
@@ -165,5 +171,26 @@ public class AdminIncomeController extends BaseAdminController {
         } catch (Exception e) {
             throw new RuntimeException(getMessage("admin.income.export.failed") + ": " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Import incomes from CSV
+     */
+    @PostMapping("/incomes/import")
+    public String importIncomes(@RequestParam("file") MultipartFile file,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            CsvImportResult result = csvImportService.importIncomes(file);
+            redirectAttributes.addFlashAttribute("importResult", result);
+
+            if (!result.hasErrors()) {
+                redirectAttributes.addFlashAttribute("success",
+                        getMessage("admin.income.import.success", result.getSuccessCount()));
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    getMessage("admin.income.import.failed") + ": " + e.getMessage());
+        }
+        return redirectToIndex(MODULE);
     }
 }

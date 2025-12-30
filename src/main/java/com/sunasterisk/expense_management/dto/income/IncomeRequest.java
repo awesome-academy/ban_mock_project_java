@@ -40,4 +40,7 @@ public class IncomeRequest {
     private Boolean isRecurring = false;
 
     private RecurringType recurringType;
+
+    // For admin operations only
+    private Long userId;
 }

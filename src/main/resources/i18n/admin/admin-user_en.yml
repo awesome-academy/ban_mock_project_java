@@ -28,7 +28,10 @@ admin:
     deleted:
       success: User deleted successfully
     export:
-      failed: Failed to export users\
+      failed: Failed to export users
+    import:
+      success: Successfully imported {0} users
+      failed: Failed to import users
     pagination:
       info: Showing page {0} of {1} ({2} total users)
     management:
@@ -76,7 +79,6 @@ admin:
         password:
           keep: Leave blank to keep current password
           enter: Enter password
-
       message:
         'no':
           users: No users found

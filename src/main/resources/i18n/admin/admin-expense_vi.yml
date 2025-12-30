@@ -6,6 +6,9 @@ admin:
       success: Xóa chi tiêu thành công
     export:
       failed: Xuất danh sách chi tiêu thất bại
+    import:
+      success: Đã nhập thành công {0} khoản chi
+      failed: Nhập danh sách chi tiêu thất bại
     updated:
       success: Cập nhật chi tiêu thành công
     management:

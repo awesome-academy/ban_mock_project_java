@@ -6,6 +6,9 @@ admin:
       success: Income deleted successfully
     export:
       failed: Failed to export incomes
+    import:
+      success: Successfully imported {0} incomes
+      failed: Failed to import incomes
     updated:
       success: Income updated successfully
     management:

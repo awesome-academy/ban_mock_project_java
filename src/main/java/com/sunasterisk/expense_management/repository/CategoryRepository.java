@@ -21,4 +21,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
     Optional<Category> findByIdAndUser_Id(Long id, Long userId);
 
     Optional<Category> findByIdAndUser_IdAndActiveTrue(Long id, Long userId);
+
+    Optional<Category> findByName(String name);
+
+    Optional<Category> findByNameAndType(String name, CategoryType type);
 }

@@ -6,6 +6,9 @@ admin:
       success: Expense deleted successfully
     export:
       failed: Failed to export expenses
+    import:
+      success: Successfully imported {0} expenses
+      failed: Failed to import expenses
     updated:
       success: Expense updated successfully
     management:

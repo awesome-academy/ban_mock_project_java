@@ -12,6 +12,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByName(String name);
+
+    boolean existsByEmail(String email);
+
     // Admin dashboard queries
     Long countByActive(Boolean active);
     Long countByCreatedAtAfter(LocalDateTime date);

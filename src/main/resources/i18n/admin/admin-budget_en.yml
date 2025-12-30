@@ -14,6 +14,9 @@ admin:
       success: Budget deleted successfully
     export:
       failed: Failed to export budgets
+    import:
+      success: Successfully imported {0} budgets
+      failed: Failed to import budgets
     management:
       message:
         confirm:

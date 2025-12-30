@@ -285,14 +285,31 @@ label:
     search: Tìm kiếm
     reset: Đặt lại
     filter: Lọc
+    close: Đóng
     export:
       csv: Xuất CSV
+    import:
+      csv: Nhập CSV
   filter:
     all: Tất cả
   select:
     category: Chọn danh mục
     month: Chọn tháng
     user: Chọn người dùng
+  import:
+    result: Kết quả Import
+    all:
+      success: Tất cả bản ghi đã được import thành công!
+  total:
+    rows: Tổng số dòng
+  success: Thành công
+  errors: Lỗi
+  error:
+    details: Chi tiết lỗi
+    message: Thông báo lỗi
+  line:
+    number: Dòng số
+    content: Nội dung dòng
   fields:
     created:
       at: Ngày tạo
@@ -306,6 +323,23 @@ label:
 
 # CSV Export Headers
 csv:
+  import:
+    file:
+      required: Tệp CSV là bắt buộc
+      empty: Tệp CSV rỗng
+      invalid:
+        format: Định dạng tệp không hợp lệ. Chỉ cho phép tệp CSV
+      help: Chọn tệp CSV hợp lệ để nhập dữ liệu
+    select:
+      file: Chọn tệp CSV
+    choose:
+      file: Chọn tệp...
+    category:
+      not:
+        found: Không tìm thấy danh mục ''{0}''
+    user:
+      not:
+        found: Không tìm thấy người dùng ''{0}''
   user:
     id: Mã người dùng
     name: Tên

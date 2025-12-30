@@ -44,4 +44,7 @@ public class ExpenseRequest {
     private Boolean isRecurring = false;
 
     private RecurringType recurringType;
+
+    // For admin operations only
+    private Long userId;
 }

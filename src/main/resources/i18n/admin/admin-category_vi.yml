@@ -14,6 +14,9 @@ admin:
       success: Xóa danh mục thành công
     export:
       failed: Xuất danh sách danh mục thất bại
+    import:
+      success: Đã nhập thành công {0} danh mục
+      failed: Nhập danh sách danh mục thất bại
     management:
       message:
         confirm:

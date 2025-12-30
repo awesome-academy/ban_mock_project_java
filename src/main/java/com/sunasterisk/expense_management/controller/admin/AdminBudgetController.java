@@ -1,12 +1,14 @@
 package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
+import com.sunasterisk.expense_management.dto.csv.CsvImportResult;
 import com.sunasterisk.expense_management.dto.budget.AdminBudgetFilterRequest;
 import com.sunasterisk.expense_management.dto.budget.BudgetRequest;
 import com.sunasterisk.expense_management.dto.budget.BudgetResponse;
 import com.sunasterisk.expense_management.service.admin.AdminBudgetService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import com.sunasterisk.expense_management.service.CsvExportService;
+import com.sunasterisk.expense_management.service.CsvImportService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -25,15 +28,18 @@ public class AdminBudgetController extends BaseAdminController {
     private final AdminBudgetService adminBudgetService;
     private final CategoryService categoryService;
     private final CsvExportService csvExportService;
+    private final CsvImportService csvImportService;
 
     public AdminBudgetController(AdminBudgetService adminBudgetService,
                                 CategoryService categoryService,
                                 CsvExportService csvExportService,
+                                CsvImportService csvImportService,
                                 MessageSource messageSource) {
         super(messageSource);
         this.adminBudgetService = adminBudgetService;
         this.categoryService = categoryService;
         this.csvExportService = csvExportService;
+        this.csvImportService = csvImportService;
     }
 
     @GetMapping("/budgets")
@@ -46,7 +52,7 @@ public class AdminBudgetController extends BaseAdminController {
                         @RequestParam(required = false) Boolean isOverBudget,
                         @RequestParam(required = false) Boolean active,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "1") Integer size) {
+                        @RequestParam(defaultValue = "20") Integer size) {
 
         AdminBudgetFilterRequest filter = AdminBudgetFilterRequest.builder()
                 .userId(userId)
@@ -160,5 +166,26 @@ public class AdminBudgetController extends BaseAdminController {
         } catch (Exception e) {
             throw new RuntimeException(getMessage("admin.budget.export.failed") + ": " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Import budgets from CSV
+     */
+    @PostMapping("/budgets/import")
+    public String importBudgets(@RequestParam("file") MultipartFile file,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            CsvImportResult result = csvImportService.importBudgets(file);
+            redirectAttributes.addFlashAttribute("importResult", result);
+
+            if (!result.hasErrors()) {
+                redirectAttributes.addFlashAttribute("success",
+                        getMessage("admin.budget.import.success", result.getSuccessCount()));
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    getMessage("admin.budget.import.failed") + ": " + e.getMessage());
+        }
+        return redirectToIndex(MODULE);
     }
 }
