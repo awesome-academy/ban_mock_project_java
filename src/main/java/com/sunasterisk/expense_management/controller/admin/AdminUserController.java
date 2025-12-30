@@ -1,11 +1,13 @@
 package com.sunasterisk.expense_management.controller.admin;
 
+import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.UserDto;
+import com.sunasterisk.expense_management.dto.user.AdminUserFilterRequest;
+import com.sunasterisk.expense_management.entity.User.Role;
 import com.sunasterisk.expense_management.service.CsvExportService;
 import com.sunasterisk.expense_management.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
@@ -19,21 +21,53 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-public class UserManagementController {
+public class AdminUserController extends BaseAdminController {
+
+    private static final String MODULE = "users";
 
     private final UserService userService;
-    private final MessageSource messageSource;
     private final CsvExportService csvExportService;
 
+    public AdminUserController(UserService userService,
+                                    CsvExportService csvExportService,
+                                    MessageSource messageSource) {
+        super(messageSource);
+        this.userService = userService;
+        this.csvExportService = csvExportService;
+    }
+
     /**
-     * List all users
+     * List all users with pagination and filtering
      */
     @GetMapping("/users")
-    public String index(Model model) {
-        model.addAttribute("activeMenu", "users");
-        model.addAttribute("users", userService.getAllUsers());
-        return "admin/users/index";
+    public String index(Model model,
+                        @RequestParam(required = false) String name,
+                        @RequestParam(required = false) String email,
+                        @RequestParam(required = false) Role role,
+                        @RequestParam(required = false) Boolean active,
+                        @RequestParam(defaultValue = "0") Integer page,
+                        @RequestParam(defaultValue = "2") Integer size) {
+
+        AdminUserFilterRequest filter = AdminUserFilterRequest.builder()
+                .name(name)
+                .email(email)
+                .role(role)
+                .active(active)
+                .page(page)
+                .size(size)
+                .build();
+
+        PageResponse<UserDto> response = userService.getAllUsers(filter);
+
+        model.addAttribute("activeMenu", MODULE);
+        model.addAttribute("users", response.getContent());
+        model.addAttribute("currentPage", response.getPageNumber());
+        model.addAttribute("totalPages", response.getTotalPages());
+        model.addAttribute("totalElements", response.getTotalElements());
+        model.addAttribute("filter", filter);
+        model.addAttribute("roles", Role.values());
+
+        return viewIndex(MODULE);
     }
 
     /**
@@ -42,13 +76,13 @@ public class UserManagementController {
     @GetMapping("/users/{id}")
     public String detail(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "users");
+            model.addAttribute("activeMenu", MODULE);
             UserDto user = userService.getUserById(id);
             model.addAttribute("user", user);
-            return "admin/users/detail";
+            return viewDetail(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/users";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -57,11 +91,12 @@ public class UserManagementController {
      */
     @GetMapping("/users/new")
     public String newUser(Model model) {
-        model.addAttribute("activeMenu", "users");
+        model.addAttribute("activeMenu", MODULE);
+        model.addAttribute("roles", Role.values());
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new UserDto());
         }
-        return "admin/users/form";
+        return viewForm(MODULE);
     }
 
     /**
@@ -70,15 +105,16 @@ public class UserManagementController {
     @GetMapping("/users/{id}/edit")
     public String edit(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            model.addAttribute("activeMenu", "users");
+            model.addAttribute("activeMenu", MODULE);
+            model.addAttribute("roles", Role.values());
             if (!model.containsAttribute("user")) {
                 UserDto user = userService.getUserById(id);
                 model.addAttribute("user", user);
             }
-            return "admin/users/form";
+            return viewForm(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/users";
+            return redirectToIndex(MODULE);
         }
     }
 
@@ -91,18 +127,18 @@ public class UserManagementController {
         // Check email exists
         if (userService.existsByEmail(user.getEmail())) {
             bindingResult.rejectValue("email", "admin.user.email.exists",
-                    messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.user.email.exists"));
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "users");
-            return "admin/users/form";
+            model.addAttribute("activeMenu", MODULE);
+            model.addAttribute("roles", Role.values());
+            return viewForm(MODULE);
         }
         try {
             userService.createUser(user);
-            redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.user.created.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/users";
+            redirectAttributes.addFlashAttribute("success", getMessage("admin.user.created.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("user", user);
@@ -120,19 +156,19 @@ public class UserManagementController {
         UserDto existingUser = userService.getUserById(id);
         if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
             bindingResult.rejectValue("email", "admin.user.email.exists",
-                    messageSource.getMessage("admin.user.email.exists", null, LocaleContextHolder.getLocale()));
+                    getMessage("admin.user.email.exists"));
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "users");
+            model.addAttribute("activeMenu", MODULE);
+            model.addAttribute("roles", Role.values());
             user.setId(id);
-            return "admin/users/form";
+            return viewForm(MODULE);
         }
         try {
             userService.updateUser(id, user);
-            redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.user.updated.success", null, LocaleContextHolder.getLocale()));
-            return "redirect:/admin/users";
+            redirectAttributes.addFlashAttribute("success", getMessage("admin.user.updated.success"));
+            return redirectToIndex(MODULE);
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("user", user);
@@ -147,12 +183,11 @@ public class UserManagementController {
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("success",
-                    messageSource.getMessage("admin.user.deleted.success", null, LocaleContextHolder.getLocale()));
+            redirectAttributes.addFlashAttribute("success", getMessage("admin.user.deleted.success"));
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/users";
+        return redirectToIndex(MODULE);
     }
 
     /**
@@ -163,7 +198,7 @@ public class UserManagementController {
         try {
             csvExportService.exportUsers(response);
         } catch (Exception e) {
-            throw new RuntimeException(messageSource.getMessage("admin.user.export.failed", null, LocaleContextHolder.getLocale()) + ": " + e.getMessage(), e);
+            throw new RuntimeException(getMessage("admin.user.export.failed") + ": " + e.getMessage(), e);
         }
     }
 }

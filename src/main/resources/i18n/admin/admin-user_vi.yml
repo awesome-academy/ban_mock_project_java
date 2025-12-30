@@ -29,6 +29,8 @@ admin:
       success: Xóa người dùng thành công
     export:
       failed: Xuất danh sách người dùng thất bại
+    pagination:
+      info: Hiển thị trang {0} / {1} (tổng {2} người dùng)
     management:
       title: Quản lý người dùng
       list:

@@ -292,6 +292,7 @@ label:
   select:
     category: Chọn danh mục
     month: Chọn tháng
+    user: Chọn người dùng
   fields:
     created:
       at: Ngày tạo

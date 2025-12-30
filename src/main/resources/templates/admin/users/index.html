@@ -39,6 +39,59 @@
                     <h3 class="card-title"><i class="fas fa-users"></i> <span th:text="#{admin.user.management.list.title}">User List</span></h3>
                 </div>
                 <div class="card-body">
+                    <!-- Filter form -->
+                    <form th:action="@{/admin/users}" method="get" class="mb-3">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="name" th:text="#{admin.user.management.field.name}">Name</label>
+                                    <input type="text" id="name" name="name" class="form-control"
+                                           th:value="${filter.name}" th:placeholder="#{admin.user.management.field.name}"/>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="email" th:text="#{admin.user.management.field.email}">Email</label>
+                                    <input type="text" id="email" name="email" class="form-control"
+                                           th:value="${filter.email}" th:placeholder="#{admin.user.management.field.email}"/>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="role" th:text="#{admin.user.management.field.role}">Role</label>
+                                    <select id="role" name="role" class="form-control">
+                                        <option value="" th:text="#{label.filter.all}">All</option>
+                                        <option value="ADMIN" th:selected="${filter.role == 'ADMIN'}" th:text="#{admin.user.management.role.admin}">Admin</option>
+                                        <option value="USER" th:selected="${filter.role == 'USER'}" th:text="#{admin.user.management.role.user}">User</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="active" th:text="#{admin.user.management.field.status}">Status</label>
+                                    <select id="active" name="active" class="form-control">
+                                        <option value="" th:text="#{label.filter.all}">All</option>
+                                        <option value="true" th:selected="${filter.active == true}" th:text="#{admin.user.management.status.active}">Active</option>
+                                        <option value="false" th:selected="${filter.active == false}" th:text="#{admin.user.management.status.inactive}">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> <span th:text="#{label.action.search}">Search</span>
+                                        </button>
+                                        <a th:href="@{/admin/users}" class="btn btn-secondary">
+                                            <i class="fas fa-redo"></i> <span th:text="#{label.action.reset}">Reset</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
                         <tr>
@@ -97,6 +150,9 @@
                         </tr>
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <th:block th:replace="~{fragments/pagination :: usersPagination(${currentPage}, ${totalPages}, ${totalElements}, ${filter.size}, ${filter.name}, ${filter.email}, ${filter.role}, ${filter.active})}"></th:block>
                 </div>
             </div>
         </div>
