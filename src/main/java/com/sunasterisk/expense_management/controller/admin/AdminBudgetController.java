@@ -46,7 +46,7 @@ public class AdminBudgetController extends BaseAdminController {
                         @RequestParam(required = false) Boolean isOverBudget,
                         @RequestParam(required = false) Boolean active,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "20") Integer size) {
+                        @RequestParam(defaultValue = "1") Integer size) {
 
         AdminBudgetFilterRequest filter = AdminBudgetFilterRequest.builder()
                 .userId(userId)

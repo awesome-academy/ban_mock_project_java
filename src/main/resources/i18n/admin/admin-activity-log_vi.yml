@@ -42,6 +42,7 @@ admin:
       'no':
         data: Không tìm thấy nhật ký hoạt động
       pagination:
+        info: Hiển thị trang {0} / {1} (tổng {2} nhật ký)
         showing: Hiển thị
         of: trong tổng số
         entries: mục

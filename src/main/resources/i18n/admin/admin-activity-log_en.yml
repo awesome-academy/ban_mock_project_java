@@ -42,6 +42,7 @@ admin:
       'no':
         data: No activity logs found
       pagination:
+        info: Showing page {0} of {1} ({2} total logs)
         showing: Showing
         of: of
         entries: entries

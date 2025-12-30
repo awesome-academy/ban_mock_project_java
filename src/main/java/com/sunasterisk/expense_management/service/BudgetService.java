@@ -205,90 +205,7 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
-        // Check if category is being changed
-        Long existingCategoryId = budget.getCategory() != null ? budget.getCategory().getId() : null;
-        Long newCategoryId = request.getCategoryId();
-
-        boolean categoryChanged = (existingCategoryId == null && newCategoryId != null) ||
-                                  (existingCategoryId != null && newCategoryId == null) ||
-                                  (existingCategoryId != null && !existingCategoryId.equals(newCategoryId));
-
-        // If category is being changed, check for duplicates
-        if (categoryChanged) {
-            boolean exists;
-            if (newCategoryId != null) {
-                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
-                        user.getId(),
-                        newCategoryId,
-                        request.getYear(),
-                        request.getMonth()
-                );
-            } else {
-                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
-                        user.getId(),
-                        request.getYear(),
-                        request.getMonth()
-                );
-            }
-
-            if (exists) {
-                throw new IllegalArgumentException(
-                        messageUtil.getMessage("budget.already.exists"));
-            }
-        }
-
-        // Validate and set the new category
-        Category category = null;
-        if (newCategoryId != null) {
-            category = categoryRepository.findByIdAndActiveTrue(newCategoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            messageUtil.getMessage("category.not.found", newCategoryId)));
-
-            validateCategoryAccess(category, user);
-        }
-
-        // Keep old value for logging
-        String oldValue = null;
-        try {
-            oldValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
-        } catch (Exception e) {
-            // Ignore
-        }
-
-        budgetMapper.updateEntity(request, budget);
-        budget.setCategory(category);
-
-        budget = budgetRepository.save(budget);
-
-        // Build description of changes
-        String categoryName = category != null ? category.getName() : "All Categories";
-        StringBuilder changeDesc = new StringBuilder("Updated budget: ");
-        changeDesc.append(categoryName).append(" (").append(budget.getMonth())
-                  .append("/").append(budget.getYear()).append(")");
-
-        // Log activity with old and new values
-        try {
-            String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
-            activityLogService.logWithValues(
-                ActionType.UPDATE,
-                user,
-                "Budget",
-                budget.getId(),
-                changeDesc.toString(),
-                oldValue,
-                newValue
-            );
-        } catch (Exception e) {
-            activityLogService.log(
-                ActionType.UPDATE,
-                user,
-                "Budget",
-                budget.getId(),
-                changeDesc.toString()
-            );
-        }
-
-        return budgetMapper.toResponse(budget);
+        return updateBudgetInternal(budget, request, user, user, true);
     }
 
     @Transactional
@@ -311,7 +228,23 @@ public class BudgetService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageUtil.getMessage("budget.not.found", id)));
 
-        User budgetOwner = budget.getUser();
+        return updateBudgetInternal(budget, request, budget.getUser(), adminUser, false);
+    }
+
+    /**
+     * Common update logic for budget
+     *
+     * @param budget The budget to update
+     * @param request The update request
+     * @param budgetOwner The user who owns the budget (for duplicate checks)
+     * @param actionUser The user performing the action (for logging)
+     * @param validateAccess Whether to validate category access
+     * @return The updated budget response
+     */
+    private BudgetResponse updateBudgetInternal(Budget budget, BudgetRequest request,
+                                                 User budgetOwner, User actionUser,
+                                                 boolean validateAccess) {
+        Long id = budget.getId();
 
         // Check if category is being changed
         Long existingCategoryId = budget.getCategory() != null ? budget.getCategory().getId() : null;
@@ -321,21 +254,26 @@ public class BudgetService {
                                   (existingCategoryId != null && newCategoryId == null) ||
                                   (existingCategoryId != null && !existingCategoryId.equals(newCategoryId));
 
-        // If category is being changed, check for duplicates
-        if (categoryChanged) {
+        boolean periodChanged = !budget.getYear().equals(request.getYear()) ||
+                                !budget.getMonth().equals(request.getMonth());
+
+        // If category, year, or month is being changed, check for duplicates (excluding current budget)
+        if (categoryChanged || periodChanged) {
             boolean exists;
             if (newCategoryId != null) {
-                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonth(
+                exists = budgetRepository.existsByUser_IdAndCategory_IdAndYearAndMonthAndIdNot(
                         budgetOwner.getId(),
                         newCategoryId,
                         request.getYear(),
-                        request.getMonth()
+                        request.getMonth(),
+                        id
                 );
             } else {
-                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonth(
+                exists = budgetRepository.existsByUser_IdAndCategoryIsNullAndYearAndMonthAndIdNot(
                         budgetOwner.getId(),
                         request.getYear(),
-                        request.getMonth()
+                        request.getMonth(),
+                        id
                 );
             }
 
@@ -351,6 +289,10 @@ public class BudgetService {
             category = categoryRepository.findByIdAndActiveTrue(newCategoryId)
                     .orElseThrow(() -> new ResourceNotFoundException(
                             messageUtil.getMessage("category.not.found", newCategoryId)));
+
+            if (validateAccess) {
+                validateCategoryAccess(category, budgetOwner);
+            }
         }
 
         // Keep old value for logging
@@ -377,7 +319,7 @@ public class BudgetService {
             String newValue = objectMapper.writeValueAsString(budgetMapper.toResponse(budget));
             activityLogService.logWithValues(
                 ActionType.UPDATE,
-                adminUser,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 changeDesc.toString(),
@@ -387,7 +329,7 @@ public class BudgetService {
         } catch (Exception e) {
             activityLogService.log(
                 ActionType.UPDATE,
-                adminUser,
+                actionUser,
                 "Budget",
                 budget.getId(),
                 changeDesc.toString()
