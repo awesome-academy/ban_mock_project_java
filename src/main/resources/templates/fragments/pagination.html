@@ -5,7 +5,7 @@
     Pagination Fragment for Activity Logs - delegates to extended pagination
 -->
 <th:block th:fragment="activityLogsPagination(currentPage, totalPages, totalElements, size, userId, action, entityType, startDate, endDate)">
-    <th:block th:replace="~{fragments/pagination :: extendedPagination('/admin/activity-logs', 'admin.activity.logs.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, null, ${startDate}, ${endDate}, ${userId}, null, null, null, null, null, ${action}, ${entityType})}"></th:block>
+    <th:block th:replace="~{fragments/pagination :: extendedPagination('/admin/activity-logs', 'admin.activity.logs.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, null, ${startDate}, ${endDate}, ${userId}, null, null, null, null, null, ${action}, ${entityType}, null, null)}"></th:block>
 </th:block>
 
 <!--
@@ -17,12 +17,12 @@
     - name, startDate, endDate: filter parameters
 -->
 <th:block th:fragment="genericPagination(endpoint, paginationInfoKey, currentPage, totalPages, totalElements, size, name, startDate, endDate)">
-    <th:block th:replace="~{fragments/pagination :: extendedPagination(${endpoint}, ${paginationInfoKey}, ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, ${startDate}, ${endDate}, null, null, null, null, null, null, null, null)}"></th:block>
+    <th:block th:replace="~{fragments/pagination :: extendedPagination(${endpoint}, ${paginationInfoKey}, ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, ${startDate}, ${endDate}, null, null, null, null, null, null, null, null, null, null)}"></th:block>
 </th:block>
 
 <!--
     Extended Generic Pagination Fragment
-    Supports additional optional filter parameters for budgets, activity logs and other entities.
+    Supports additional optional filter parameters for budgets, activity logs, users and other entities.
     Parameters:
     - endpoint: The base URL (e.g., '/admin/expenses', '/admin/budgets')
     - paginationInfoKey: i18n key for pagination info message
@@ -30,8 +30,9 @@
     - name, startDate, endDate: common filter parameters
     - userId, categoryId, year, month, isOverBudget, active: optional budget-specific filters
     - action, entityType: optional activity log filters
+    - email, role: optional user filters
 -->
-<th:block th:fragment="extendedPagination(endpoint, paginationInfoKey, currentPage, totalPages, totalElements, size, name, startDate, endDate, userId, categoryId, year, month, isOverBudget, active, action, entityType)">
+<th:block th:fragment="extendedPagination(endpoint, paginationInfoKey, currentPage, totalPages, totalElements, size, name, startDate, endDate, userId, categoryId, year, month, isOverBudget, active, action, entityType, email, role)">
     <div class="row mt-3" th:if="${totalPages > 1}">
         <div class="col-md-5">
             <p th:text="#{${paginationInfoKey}(${currentPage + 1}, ${totalPages}, ${totalElements})}">
@@ -44,7 +45,7 @@
                     <!-- Previous Button -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{${endpoint}(page=${currentPage - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType})}"
+                           th:href="@{${endpoint}(page=${currentPage - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType}, email=${email}, role=${role})}"
                            th:text="#{label.pagination.previous}">Previous</a>
                     </li>
 
@@ -52,7 +53,7 @@
                     <li class="page-item" th:if="${currentPage > 2}"
                         th:classappend="${0 == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{${endpoint}(page=0, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType})}"
+                           th:href="@{${endpoint}(page=0, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType}, email=${email}, role=${role})}"
                            th:text="1">1</a>
                     </li>
 
@@ -67,7 +68,7 @@
                                                          currentPage + 2 >= totalPages ? totalPages - 1 : currentPage + 2)}"
                         th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{${endpoint}(page=${i}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType})}"
+                           th:href="@{${endpoint}(page=${i}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType}, email=${email}, role=${role})}"
                            th:text="${i + 1}">1</a>
                     </li>
 
@@ -80,14 +81,14 @@
                     <li class="page-item" th:if="${currentPage < totalPages - 3}"
                         th:classappend="${totalPages - 1 == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:href="@{${endpoint}(page=${totalPages - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType})}"
+                           th:href="@{${endpoint}(page=${totalPages - 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType}, email=${email}, role=${role})}"
                            th:text="${totalPages}">10</a>
                     </li>
 
                     <!-- Next Button -->
                     <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{${endpoint}(page=${currentPage + 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType})}"
+                           th:href="@{${endpoint}(page=${currentPage + 1}, size=${size}, name=${name}, startDate=${startDate}, endDate=${endDate}, userId=${userId}, categoryId=${categoryId}, year=${year}, month=${month}, isOverBudget=${isOverBudget}, active=${active}, action=${action}, entityType=${entityType}, email=${email}, role=${role})}"
                            th:text="#{label.pagination.next}">Next</a>
                     </li>
                 </ul>
@@ -114,7 +115,14 @@
     Pagination Fragment for Budgets - delegates to extended pagination
 -->
 <th:block th:fragment="budgetsPagination(currentPage, totalPages, totalElements, size, name, userId, categoryId, year, month, isOverBudget, active)">
-    <th:block th:replace="~{fragments/pagination :: extendedPagination('/admin/budgets', 'admin.budget.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, null, null, ${userId}, ${categoryId}, ${year}, ${month}, ${isOverBudget}, ${active}, null, null)}"></th:block>
+    <th:block th:replace="~{fragments/pagination :: extendedPagination('/admin/budgets', 'admin.budget.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, null, null, ${userId}, ${categoryId}, ${year}, ${month}, ${isOverBudget}, ${active}, null, null, null, null)}"></th:block>
+</th:block>
+
+<!--
+    Pagination Fragment for Users - delegates to extended pagination
+-->
+<th:block th:fragment="usersPagination(currentPage, totalPages, totalElements, size, name, email, role, active)">
+    <th:block th:replace="~{fragments/pagination :: extendedPagination('/admin/users', 'admin.user.pagination.info', ${currentPage}, ${totalPages}, ${totalElements}, ${size}, ${name}, null, null, null, null, null, null, null, ${active}, null, null, ${email}, ${role})}"></th:block>
 </th:block>
 </body>
 </html>

@@ -1,16 +1,22 @@
 package com.sunasterisk.expense_management.service;
 
+import com.sunasterisk.expense_management.dto.PageResponse;
 import com.sunasterisk.expense_management.dto.UserDto;
+import com.sunasterisk.expense_management.dto.user.AdminUserFilterRequest;
 import com.sunasterisk.expense_management.entity.ActivityLog.ActionType;
 import com.sunasterisk.expense_management.entity.User;
 import com.sunasterisk.expense_management.exception.DuplicateResourceException;
 import com.sunasterisk.expense_management.exception.ResourceNotFoundException;
 import com.sunasterisk.expense_management.repository.UserRepository;
+import com.sunasterisk.expense_management.repository.specification.UserSpecification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,6 +66,30 @@ public class UserService {
     public Page<UserDto> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(UserDto::fromEntity);
+    }
+
+    /**
+     * Get all users with filtering and pagination (for admin)
+     */
+    public PageResponse<UserDto> getAllUsers(AdminUserFilterRequest filter) {
+        String[] sortFields = filter.getSortBy().split(",");
+        Sort sort = filter.getSortDir().equalsIgnoreCase("asc")
+                ? Sort.by(sortFields).ascending()
+                : Sort.by(sortFields).descending();
+
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
+
+        Specification<User> spec = UserSpecification.withFilters(
+                filter.getName(),
+                filter.getEmail(),
+                filter.getRole(),
+                filter.getActive()
+        );
+
+        Page<User> userPage = userRepository.findAll(spec, pageable);
+        Page<UserDto> responsePage = userPage.map(UserDto::fromEntity);
+
+        return PageResponse.fromPage(responsePage);
     }
 
     /**

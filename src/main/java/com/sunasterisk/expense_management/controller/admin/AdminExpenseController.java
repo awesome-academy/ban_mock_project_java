@@ -1,12 +1,14 @@
 package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
+import com.sunasterisk.expense_management.dto.csv.CsvImportResult;
 import com.sunasterisk.expense_management.dto.expense.AdminExpenseFilterRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseRequest;
 import com.sunasterisk.expense_management.dto.expense.ExpenseResponse;
 import com.sunasterisk.expense_management.service.admin.AdminExpenseService;
 import com.sunasterisk.expense_management.service.CategoryService;
 import com.sunasterisk.expense_management.service.CsvExportService;
+import com.sunasterisk.expense_management.service.CsvImportService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -28,15 +31,18 @@ public class AdminExpenseController extends BaseAdminController {
     private final AdminExpenseService adminExpenseService;
     private final CategoryService categoryService;
     private final CsvExportService csvExportService;
+    private final CsvImportService csvImportService;
 
     public AdminExpenseController(AdminExpenseService adminExpenseService,
                                   CategoryService categoryService,
                                   CsvExportService csvExportService,
+                                  CsvImportService csvImportService,
                                   MessageSource messageSource) {
         super(messageSource);
         this.adminExpenseService = adminExpenseService;
         this.categoryService = categoryService;
         this.csvExportService = csvExportService;
+        this.csvImportService = csvImportService;
     }
 
     @GetMapping("/expenses")
@@ -47,7 +53,7 @@ public class AdminExpenseController extends BaseAdminController {
                         @RequestParam(required = false) String startDate,
                         @RequestParam(required = false) String endDate,
                         @RequestParam(defaultValue = "0") Integer page,
-                        @RequestParam(defaultValue = "1") Integer size) {
+                        @RequestParam(defaultValue = "20") Integer size) {
         AdminExpenseFilterRequest.AdminExpenseFilterRequestBuilder filterBuilder = AdminExpenseFilterRequest.builder()
                 .name(name)
                 .userId(userId)
@@ -166,5 +172,26 @@ public class AdminExpenseController extends BaseAdminController {
         } catch (Exception e) {
             throw new RuntimeException(getMessage("admin.expense.export.failed") + ": " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Import expenses from CSV
+     */
+    @PostMapping("/expenses/import")
+    public String importExpenses(@RequestParam("file") MultipartFile file,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            CsvImportResult result = csvImportService.importExpenses(file);
+            redirectAttributes.addFlashAttribute("importResult", result);
+
+            if (!result.hasErrors()) {
+                redirectAttributes.addFlashAttribute("success",
+                        getMessage("admin.expense.import.success", result.getSuccessCount()));
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    getMessage("admin.expense.import.failed") + ": " + e.getMessage());
+        }
+        return redirectToIndex(MODULE);
     }
 }

@@ -14,6 +14,9 @@ admin:
       success: Category deleted successfully
     export:
       failed: Failed to export categories
+    import:
+      success: Successfully imported {0} categories
+      failed: Failed to import categories
     management:
       message:
         confirm:

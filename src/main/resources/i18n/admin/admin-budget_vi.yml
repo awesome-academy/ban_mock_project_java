@@ -14,6 +14,9 @@ admin:
       success: Xóa ngân sách thành công
     export:
       failed: Xuất danh sách ngân sách thất bại
+    import:
+      success: Đã nhập thành công {0} ngân sách
+      failed: Nhập danh sách ngân sách thất bại
     management:
       message:
         confirm:

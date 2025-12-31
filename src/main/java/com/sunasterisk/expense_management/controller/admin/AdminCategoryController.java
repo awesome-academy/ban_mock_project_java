@@ -1,21 +1,26 @@
 package com.sunasterisk.expense_management.controller.admin;
 
 import com.sunasterisk.expense_management.dto.PageResponse;
+import com.sunasterisk.expense_management.dto.csv.CsvImportResult;
 import com.sunasterisk.expense_management.dto.category.CategoryFilterRequest;
 import com.sunasterisk.expense_management.dto.CategoryDto;
 import com.sunasterisk.expense_management.dto.category.CategoryRequest;
 import com.sunasterisk.expense_management.dto.category.CategoryResponse;
 import com.sunasterisk.expense_management.service.CategoryService;
 import com.sunasterisk.expense_management.service.CsvExportService;
+import com.sunasterisk.expense_management.service.CsvImportService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin")
 public class AdminCategoryController extends BaseAdminController {
@@ -24,13 +29,16 @@ public class AdminCategoryController extends BaseAdminController {
 
     private final CategoryService categoryService;
     private final CsvExportService csvExportService;
+    private final CsvImportService csvImportService;
 
     public AdminCategoryController(CategoryService categoryService,
                                    CsvExportService csvExportService,
+                                   CsvImportService csvImportService,
                                    MessageSource messageSource) {
         super(messageSource);
         this.categoryService = categoryService;
         this.csvExportService = csvExportService;
+        this.csvImportService = csvImportService;
     }
 
     @GetMapping("/categories")
@@ -170,5 +178,27 @@ public class AdminCategoryController extends BaseAdminController {
         } catch (Exception e) {
             throw new RuntimeException(getMessage("admin.category.export.failed") + ": " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Import categories from CSV
+     */
+    @PostMapping("/categories/import")
+    public String importCategories(@RequestParam("file") MultipartFile file,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            CsvImportResult result = csvImportService.importCategories(file);
+            redirectAttributes.addFlashAttribute("importResult", result);
+
+            if (!result.hasErrors()) {
+                redirectAttributes.addFlashAttribute("success",
+                        getMessage("admin.category.import.success", result.getSuccessCount()));
+            }
+        } catch (Exception e) {
+            log.error("Error importing categories", e);
+            redirectAttributes.addFlashAttribute("error",
+                    getMessage("admin.category.import.failed") + ": " + e.getMessage());
+        }
+        return redirectToIndex(MODULE);
     }
 }

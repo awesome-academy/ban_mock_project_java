@@ -6,6 +6,9 @@ admin:
       success: Xóa thu nhập thành công
     export:
       failed: Xuất danh sách thu nhập thất bại
+    import:
+      success: Đã nhập thành công {0} khoản thu
+      failed: Nhập danh sách thu nhập thất bại
     updated:
       success: Cập nhật thu nhập thành công
     management:

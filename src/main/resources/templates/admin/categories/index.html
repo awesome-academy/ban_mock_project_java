@@ -11,6 +11,9 @@
                     <h1 class="m-0" th:text="#{admin.category.management.title}">Category List</h1>
                 </div>
                 <div class="col-sm-6 text-right">
+                    <button type="button" class="btn btn-info mr-2" data-toggle="modal" data-target="#importModal">
+                        <i class="fas fa-file-upload"></i> <span th:text="#{label.action.import.csv}">Import CSV</span>
+                    </button>
                     <a href="/admin/categories/export" class="btn btn-success mr-2">
                         <i class="fas fa-file-csv"></i> <span th:text="#{label.action.export.csv}">Export CSV</span>
                     </a>
@@ -71,6 +74,9 @@
             </div>
         </div>
     </section>
+
+    <!-- Import Modal -->
+    <th:block th:replace="~{fragments/import :: importModal('categories', #{admin.category.management.title})}"></th:block>
 </th:block>
 </body>
 </html>

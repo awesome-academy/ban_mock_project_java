@@ -286,13 +286,31 @@ label:
     search: Search
     reset: Reset
     filter: Filter
+    close: Close
     export:
       csv: Export CSV
+    import:
+      csv: Import CSV
   filter:
     all: All
   select:
     category: Select category
     month: Select Month
+    user: Select user
+  import:
+    result: Import Result
+    all:
+      success: All records imported successfully!
+  total:
+    rows: Total Rows
+  success: Success
+  errors: Errors
+  error:
+    details: Error Details
+    message: Error Message
+  line:
+    number: Line Number
+    content: Line Content
   fields:
     created:
       at: Created At
@@ -306,6 +324,23 @@ label:
 
 # CSV Export Headers
 csv:
+  import:
+    file:
+      required: CSV file is required
+      empty: CSV file is empty
+      invalid:
+        format: Invalid file format. Only CSV files are allowed
+      help: Select a valid CSV file to import data
+    select:
+      file: Select CSV File
+    choose:
+      file: Choose file...
+    category:
+      not:
+        found: Category ''{0}'' not found
+    user:
+      not:
+        found: User ''{0}'' not found
   user:
     id: User ID
     name: Name
